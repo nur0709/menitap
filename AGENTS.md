@@ -79,3 +79,23 @@ pnpm build        # Production build
 pnpm lint         # Lint all packages
 pnpm typecheck    # TypeScript checks
 ```
+
+## AI Session Handoff Protocol
+
+> **CRITICAL: Read `PROJECT_STATUS.md` FIRST before doing any work.**
+
+This project uses multiple AI agents across sessions. To prevent conflicts and duplicated work:
+
+1. **START of session**: Read `PROJECT_STATUS.md` to understand current progress and what phase to work on next.
+2. **DURING session**: Follow the architecture rules above. Do not deviate from the tech stack decisions without discussing with the user.
+3. **END of session**: Update `PROJECT_STATUS.md` with:
+   - What you completed (mark items `[x]`)
+   - Any new known issues
+   - Update the "Last Updated" and "Last Agent" fields
+   - Commit the updated file
+4. **Key files to review when starting**:
+   - `PROJECT_STATUS.md` — Progress tracker and handoff context
+   - `AGENTS.md` (this file) — Coding standards and architecture rules
+   - `apps/web/src/app/page.tsx` — Landing page
+   - `apps/web/.env.example` — Required environment variables
+
