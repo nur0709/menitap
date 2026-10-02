@@ -1,0 +1,8 @@
+Refer to AGENTS.md for the full project context, tech stack, and coding standards.
+
+Additional Cursor-specific rules:
+- When creating new features, always create the Drizzle schema first, then Server Actions, then UI.
+- When modifying database schema, generate a migration with `pnpm drizzle-kit generate`.
+- Always verify builds pass after making changes: `pnpm --filter web build`
+- Use TypeScript strict mode. Never use `any`.
+- Prefer React Server Components. Only add "use client" when interactivity is needed.
