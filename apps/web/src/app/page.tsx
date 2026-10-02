@@ -14,7 +14,7 @@ export default function LandingPage() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
             <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-2xl font-bold text-transparent">
-              UGCP
+              Menitap
             </span>
           </div>
           <nav className="hidden gap-6 md:flex">
@@ -46,7 +46,7 @@ export default function LandingPage() {
               Your Gateway to <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">UGC Success</span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-zinc-300">
-              Whether you're a creator looking to collaborate with brands or a shopper hunting for the best deals — UGCP connects you to opportunities that matter.
+              Whether you're a creator looking to collaborate with brands or a shopper hunting for the best deals — Menitap connects you to opportunities that matter.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link href="#pricing" className={cn(buttonVariants({ size: "lg" }), "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0")}>Start Creating <ArrowRight className="ml-2 h-4 w-4" /></Link>
@@ -73,7 +73,7 @@ export default function LandingPage() {
             <div className="text-center max-w-3xl mx-auto mb-12">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">See How It Works</h2>
               <p className="text-lg text-zinc-400">
-                Watch our quick guide to getting started with UGCP
+                Watch our quick guide to getting started with Menitap
               </p>
             </div>
             
@@ -306,7 +306,7 @@ export default function LandingPage() {
                   </span>
                 </summary>
                 <p className="mt-4 leading-relaxed text-zinc-400">
-                  Not at all! UGCP provides free educational videos to help you learn the basics. Many successful creators started with zero experience.
+                  Not at all! Menitap provides free educational videos to help you learn the basics. Many successful creators started with zero experience.
                 </p>
               </details>
 
@@ -323,7 +323,7 @@ export default function LandingPage() {
                   </span>
                 </summary>
                 <p className="mt-4 leading-relaxed text-zinc-400">
-                  When you share an affiliate link and someone makes a purchase through it, you earn a commission. UGCP curates the best deals so shoppers get real discounts.
+                  When you share an affiliate link and someone makes a purchase through it, you earn a commission. Menitap curates the best deals so shoppers get real discounts.
                 </p>
               </details>
 
@@ -383,10 +383,10 @@ export default function LandingPage() {
       <footer className="bg-zinc-950 border-t border-white/10 py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
-            UGCP
+            Menitap
           </div>
           <p className="text-sm text-zinc-500">
-            © 2024 UGCP. All rights reserved.
+            © 2026 Menitap. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm text-zinc-400">
             <Link href="#" className="hover:text-white transition-colors">Terms</Link>

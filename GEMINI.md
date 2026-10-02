@@ -1,4 +1,4 @@
-# Gemini / Antigravity Rules for UGCP
+# Gemini / Antigravity Rules for Menitap
 
 Refer to `AGENTS.md` for the full project context, tech stack, and coding standards.
 

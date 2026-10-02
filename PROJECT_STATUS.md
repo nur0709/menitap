@@ -13,13 +13,13 @@
 
 ## Last Updated: 2026-10-02
 ## Last Agent: Gemini (Antigravity)
-## GitHub Repo: https://github.com/nur0709/UGCP
+## GitHub Repo: https://github.com/nur0709/menitap
 
 ---
 
 ## Quick Context for New Agents
 
-UGCP is a subscription SaaS platform for UGC (User-Generated Content) creators and
+Menitap (formerly UGCP) is a subscription SaaS platform for UGC (User-Generated Content) creators and
 shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 
 **Key architectural decisions already made:**

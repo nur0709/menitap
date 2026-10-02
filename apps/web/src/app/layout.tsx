@@ -8,10 +8,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "UGCP — User-Generated Content Platform",
+  title: "Menitap — Find Your UGC Opportunity",
   description:
-    "All-in-one platform for UGC creators and shoppers. Access educational resources, produce UGC videos, and discover discounted products through curated affiliate networks.",
+    "Menitap is an all-in-one platform for UGC creators and shoppers. Access educational resources, produce UGC videos, and discover discounted products through curated affiliate networks.",
   keywords: [
+    "Menitap",
     "UGC",
     "user generated content",
     "affiliate marketing",
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
     "discount shopping",
   ],
   openGraph: {
-    title: "UGCP — User-Generated Content Platform",
+    title: "Menitap — Find Your UGC Opportunity",
     description:
       "All-in-one platform for UGC creators and shoppers.",
     type: "website",

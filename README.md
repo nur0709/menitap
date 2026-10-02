@@ -1,6 +1,6 @@
-# UGCP — User-Generated Content Platform
+# Menitap — User-Generated Content Platform
 
-UGCP is an all-in-one platform tailored for user-generated content (UGC) creators and shoppers. It provides aspirational creators with resources to start producing UGC videos, while offering users discounted product purchases via curated affiliate networks.
+Menitap is an all-in-one platform tailored for user-generated content (UGC) creators and shoppers. It provides aspirational creators with resources to start producing UGC videos, while offering users discounted product purchases via curated affiliate networks.
 
 ## 🎯 Features
 
@@ -32,8 +32,8 @@ UGCP is an all-in-one platform tailored for user-generated content (UGC) creator
 
 ### Installation
 ```bash
-git clone https://github.com/nur0709/UGCP.git
-cd UGCP
+git clone https://github.com/nur0709/menitap.git
+cd menitap
 pnpm install
 ```
 
@@ -51,7 +51,7 @@ pnpm build
 
 ## 📁 Project Structure
 ```
-ugcp/
+menitap/
 ├── apps/
 │   └── web/              # Main Next.js application
 │       └── src/
