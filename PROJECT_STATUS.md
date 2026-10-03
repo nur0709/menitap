@@ -53,15 +53,15 @@ shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 - [x] GitHub repo created and pushed
 - [x] Production build verified (passes clean)
 
-### ⬜ Phase 2 — Authentication + User Accounts (NEXT) — [#1](https://github.com/nur0709/menitap/issues/1)
-- [ ] Install + configure Supabase client (`@supabase/supabase-js`, `@supabase/ssr`)
-- [ ] Set up Supabase project (user needs to create at supabase.com)
-- [ ] Google OAuth provider configuration
-- [ ] Email/password signup flow
-- [ ] Auth middleware for protected routes
-- [ ] User profile page
-- [ ] Role-based access control (USER vs ADMIN roles)
-- [ ] Sign-in / Sign-up pages at `(auth)/sign-in` and `(auth)/sign-up`
+### 🟡 Phase 2 — Authentication + User Accounts (IN PROGRESS) — [#1](https://github.com/nur0709/menitap/issues/1)
+- [x] Install + configure Supabase client (`@supabase/supabase-js`, `@supabase/ssr`)
+- [x] Sign-up / Sign-in pages at `(auth)/sign-in` and `(auth)/sign-up` with Zod validation
+- [x] Google OAuth provider integration and `/auth/callback` handler
+- [x] Email & password authentication Server Actions
+- [x] Session management middleware (`middleware.ts`) for route protection
+- [x] Protected User Dashboard at `/dashboard` with tier display & sign out
+- [x] Role-based access control handling (`USER` vs `ADMIN` roles)
+- [ ] Connect Supabase project credentials in `.env.local` (waiting on user keys from supabase.com)
 
 ### ⬜ Phase 3 — Database + Link Submission — [#2](https://github.com/nur0709/menitap/issues/2)
 - [ ] Supabase PostgreSQL + Drizzle ORM setup

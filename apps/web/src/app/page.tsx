@@ -28,8 +28,13 @@ export default function LandingPage() {
               FAQ
             </Link>
           </nav>
-          <div className="flex items-center">
-            <Link href="#pricing" className={cn(buttonVariants(), "bg-white text-black hover:bg-zinc-200")}>Get Started</Link>
+          <div className="flex items-center gap-3">
+            <Link href="/sign-in" className="text-sm font-medium text-zinc-300 hover:text-white transition-colors px-3 py-1.5">
+              Sign In
+            </Link>
+            <Link href="/sign-up" className={cn(buttonVariants(), "bg-white text-black hover:bg-zinc-200")}>
+              Get Started
+            </Link>
           </div>
         </div>
       </header>
@@ -214,7 +219,9 @@ export default function LandingPage() {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full bg-white/10 text-white hover:bg-white/20 border-0">Get Started Free</Button>
+                  <Link href="/sign-up" className={cn(buttonVariants(), "w-full bg-white/10 text-white hover:bg-white/20 border-0")}>
+                    Get Started Free
+                  </Link>
                 </CardFooter>
               </Card>
 
@@ -240,7 +247,9 @@ export default function LandingPage() {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0">Start Basic Plan</Button>
+                  <Link href="/sign-up" className={cn(buttonVariants(), "w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0")}>
+                    Start Basic Plan
+                  </Link>
                 </CardFooter>
               </Card>
 
@@ -261,7 +270,9 @@ export default function LandingPage() {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full bg-white/10 text-white hover:bg-white/20 border-0">Start Standard Plan</Button>
+                  <Link href="/sign-up" className={cn(buttonVariants(), "w-full bg-white/10 text-white hover:bg-white/20 border-0")}>
+                    Start Standard Plan
+                  </Link>
                 </CardFooter>
               </Card>
             </div>
@@ -372,9 +383,9 @@ export default function LandingPage() {
             <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">
               Join thousands of creators and shoppers already on the platform.
             </p>
-            <Button size="lg" className="bg-white text-purple-900 hover:bg-zinc-100 font-bold text-lg px-8 h-14">
+            <Link href="/sign-up" className={cn(buttonVariants({ size: "lg" }), "bg-white text-purple-900 hover:bg-zinc-100 font-bold text-lg px-8 h-14 inline-flex items-center justify-center")}>
               Create Free Account
-            </Button>
+            </Link>
           </div>
         </section>
       </main>
