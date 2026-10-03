@@ -1,4 +1,4 @@
-# Menitap — User-Generated Content Platform
+# Menitap
 
 Menitap is an all-in-one platform tailored for user-generated content (UGC) creators and shoppers. It provides aspirational creators with resources to start producing UGC videos, while offering users discounted product purchases via curated affiliate networks.
 
