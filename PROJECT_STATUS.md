@@ -14,7 +14,7 @@
 ## Last Updated: 2026-10-02
 ## Last Agent: Gemini (Antigravity)
 ## GitHub Repo: https://github.com/nur0709/menitap
-## Live Production URL: https://web-three-puce-69.vercel.app
+## Live Production URL: https://menitap.vercel.app
 
 ---
 
@@ -24,7 +24,7 @@ Menitap is a subscription SaaS platform for UGC (User-Generated Content) creator
 shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 
 **Key architectural decisions already made:**
-- Next.js 15 (App Router) hosted on **Vercel** (`https://web-three-puce-69.vercel.app`) with automatic CI/CD from `main`.
+- Next.js 15 (App Router) hosted on **Vercel** (`https://menitap.vercel.app`) with automatic CI/CD from `main`.
 - **Supabase** for PostgreSQL database + Auth (Google OAuth + email/password), project ID `fkexbdyptynweurzgtqd`.
 - **Stripe** for subscriptions with local DB mirror via webhooks (Phase 4).
 - **MVP Media Scope**: No binary file/blob storage needed for MVP; product/brand external URLs and text metadata are stored directly in PostgreSQL.
