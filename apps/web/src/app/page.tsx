@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Play, Check, Star, ArrowRight, Video, Link as LinkIcon, Building2, Coins, ShieldCheck, LayoutDashboard } from "lucide-react";
+import { Check, Star, ArrowRight, Video, Link as LinkIcon, Building2, Coins, ShieldCheck, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function LandingPage() {
@@ -51,7 +50,7 @@ export default function LandingPage() {
               Your Gateway to <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">UGC Success</span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-zinc-300">
-              Whether you're a creator looking to collaborate with brands or a shopper hunting for the best deals — Menitap connects you to opportunities that matter.
+              Whether you&apos;re a creator looking to collaborate with brands or a shopper hunting for the best deals — Menitap connects you to opportunities that matter.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link href="#pricing" className={cn(buttonVariants({ size: "lg" }), "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0")}>Start Creating <ArrowRight className="ml-2 h-4 w-4" /></Link>
@@ -368,7 +367,7 @@ export default function LandingPage() {
                   </span>
                 </summary>
                 <p className="mt-4 leading-relaxed text-zinc-400">
-                  Yes, you can cancel anytime. You'll continue to have access until the end of your billing period.
+                  Yes, you can cancel anytime. You&apos;ll continue to have access until the end of your billing period.
                 </p>
               </details>
             </div>

@@ -30,7 +30,7 @@ export default function AuthLayout({
 
       {/* Footer links */}
       <div className="mt-8 text-center text-xs text-zinc-500 relative z-10">
-        By continuing, you agree to Menitap's{' '}
+        By continuing, you agree to Menitap&apos;s{' '}
         <Link href="#" className="underline hover:text-zinc-300">Terms of Service</Link>{' '}
         and{' '}
         <Link href="#" className="underline hover:text-zinc-300">Privacy Policy</Link>.
