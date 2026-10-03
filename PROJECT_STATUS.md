@@ -9,7 +9,7 @@
 
 ---
 
-## Current Phase: Phase 1 ✅ → Phase 2 (Next)
+## Current Phase: Phase 2 ✅ → Phase 3 (Next)
 
 ## Last Updated: 2026-10-02
 ## Last Agent: Gemini (Antigravity)
@@ -53,7 +53,7 @@ shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 - [x] GitHub repo created and pushed
 - [x] Production build verified (passes clean)
 
-### 🟡 Phase 2 — Authentication + User Accounts (IN PROGRESS) — [#1](https://github.com/nur0709/menitap/issues/1)
+### ✅ Phase 2 — Authentication + User Accounts (COMPLETED) — [#1](https://github.com/nur0709/menitap/issues/1)
 - [x] Install + configure Supabase client (`@supabase/supabase-js`, `@supabase/ssr`)
 - [x] Sign-up / Sign-in pages at `(auth)/sign-in` and `(auth)/sign-up` with Zod validation
 - [x] Google OAuth provider integration and `/auth/callback` handler
@@ -61,9 +61,9 @@ shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 - [x] Session management middleware (`middleware.ts`) for route protection
 - [x] Protected User Dashboard at `/dashboard` with tier display & sign out
 - [x] Role-based access control handling (`USER` vs `ADMIN` roles)
-- [ ] Connect Supabase project credentials in `.env.local` (waiting on user keys from supabase.com)
+- [x] Supabase project credentials connected and live authentication verified
 
-### ⬜ Phase 3 — Database + Link Submission — [#2](https://github.com/nur0709/menitap/issues/2)
+### 🟡 Phase 3 — Database + Link Submission (NEXT) — [#2](https://github.com/nur0709/menitap/issues/2)
 - [ ] Supabase PostgreSQL + Drizzle ORM setup
 - [ ] Database schema + migrations (see schema in AGENTS.md or plan)
 - [ ] Tables: User, Subscription, Category, AffiliateLink, BrandLink, PointTransaction
