@@ -9,11 +9,12 @@
 
 ---
 
-## Current Phase: Phase 2 ✅ → Phase 3 (Next)
+## Current Phase: Phase 3 ✅ → Phase 4 (Next)
 
 ## Last Updated: 2026-10-02
 ## Last Agent: Gemini (Antigravity)
 ## GitHub Repo: https://github.com/nur0709/menitap
+## Live Production URL: https://web-three-puce-69.vercel.app
 
 ---
 
@@ -23,13 +24,12 @@ Menitap is a subscription SaaS platform for UGC (User-Generated Content) creator
 shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 
 **Key architectural decisions already made:**
-- Next.js 15 (App Router) hosted on **Cloudflare Pages** (NOT Vercel — Vercel Hobby forbids commercial use)
-- **Supabase** for PostgreSQL database + Auth (Google OAuth + email/password)
-- **Drizzle ORM** (NOT Prisma — Prisma doesn't work on Cloudflare Workers edge)
-- **Stripe** for subscriptions with local DB mirror via webhooks
-- **Cloudflare R2** for file storage (zero egress fees)
-- **shadcn/ui** for components (latest version uses `@base-ui/react`, NOT Radix — `asChild` prop does NOT exist)
-- All infrastructure on free tiers — $0/month target
+- Next.js 15 (App Router) hosted on **Vercel** (`https://web-three-puce-69.vercel.app`) with automatic CI/CD from `main`.
+- **Supabase** for PostgreSQL database + Auth (Google OAuth + email/password), project ID `fkexbdyptynweurzgtqd`.
+- **Stripe** for subscriptions with local DB mirror via webhooks (Phase 4).
+- **MVP Media Scope**: No binary file/blob storage needed for MVP; product/brand external URLs and text metadata are stored directly in PostgreSQL.
+- **shadcn/ui** for components (uses `@base-ui/react`, NOT Radix — `asChild` prop does NOT exist, use `buttonVariants()` with `Link`).
+- All infrastructure on free tiers — $0/month target.
 
 ---
 
@@ -63,15 +63,17 @@ shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 - [x] Role-based access control handling (`USER` vs `ADMIN` roles)
 - [x] Supabase project credentials connected and live authentication verified
 
-### 🟡 Phase 3 — Database + Link Submission (NEXT) — [#2](https://github.com/nur0709/menitap/issues/2)
-- [ ] Supabase PostgreSQL + Drizzle ORM setup
-- [ ] Database schema + migrations (see schema in AGENTS.md or plan)
-- [ ] Tables: User, Subscription, Category, AffiliateLink, BrandLink, PointTransaction
-- [ ] Link submission forms (affiliate + brand)
-- [ ] Image upload to Cloudflare R2
-- [ ] Input validation with Zod
+### ✅ Phase 3 — Database + Link Submission (COMPLETED) — [#2](https://github.com/nur0709/menitap/issues/2)
+- [x] Supabase PostgreSQL database schema configured & migrations applied via Supabase MCP
+- [x] Tables created with RLS & Triggers: `profiles`, `subscriptions`, `categories`, `affiliate_links`, `brand_links`, `point_transactions`
+- [x] Auto-sync triggers for new user profiles and default free subscriptions
+- [x] Generated TypeScript definitions at `apps/web/src/lib/supabase/database.types.ts`
+- [x] Server actions for link creation and retrieval (`apps/web/src/features/links/actions.ts`)
+- [x] Tabbed link submission forms (affiliate deals + brand collaboration links) at `/dashboard/submit` with Zod validation
+- [x] User dashboard display with status badges (`PENDING`, `APPROVED`, `REJECTED`)
+- [x] Vercel production deployment verified live
 
-### ⬜ Phase 4 — Stripe Subscriptions — [#3](https://github.com/nur0709/menitap/issues/3)
+### ⬜ Phase 4 — Stripe Subscriptions (NEXT) — [#3](https://github.com/nur0709/menitap/issues/3)
 - [ ] Stripe product/price creation (Free, Basic $5, Standard $10)
 - [ ] Checkout session flow
 - [ ] Webhook handler at `/api/webhooks/stripe`
