@@ -1,7 +1,6 @@
 # AGENTS.md — AI Agent Instructions for Menitap
 
-## Project Overview
-Menitap (formerly UGCP) is a subscription SaaS platform connecting UGC creators with brands, and offering affiliate-linked product discounts to shoppers.
+Menitap is an all-in-one platform tailored for user-generated content (UGC) creators and shoppers alike. It connects aspirational creators with brands and offers affiliate-linked product discounts to shoppers.
 
 ## Tech Stack
 - **Framework**: Next.js 15 (App Router, React Server Components)

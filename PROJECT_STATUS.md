@@ -19,7 +19,7 @@
 
 ## Quick Context for New Agents
 
-Menitap (formerly UGCP) is a subscription SaaS platform for UGC (User-Generated Content) creators and
+Menitap is a subscription SaaS platform for UGC (User-Generated Content) creators and
 shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 
 **Key architectural decisions already made:**
@@ -151,7 +151,7 @@ pnpm dev         # Opens at http://localhost:3000
 pnpm build
 
 # Project root
-/Users/bermetermatova/Dev/UGCP
+/Users/bermetermatova/Dev/menitap
 ```
 
 ---
