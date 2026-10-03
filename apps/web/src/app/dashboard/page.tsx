@@ -1,22 +1,43 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getCurrentUser, signOut } from '@/features/auth/actions'
+import { getUserLinks } from '@/features/links/actions'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Video, Link as LinkIcon, Building2, Coins, ArrowRight, UserCheck, LogOut } from 'lucide-react'
+import {
+  Video,
+  Link as LinkIcon,
+  Building2,
+  Coins,
+  ArrowRight,
+  UserCheck,
+  LogOut,
+  PlusCircle,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  ExternalLink,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ submitted?: string }>
+}) {
   const user = await getCurrentUser()
 
   if (!user) {
     redirect('/sign-in')
   }
 
+  const { submitted } = await searchParams
   const email = user.email || 'Creator'
   const fullName = user.user_metadata?.full_name || email.split('@')[0]
   const role = user.user_metadata?.role || 'USER'
+
+  const { affiliateLinks, brandLinks } = await getUserLinks()
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -35,7 +56,15 @@ export default async function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex flex-col text-right">
+            <Link
+              href="/dashboard/submit"
+              className={cn(buttonVariants({ size: 'sm' }), 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0')}
+            >
+              <PlusCircle className="h-4 w-4 mr-1.5" />
+              <span>Submit Link</span>
+            </Link>
+
+            <div className="hidden sm:flex flex-col text-right ml-2">
               <span className="text-xs font-medium text-white">{fullName}</span>
               <span className="text-[10px] text-zinc-400">{email}</span>
             </div>
@@ -54,6 +83,22 @@ export default async function DashboardPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 max-w-6xl">
+        {/* Success Alert if just submitted */}
+        {submitted && (
+          <div className="mb-6 p-4 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+              <p className="text-sm">
+                <span className="font-semibold">Successfully submitted!</span> Your{' '}
+                {submitted === 'brand' ? 'brand collab opportunity' : 'affiliate deal'} is now in review and will appear publicly once approved.
+              </p>
+            </div>
+            <Link href="/dashboard" className="text-xs text-emerald-400 hover:underline shrink-0 ml-4">
+              Dismiss
+            </Link>
+          </div>
+        )}
+
         {/* Welcome Banner */}
         <div className="rounded-2xl p-6 sm:p-8 bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-white/10 mb-10 relative overflow-hidden">
           <div className="relative z-10">
@@ -66,9 +111,15 @@ export default async function DashboardPage() {
               Welcome back, {fullName}!
             </h1>
             <p className="mt-2 text-zinc-300 max-w-xl text-sm sm:text-base">
-              Explore curated educational videos, discover discounted products, and upgrade whenever you are ready to publish UGC brand deals.
+              Submit affiliate links for products you love, or contribute brand partnerships to earn points redeemable for subscription discounts.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href="/dashboard/submit"
+                className={cn(buttonVariants({ size: 'sm' }), 'bg-white text-black hover:bg-zinc-200')}
+              >
+                <PlusCircle className="mr-1.5 h-4 w-4" /> Submit a Deal or Brand Link
+              </Link>
               <Link
                 href="/#pricing"
                 className={cn(buttonVariants({ size: 'sm' }), 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0')}
@@ -103,7 +154,7 @@ export default async function DashboardPage() {
               <CardTitle className="text-xl font-bold text-white">0 pts</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-xs text-zinc-500">Upgrade to earn subscription discount points</p>
+              <p className="text-xs text-zinc-500">Earn points when brand links are approved</p>
             </CardContent>
           </Card>
 
@@ -113,10 +164,10 @@ export default async function DashboardPage() {
                 <span>Affiliate Links</span>
                 <LinkIcon className="h-4 w-4 text-purple-400" />
               </CardDescription>
-              <CardTitle className="text-xl font-bold text-white">0 links</CardTitle>
+              <CardTitle className="text-xl font-bold text-white">{affiliateLinks.length} submitted</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-xs text-zinc-500">Available on Basic & Standard plans</p>
+              <p className="text-xs text-zinc-500">Product deals you shared</p>
             </CardContent>
           </Card>
 
@@ -126,12 +177,130 @@ export default async function DashboardPage() {
                 <span>Brand Deals</span>
                 <Building2 className="h-4 w-4 text-emerald-400" />
               </CardDescription>
-              <CardTitle className="text-xl font-bold text-white">0 applied</CardTitle>
+              <CardTitle className="text-xl font-bold text-white">{brandLinks.length} submitted</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-xs text-zinc-500">Available on Standard plan ($10/mo)</p>
+              <p className="text-xs text-zinc-500">Creator collaboration links</p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* User Submitted Links Section */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-white">My Submitted Links</h2>
+            <Link
+              href="/dashboard/submit"
+              className="text-xs text-purple-400 hover:text-purple-300 font-medium inline-flex items-center gap-1"
+            >
+              <PlusCircle className="h-3.5 w-3.5" /> Submit New Link
+            </Link>
+          </div>
+
+          {affiliateLinks.length === 0 && brandLinks.length === 0 ? (
+            <Card className="bg-zinc-950 border-white/10 p-8 text-center">
+              <p className="text-zinc-400 text-sm mb-4">You haven&apos;t submitted any links yet.</p>
+              <Link
+                href="/dashboard/submit"
+                className={cn(buttonVariants({ size: 'sm' }), 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0')}
+              >
+                Submit Your First Deal or Brand Link
+              </Link>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {/* Affiliate links list */}
+              {affiliateLinks.map((link) => (
+                <div
+                  key={`aff-${link.id}`}
+                  className="p-4 rounded-xl bg-zinc-950 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        Affiliate Deal
+                      </span>
+                      {link.status === 'PENDING' && (
+                        <Badge variant="outline" className="border-yellow-500/40 text-yellow-300 bg-yellow-500/10 text-xs">
+                          <Clock className="h-3 w-3 mr-1" /> Pending Review
+                        </Badge>
+                      )}
+                      {link.status === 'APPROVED' && (
+                        <Badge variant="outline" className="border-emerald-500/40 text-emerald-300 bg-emerald-500/10 text-xs">
+                          <CheckCircle2 className="h-3 w-3 mr-1" /> Approved
+                        </Badge>
+                      )}
+                      {link.status === 'REJECTED' && (
+                        <Badge variant="outline" className="border-rose-500/40 text-rose-300 bg-rose-500/10 text-xs">
+                          <XCircle className="h-3 w-3 mr-1" /> Rejected
+                        </Badge>
+                      )}
+                    </div>
+                    <h3 className="font-medium text-white">{link.title}</h3>
+                    <p className="text-xs text-zinc-400">
+                      {link.discount_percentage ? `${link.discount_percentage}% off • ` : ''}
+                      {link.promo_code ? `Code: ${link.promo_code} • ` : ''}
+                      {new Date(link.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+
+                  <a
+                    href={link.product_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-xs text-zinc-400 hover:text-white transition-colors gap-1 sm:self-center"
+                  >
+                    View Link <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              ))}
+
+              {/* Brand links list */}
+              {brandLinks.map((link) => (
+                <div
+                  key={`brand-${link.id}`}
+                  className="p-4 rounded-xl bg-zinc-950 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                        Brand Collaboration
+                      </span>
+                      {link.status === 'PENDING' && (
+                        <Badge variant="outline" className="border-yellow-500/40 text-yellow-300 bg-yellow-500/10 text-xs">
+                          <Clock className="h-3 w-3 mr-1" /> Pending Review
+                        </Badge>
+                      )}
+                      {link.status === 'APPROVED' && (
+                        <Badge variant="outline" className="border-emerald-500/40 text-emerald-300 bg-emerald-500/10 text-xs">
+                          <CheckCircle2 className="h-3 w-3 mr-1" /> Approved
+                        </Badge>
+                      )}
+                      {link.status === 'REJECTED' && (
+                        <Badge variant="outline" className="border-rose-500/40 text-rose-300 bg-rose-500/10 text-xs">
+                          <XCircle className="h-3 w-3 mr-1" /> Rejected
+                        </Badge>
+                      )}
+                    </div>
+                    <h3 className="font-medium text-white">{link.brand_name}</h3>
+                    <p className="text-xs text-zinc-400">
+                      {link.products_provided ? 'Free products provided • ' : ''}
+                      {new Date(link.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+
+                  <a
+                    href={link.application_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-xs text-zinc-400 hover:text-white transition-colors gap-1 sm:self-center"
+                  >
+                    View Application <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Action Sections */}
