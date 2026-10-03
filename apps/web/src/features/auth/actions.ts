@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 
+import { headers } from 'next/headers'
+
 const AuthSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters long'),
@@ -72,12 +74,23 @@ export async function signUpWithEmail(prevState: AuthState | null, formData: For
 
 export async function signInWithGoogle() {
   const supabase = await createClient()
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  
+  let origin = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  try {
+    const headersList = await headers()
+    const host = headersList.get('x-forwarded-host') || headersList.get('host')
+    const proto = headersList.get('x-forwarded-proto') || 'https'
+    if (host) {
+      origin = `${proto}://${host}`
+    }
+  } catch {
+    // fallback to env var
+  }
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${appUrl}/auth/callback`,
+      redirectTo: `${origin}/auth/callback`,
     },
   })
 
