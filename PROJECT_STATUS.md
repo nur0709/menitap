@@ -35,7 +35,7 @@ shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 
 ## Phase Completion Status
 
-### ✅ Phase 1 — Landing Page + Repo Setup (COMPLETED)
+### ✅ Phase 1 — Landing Page + Repo Setup (COMPLETED) — [#8](https://github.com/nur0709/menitap/issues/8)
 - [x] Turborepo monorepo initialized with pnpm
 - [x] Next.js 15 (App Router) with TypeScript
 - [x] Tailwind CSS + shadcn/ui (button, card, badge, separator)
@@ -53,7 +53,7 @@ shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 - [x] GitHub repo created and pushed
 - [x] Production build verified (passes clean)
 
-### ⬜ Phase 2 — Authentication + User Accounts (NEXT)
+### ⬜ Phase 2 — Authentication + User Accounts (NEXT) — [#1](https://github.com/nur0709/menitap/issues/1)
 - [ ] Install + configure Supabase client (`@supabase/supabase-js`, `@supabase/ssr`)
 - [ ] Set up Supabase project (user needs to create at supabase.com)
 - [ ] Google OAuth provider configuration
@@ -63,7 +63,7 @@ shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 - [ ] Role-based access control (USER vs ADMIN roles)
 - [ ] Sign-in / Sign-up pages at `(auth)/sign-in` and `(auth)/sign-up`
 
-### ⬜ Phase 3 — Database + Link Submission
+### ⬜ Phase 3 — Database + Link Submission — [#2](https://github.com/nur0709/menitap/issues/2)
 - [ ] Supabase PostgreSQL + Drizzle ORM setup
 - [ ] Database schema + migrations (see schema in AGENTS.md or plan)
 - [ ] Tables: User, Subscription, Category, AffiliateLink, BrandLink, PointTransaction
@@ -71,7 +71,7 @@ shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 - [ ] Image upload to Cloudflare R2
 - [ ] Input validation with Zod
 
-### ⬜ Phase 4 — Stripe Subscriptions
+### ⬜ Phase 4 — Stripe Subscriptions — [#3](https://github.com/nur0709/menitap/issues/3)
 - [ ] Stripe product/price creation (Free, Basic $5, Standard $10)
 - [ ] Checkout session flow
 - [ ] Webhook handler at `/api/webhooks/stripe`
@@ -79,7 +79,7 @@ shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 - [ ] Stripe Customer Portal for self-service
 - [ ] Feature gating based on user's active plan
 
-### ⬜ Phase 5 — Browse + Filter Links
+### ⬜ Phase 5 — Browse + Filter Links — [#4](https://github.com/nur0709/menitap/issues/4)
 - [ ] Public browsable directory pages
 - [ ] Category management
 - [ ] Filter by category, search
@@ -87,19 +87,19 @@ shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 - [ ] Click tracking
 - [ ] Pagination
 
-### ⬜ Phase 6 — Admin Panel
+### ⬜ Phase 6 — Admin Panel — [#5](https://github.com/nur0709/menitap/issues/5)
 - [ ] Admin dashboard at `/admin/*`
 - [ ] Category CRUD
 - [ ] Link moderation (approve/reject with preview)
 - [ ] User management
 - [ ] Basic support/messaging
 
-### ⬜ Phase 7 — Points System
+### ⬜ Phase 7 — Points System — [#6](https://github.com/nur0709/menitap/issues/6)
 - [ ] Point transaction logic
 - [ ] Points dashboard for users
 - [ ] Redemption against Stripe coupon codes
 
-### ⬜ Phase 8 — Polish + Launch
+### ⬜ Phase 8 — Polish + Launch — [#7](https://github.com/nur0709/menitap/issues/7)
 - [ ] SEO (metadata, sitemap, JSON-LD)
 - [ ] Core Web Vitals audit
 - [ ] E2E tests (Playwright)
