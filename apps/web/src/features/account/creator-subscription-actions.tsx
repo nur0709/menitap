@@ -102,7 +102,7 @@ export function CreatorSubscriptionActions({ currentPlan }: { currentPlan: strin
             className="border-border text-foreground hover:bg-muted text-xs cursor-pointer"
           >
             <ShoppingBag className="h-3.5 w-3.5 mr-1.5 text-[#08739C]" />
-            Cancel & Switch to Explorer
+            Cancel Plan
           </Button>
         ) : (
           <div className="flex items-center gap-2">
