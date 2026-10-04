@@ -138,8 +138,8 @@ export default async function DashboardPage() {
               <CreatorSubscriptionActions currentPlan={currentPlan} />
             )}
 
-            {/* Danger Zone: Delete Account */}
-            <DeleteAccountSection />
+            {/* Danger Zone: Delete Account (Regular accounts only) */}
+            {!isAdmin && <DeleteAccountSection />}
 
             {/* Admin Role / View Mode Switcher */}
             {isAdmin && <AdminRoleSwitcher currentMode={adminViewMode} />}

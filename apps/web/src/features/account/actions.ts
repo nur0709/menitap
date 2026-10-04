@@ -159,6 +159,17 @@ export async function deleteUserAccount(): Promise<DeleteAccountState> {
     return { error: 'You must be signed in to delete your account.' }
   }
 
+  // Prevent Admins from deleting master admin account
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role === 'ADMIN') {
+    return { error: 'Admin accounts cannot be deleted from the user dashboard.' }
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error: rpcError } = await (supabase as any).rpc('request_account_deletion')
   if (rpcError) {
