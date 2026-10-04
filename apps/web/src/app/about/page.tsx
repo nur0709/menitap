@@ -64,7 +64,6 @@ export default function AboutPage() {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <ThemeToggle />
             <Link 
               href="/sign-in" 
               className={cn(
@@ -74,6 +73,7 @@ export default function AboutPage() {
             >
               Sign In
             </Link>
+            <ThemeToggle />
           </div>
         </div>
       </header>

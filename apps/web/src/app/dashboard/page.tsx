@@ -54,8 +54,6 @@ export default async function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <ThemeToggle />
-
             <div className="hidden sm:flex flex-col text-right ml-1">
               <span className="text-xs font-semibold text-foreground">{fullName}</span>
               <span className="text-[10px] text-muted-foreground">{email}</span>
@@ -69,6 +67,7 @@ export default async function DashboardPage() {
                 <span className="hidden sm:inline">Sign Out</span>
               </Button>
             </form>
+            <ThemeToggle />
           </div>
         </div>
       </header>

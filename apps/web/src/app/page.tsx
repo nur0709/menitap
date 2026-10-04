@@ -56,7 +56,6 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <ThemeToggle />
             <Link 
               href="/sign-in" 
               className={cn(
@@ -66,6 +65,7 @@ export default function LandingPage() {
             >
               Sign In
             </Link>
+            <ThemeToggle />
           </div>
         </div>
       </header>

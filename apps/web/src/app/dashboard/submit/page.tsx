@@ -33,13 +33,13 @@ export default async function SubmitLinkPage({
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between max-w-4xl">
           <BrandLogo size="md" />
           <div className="flex items-center gap-3">
-            <ThemeToggle />
             <Link
               href="/dashboard"
               className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-1.5" /> Back to Dashboard
             </Link>
+            <ThemeToggle />
           </div>
         </div>
       </header>
