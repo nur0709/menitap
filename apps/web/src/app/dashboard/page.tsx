@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getCurrentUser, signOut } from '@/features/auth/actions'
+import { getEffectiveUserContext, signOut } from '@/features/auth/actions'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -11,6 +11,7 @@ import { UserAvatar } from '@/components/user-avatar'
 import { UpgradeToCreatorButton } from '@/features/account/upgrade-button'
 import { CreatorSubscriptionActions } from '@/features/account/creator-subscription-actions'
 import { DeleteAccountSection } from '@/features/account/delete-account-section'
+import { AdminRoleSwitcher } from '@/features/account/admin-role-switcher'
 import { LogOut, ShoppingBag, Video, Building2, ShieldCheck } from 'lucide-react'
 
 export const metadata = {
@@ -19,32 +20,24 @@ export const metadata = {
 }
 
 export default async function DashboardPage() {
-  const user = await getCurrentUser()
+  const context = await getEffectiveUserContext()
+  const { user, role, effectivePlan, isAdmin, adminViewMode } = context
 
   if (!user) {
     redirect('/sign-in')
   }
 
   const supabase = await createClient()
-  const [{ data: profile }, { data: subscription }] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single(),
-    supabase
-      .from('subscriptions')
-      .select('plan, status')
-      .eq('user_id', user.id)
-      .single(),
-  ])
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single()
 
   const email = user.email || ''
   const fullName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || ''
   const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || null
-  const currentPlan = subscription?.plan || 'FREE'
-  const rawRole = (profile?.role || user.user_metadata?.role || 'USER').toUpperCase()
-  const role = rawRole === 'DELETED' ? 'USER' : rawRole
+  const currentPlan = effectivePlan || 'FREE'
 
   // Determine dynamic account type configuration based on role & subscription plan
   let accountTag = {
@@ -147,6 +140,9 @@ export default async function DashboardPage() {
 
             {/* Danger Zone: Delete Account */}
             <DeleteAccountSection />
+
+            {/* Admin Role / View Mode Switcher */}
+            {isAdmin && <AdminRoleSwitcher currentMode={adminViewMode} />}
           </CardContent>
         </Card>
       </main>

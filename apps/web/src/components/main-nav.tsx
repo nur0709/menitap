@@ -10,8 +10,8 @@ interface MainNavProps {
 export async function MainNav({ currentPath }: MainNavProps) {
   const role = await getCurrentUserRole()
 
-  const isCreator = role === 'CREATOR'
-  const isBrand = role === 'BRAND'
+  const isCreator = role === 'CREATOR' || role === 'ADMIN'
+  const isBrand = role === 'BRAND' || role === 'ADMIN'
 
   return (
     <nav className="hidden items-center gap-1.5 md:flex">

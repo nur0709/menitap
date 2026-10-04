@@ -3,8 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
-
 import { headers } from 'next/headers'
 
 const AuthSchema = z.object({
@@ -139,16 +139,83 @@ export async function getCurrentUser() {
 }
 
 export async function getCurrentUserRole(): Promise<string | null> {
+  const context = await getEffectiveUserContext()
+  return context.role
+}
+
+export type EffectiveUserContext = {
+  user: User | null
+  trueRole: string | null
+  role: string | null
+  effectivePlan: string | null
+  isAdmin: boolean
+  adminViewMode: string | null
+}
+
+export async function getEffectiveUserContext(): Promise<EffectiveUserContext> {
   const user = await getCurrentUser()
-  if (!user) return null
+  if (!user) {
+    return {
+      user: null,
+      trueRole: null,
+      role: null,
+      effectivePlan: null,
+      isAdmin: false,
+      adminViewMode: null,
+    }
+  }
 
   const supabase = await createClient()
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  const [{ data: profile }, { data: subscription }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('role, full_name, avatar_url')
+      .eq('id', user.id)
+      .single(),
+    supabase
+      .from('subscriptions')
+      .select('plan, status')
+      .eq('user_id', user.id)
+      .single(),
+  ])
 
   const rawRole = (profile?.role || user.user_metadata?.role || 'USER').toUpperCase()
-  return rawRole === 'DELETED' ? 'USER' : rawRole
+  const trueRole = rawRole === 'DELETED' ? 'USER' : rawRole
+  const isAdmin = trueRole === 'ADMIN'
+
+  let adminViewMode: string | null = null
+  if (isAdmin) {
+    const { cookies } = await import('next/headers')
+    const cookieStore = await cookies()
+    adminViewMode = cookieStore.get('admin_view_mode')?.value || null
+  }
+
+  let role = trueRole
+  let effectivePlan = subscription?.plan || 'FREE'
+
+  if (isAdmin && adminViewMode) {
+    if (adminViewMode === 'USER') {
+      role = 'USER'
+      effectivePlan = 'FREE'
+    } else if (adminViewMode === 'CREATOR_BASIC') {
+      role = 'CREATOR'
+      effectivePlan = 'BASIC'
+    } else if (adminViewMode === 'CREATOR_STANDARD') {
+      role = 'CREATOR'
+      effectivePlan = 'STANDARD'
+    } else if (adminViewMode === 'BRAND') {
+      role = 'BRAND'
+      effectivePlan = 'BRAND_MANAGER'
+    }
+  }
+
+  return {
+    user,
+    trueRole,
+    role,
+    effectivePlan,
+    isAdmin,
+    adminViewMode,
+  }
 }
+
