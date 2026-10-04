@@ -95,22 +95,8 @@ export default function LandingPage() {
               </span>
             </h1>
 
-            {/* Brand or Agency Callout */}
-            <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-muted/40 border border-border text-center max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-center sm:text-left">
-                <p className="text-sm font-semibold text-foreground">Are you a Brand or Agency?</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Post product-for-review campaigns and discover creators 100% free.</p>
-              </div>
-              <Link 
-                href="/sign-up" 
-                className={cn(buttonVariants({ size: "sm" }), "bg-[#08739C] hover:bg-[#02547A] text-white border-0 font-medium shrink-0")}
-              >
-                Post a Campaign Free
-              </Link>
-            </div>
-
             {/* Embedded Video Centerpiece */}
-            <div className="mt-8 sm:mt-10 max-w-3xl mx-auto">
+            <div className="mt-8 sm:mt-12 max-w-3xl mx-auto">
               <div className="relative aspect-video rounded-2xl overflow-hidden shadow-lg border border-border bg-card">
                 <iframe 
                   className="absolute inset-0 w-full h-full"
