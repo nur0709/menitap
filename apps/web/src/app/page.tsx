@@ -46,13 +46,19 @@ export default function LandingPage() {
             </Link>
             <Link 
               href="/plans" 
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground px-3 py-1.5 ml-1"
+              className={cn(
+                buttonVariants({ size: "sm" }), 
+                "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
+              )}
             >
               Plans
             </Link>
             <Link 
               href="/about" 
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground px-3 py-1.5"
+              className={cn(
+                buttonVariants({ size: "sm" }), 
+                "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
+              )}
             >
               About
             </Link>
