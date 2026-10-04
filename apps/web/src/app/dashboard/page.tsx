@@ -46,40 +46,47 @@ export default async function DashboardPage() {
   const rawRole = (profile?.role || user.user_metadata?.role || 'USER').toUpperCase()
   const role = rawRole === 'DELETED' ? 'USER' : rawRole
 
-  // Format account role display and indicator tag
-  const roleConfigMap: Record<
-    string,
-    { name: string; description: string; badgeBg: string; icon: React.ElementType }
-  > = {
-    USER: {
-      name: 'Consumer',
-      description: 'Find verified deals and watch honest creator reviews.',
-      badgeBg: 'bg-[#08739C]/10 text-[#08739C] dark:text-[#38BDF8] border-[#08739C]/30',
-      icon: ShoppingBag,
-    },
-    CREATOR: {
-      name: 'Creator',
-      description: 'Receive free products to review and share affiliate deals.',
-      badgeBg: 'bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30',
-      icon: Video,
-    },
-    BRAND: {
+  // Determine dynamic account type configuration based on role & subscription plan
+  let accountTag = {
+    name: 'Consumer',
+    description: 'Find verified deals and watch honest creator reviews.',
+    badgeBg: 'bg-[#08739C]/10 text-[#08739C] dark:text-[#38BDF8] border-[#08739C]/30',
+    icon: ShoppingBag,
+  }
+
+  if (role === 'CREATOR') {
+    if (currentPlan === 'STANDARD') {
+      accountTag = {
+        name: 'Creator Standard',
+        description: 'Public portfolio, category-filtered brand discovery, and product reviews.',
+        badgeBg: 'bg-[#FC801A] text-white border-0 shadow-sm',
+        icon: Video,
+      }
+    } else {
+      accountTag = {
+        name: 'Creator Basic',
+        description: 'Access brand application links, receive products to test, and share deals.',
+        badgeBg: 'bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30',
+        icon: Video,
+      }
+    }
+  } else if (role === 'BRAND') {
+    accountTag = {
       name: 'Brand',
       description: 'Post review campaigns and collaborate with UGC creators.',
       badgeBg: 'bg-[#08739C] text-white border-0',
       icon: Building2,
-    },
-    ADMIN: {
+    }
+  } else if (role === 'ADMIN') {
+    accountTag = {
       name: 'Admin',
       description: 'System administrator.',
       badgeBg: 'bg-destructive/10 text-destructive border-destructive/30',
       icon: ShieldCheck,
-    },
+    }
   }
 
-  const roleConfig = roleConfigMap[role] || roleConfigMap['USER']
-
-  const RoleIcon = roleConfig.icon
+  const RoleIcon = accountTag.icon
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors selection:bg-[#FC801A]/30">
@@ -112,10 +119,10 @@ export default async function DashboardPage() {
               <div className="flex justify-center">
                 <Badge
                   variant="outline"
-                  className={`text-xs px-3 py-1 font-semibold flex items-center gap-1.5 ${roleConfig.badgeBg}`}
+                  className={`text-xs px-3 py-1 font-semibold flex items-center gap-1.5 ${accountTag.badgeBg}`}
                 >
                   <RoleIcon className="h-3.5 w-3.5" />
-                  <span>{roleConfig.name} Account</span>
+                  <span>{accountTag.name}</span>
                 </Badge>
               </div>
               {fullName && <p className="text-base font-medium text-foreground">{fullName}</p>}
@@ -125,7 +132,7 @@ export default async function DashboardPage() {
 
           <CardContent className="space-y-6 pt-2">
             <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
-              {roleConfig.description}
+              {accountTag.description}
             </p>
 
             {/* If Consumer (USER), allow switching to Creator (with plan pop-up) */}

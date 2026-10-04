@@ -82,7 +82,7 @@ export default function PlansPage() {
             {/* Free Tier */}
             <Card className="bg-card border-border flex flex-col h-full shadow-sm hover:border-[#08739C]/40 transition-colors">
               <CardHeader>
-                <Badge variant="secondary" className="w-fit text-xs font-semibold mb-2">
+                <Badge variant="outline" className="w-fit text-xs font-semibold mb-2 bg-[#08739C]/10 text-[#08739C] dark:text-[#38BDF8] border-[#08739C]/30">
                   Consumer
                 </Badge>
                 <CardTitle className="text-lg text-foreground">Free</CardTitle>
@@ -120,8 +120,8 @@ export default function PlansPage() {
             {/* Basic Creator Tier */}
             <Card className="bg-card border-border flex flex-col h-full shadow-sm hover:border-[#08739C]/40 transition-colors">
               <CardHeader>
-                <Badge variant="secondary" className="w-fit text-xs font-semibold mb-2">
-                  UGC Creators
+                <Badge variant="outline" className="w-fit text-xs font-semibold mb-2 bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30">
+                  Creator Basic
                 </Badge>
                 <CardTitle className="text-lg text-foreground">Creator Basic</CardTitle>
                 <div className="mt-2 flex items-baseline text-3xl font-extrabold text-foreground">
@@ -168,7 +168,7 @@ export default function PlansPage() {
               </div>
               <CardHeader>
                 <Badge className="w-fit text-xs font-semibold bg-[#FC801A] text-white border-0 mb-2">
-                  Pro Creators
+                  Creator Standard
                 </Badge>
                 <CardTitle className="text-lg text-foreground">Creator Standard</CardTitle>
                 <div className="mt-2 flex items-baseline text-3xl font-extrabold text-foreground">
@@ -213,7 +213,7 @@ export default function PlansPage() {
             <Card className="bg-card border-[#08739C]/40 flex flex-col h-full shadow-sm hover:border-[#08739C] transition-colors ring-1 ring-[#08739C]/20">
               <CardHeader>
                 <Badge className="w-fit text-xs font-semibold bg-[#08739C] text-white border-0 mb-2">
-                  Brand or Agency
+                  Brand
                 </Badge>
                 <CardTitle className="text-lg text-foreground">Brand Manager</CardTitle>
                 <div className="mt-2 flex items-baseline text-3xl font-extrabold text-[#08739C] dark:text-[#38BDF8]">
