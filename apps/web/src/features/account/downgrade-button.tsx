@@ -39,7 +39,7 @@ export function DowngradeToConsumerButton() {
           className="border-border text-foreground hover:bg-muted text-xs cursor-pointer"
         >
           <ShoppingBag className="h-3.5 w-3.5 mr-1.5 text-[#08739C]" />
-          Switch to Consumer
+          Cancel & Switch to Consumer
         </Button>
       ) : (
         <div className="flex flex-col sm:flex-row items-center gap-2">
