@@ -9,7 +9,7 @@ import { BrandLogo } from '@/components/brand-logo'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { UserAvatar } from '@/components/user-avatar'
 import { UpgradeToCreatorButton } from '@/features/account/upgrade-button'
-import { DowngradeToConsumerButton } from '@/features/account/downgrade-button'
+import { CreatorSubscriptionActions } from '@/features/account/creator-subscription-actions'
 import { DeleteAccountSection } from '@/features/account/delete-account-section'
 import { LogOut, ShoppingBag, Video, Building2, ShieldCheck } from 'lucide-react'
 
@@ -26,15 +26,23 @@ export default async function DashboardPage() {
   }
 
   const supabase = await createClient()
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  const [{ data: profile }, { data: subscription }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single(),
+    supabase
+      .from('subscriptions')
+      .select('plan, status')
+      .eq('user_id', user.id)
+      .single(),
+  ])
 
   const email = user.email || ''
   const fullName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || ''
   const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || null
+  const currentPlan = subscription?.plan || 'FREE'
   const rawRole = (profile?.role || user.user_metadata?.role || 'USER').toUpperCase()
   const role = rawRole === 'DELETED' ? 'USER' : rawRole
 
@@ -128,9 +136,9 @@ export default async function DashboardPage() {
               <UpgradeToCreatorButton />
             )}
 
-            {/* If Creator, allow canceling creator subscription and switching back to Consumer */}
+            {/* If Creator, allow upgrading from $10 to $15 or canceling back to Consumer */}
             {role === 'CREATOR' && (
-              <DowngradeToConsumerButton />
+              <CreatorSubscriptionActions currentPlan={currentPlan} />
             )}
 
             {/* Danger Zone: Delete Account */}

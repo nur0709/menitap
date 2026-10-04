@@ -35,7 +35,21 @@ export async function upgradeToCreator(plan: UpgradePlan = 'BASIC'): Promise<Upg
   }
 
   if (currentRole === 'CREATOR') {
-    return { error: 'Your account is already a Creator account.' }
+    // If already CREATOR, upgrade subscription plan if requested
+    if (plan === 'STANDARD') {
+      await supabase
+        .from('subscriptions')
+        .upsert({
+          user_id: user.id,
+          plan: 'STANDARD',
+          status: 'ACTIVE',
+        }, { onConflict: 'user_id' })
+
+      revalidatePath('/dashboard')
+      revalidatePath('/', 'layout')
+      return { success: 'Upgraded to Creator Standard ($15/mo)!' }
+    }
+    return { error: 'Your account is already on this Creator plan.' }
   }
 
   // Update profile role to CREATOR
