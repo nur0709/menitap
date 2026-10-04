@@ -196,17 +196,17 @@ export default function PlansPage() {
               </CardFooter>
             </Card>
 
-            {/* Company / Brand Manager Tier */}
+            {/* Brand or Agency Tier */}
             <Card className="bg-card border-[#08739C]/40 flex flex-col h-full shadow-sm hover:border-[#08739C] transition-colors ring-1 ring-[#08739C]/20">
               <CardHeader>
                 <Badge className="w-fit text-xs font-semibold bg-[#08739C] text-white border-0 mb-2">
-                  Company Account
+                  Brand or Agency
                 </Badge>
                 <CardTitle className="text-lg text-foreground">Brand Manager</CardTitle>
                 <div className="mt-2 flex items-baseline text-3xl font-extrabold text-[#08739C] dark:text-[#38BDF8]">
                   Free
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">For brands & e-commerce companies</p>
+                <p className="text-xs text-muted-foreground mt-1">For brands, agencies & e-commerce</p>
               </CardHeader>
               <CardContent className="flex-1">
                 <ul className="space-y-3 text-xs sm:text-sm text-muted-foreground">

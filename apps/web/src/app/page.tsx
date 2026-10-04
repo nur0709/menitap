@@ -50,17 +50,17 @@ export default function LandingPage() {
         {/* Video-First Hero Section */}
         <section className="pt-10 pb-16 sm:pt-14 sm:pb-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-4xl">
-            <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl max-w-3xl mx-auto">
-              Discover Great Deals.{" "}
+            <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl max-w-4xl mx-auto">
+              Discover Deals. Create Content.{" "}
               <span className="text-[#08739C] dark:text-[#38BDF8]">
-                Collaborate With Brands.
+                Grow Your Brand.
               </span>
             </h1>
 
-            {/* Brand Manager Callout */}
+            {/* Brand or Agency Callout */}
             <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-muted/40 border border-border text-center max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-center sm:text-left">
-                <p className="text-sm font-semibold text-foreground">Are you a Company or Brand Manager?</p>
+                <p className="text-sm font-semibold text-foreground">Are you a Brand or Agency?</p>
                 <p className="text-xs text-muted-foreground mt-0.5">Post product-for-review campaigns and discover creators 100% free.</p>
               </div>
               <Link 
