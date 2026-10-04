@@ -35,7 +35,8 @@ export default async function DashboardPage() {
   const email = user.email || ''
   const fullName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || ''
   const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || null
-  const role = (profile?.role || user.user_metadata?.role || 'USER').toUpperCase()
+  const rawRole = (profile?.role || user.user_metadata?.role || 'USER').toUpperCase()
+  const role = rawRole === 'DELETED' ? 'USER' : rawRole
 
   // Format account role display and indicator tag
   const roleConfigMap: Record<

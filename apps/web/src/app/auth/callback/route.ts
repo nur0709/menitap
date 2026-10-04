@@ -19,10 +19,24 @@ export async function GET(request: Request) {
           .eq('id', data.user.id)
           .single()
 
-        if (!existingProfile || existingProfile.role === 'USER') {
-          await supabase.from('profiles').update({ role: roleParam }).eq('id', data.user.id)
+        if (!existingProfile || existingProfile.role === 'USER' || existingProfile.role === 'DELETED') {
+          await supabase.from('profiles').update({ role: roleParam, updated_at: new Date().toISOString() }).eq('id', data.user.id)
           await supabase.auth.updateUser({
             data: { role: roleParam },
+          })
+        }
+      } else if (data.user) {
+        // If no roleParam specified (standard sign-in), but profile was previously DELETED, reactivate as USER
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single()
+
+        if (existingProfile && existingProfile.role === 'DELETED') {
+          await supabase.from('profiles').update({ role: 'USER', updated_at: new Date().toISOString() }).eq('id', data.user.id)
+          await supabase.auth.updateUser({
+            data: { role: 'USER' },
           })
         }
       }
