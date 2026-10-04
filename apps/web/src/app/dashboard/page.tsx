@@ -9,6 +9,7 @@ import { BrandLogo } from '@/components/brand-logo'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { UserAvatar } from '@/components/user-avatar'
 import { UpgradeToCreatorButton } from '@/features/account/upgrade-button'
+import { DowngradeToConsumerButton } from '@/features/account/downgrade-button'
 import { DeleteAccountSection } from '@/features/account/delete-account-section'
 import { LogOut, ShoppingBag, Video, Building2, ShieldCheck } from 'lucide-react'
 
@@ -122,9 +123,14 @@ export default async function DashboardPage() {
               {roleConfig.description}
             </p>
 
-            {/* If Consumer (USER), allow switching to Creator (not Brand) */}
+            {/* If Consumer (USER), allow switching to Creator (with plan pop-up) */}
             {role === 'USER' && (
               <UpgradeToCreatorButton />
+            )}
+
+            {/* If Creator, allow canceling creator subscription and switching back to Consumer */}
+            {role === 'CREATOR' && (
+              <DowngradeToConsumerButton />
             )}
 
             {/* Danger Zone: Delete Account */}
