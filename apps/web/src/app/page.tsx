@@ -7,12 +7,9 @@ import { BrandLogo } from "@/components/brand-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { 
   Check, 
-  ArrowRight, 
   ShoppingBag, 
   Video, 
   Building2, 
-  Gift, 
-  Tag, 
   Sparkles 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -60,14 +57,8 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* 1. Video-First Hero Section */}
-        <section className="pt-12 pb-16 sm:pt-16 sm:pb-20 border-b border-border/50">
+        <section className="pt-10 pb-16 sm:pt-14 sm:pb-20 border-b border-border/50">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-4xl">
-            {/* Value Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border bg-muted/60 text-xs sm:text-sm font-medium text-muted-foreground mb-6">
-              <Gift className="h-4 w-4 text-[#FC801A]" />
-              <span>Get free products in exchange for reviews — start creating today</span>
-            </div>
-
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl max-w-3xl mx-auto">
               Discover Great Deals.{" "}
               <span className="text-[#08739C] dark:text-[#38BDF8]">
@@ -75,9 +66,19 @@ export default function LandingPage() {
               </span>
             </h1>
 
-            <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-muted-foreground leading-relaxed">
-              Save on creator deals, receive products to review & keep, and connect directly with brands.
-            </p>
+            {/* Brand Manager Callout */}
+            <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-muted/40 border border-border text-center max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-center sm:text-left">
+                <p className="text-sm font-semibold text-foreground">Are you a Company or Brand Manager?</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Post product-for-review campaigns and discover creators 100% free.</p>
+              </div>
+              <Link 
+                href="/sign-up" 
+                className={cn(buttonVariants({ size: "sm" }), "bg-[#08739C] hover:bg-[#02547A] text-white border-0 font-medium shrink-0")}
+              >
+                Post a Campaign Free
+              </Link>
+            </div>
 
             {/* Embedded Video Centerpiece */}
             <div className="mt-8 sm:mt-10 max-w-3xl mx-auto">
@@ -90,44 +91,6 @@ export default function LandingPage() {
                   allowFullScreen
                 />
               </div>
-              <p className="mt-2.5 text-xs text-muted-foreground">
-                🌍 YouTube auto-translates captions — click CC to watch in your language
-              </p>
-            </div>
-
-            {/* Primary Action Buttons */}
-            <div className="mt-8 flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
-              <Link 
-                href="/sign-up" 
-                className={cn(
-                  buttonVariants({ size: "lg" }), 
-                  "bg-[#FC801A] hover:bg-[#E66F0D] text-white font-semibold text-base px-7 h-12 shadow-sm border-0"
-                )}
-              >
-                Browse Deals <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-              <Link 
-                href="#pricing" 
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "lg" }), 
-                  "border-border text-foreground hover:bg-accent font-semibold text-base px-7 h-12"
-                )}
-              >
-                Start Creating
-              </Link>
-            </div>
-
-            {/* Quick Micro Badges */}
-            <div className="mt-8 flex justify-center gap-4 sm:gap-8 flex-wrap text-xs sm:text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <Gift className="h-4 w-4 text-[#FC801A]" /> Free Products to Test & Keep
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Tag className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8]" /> Verified Creator Deals
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Building2 className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8]" /> Direct Brand Campaigns
-              </span>
             </div>
           </div>
         </section>
@@ -137,11 +100,8 @@ export default function LandingPage() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
             <div className="text-center max-w-2xl mx-auto mb-14">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-                Built for Everyone in the Ecosystem
+                Ecosystem for Everyone
               </h2>
-              <p className="mt-3 text-muted-foreground text-base">
-                Whether you want to shop smarter, start creating content, or hire authentic creators.
-              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
@@ -251,9 +211,6 @@ export default function LandingPage() {
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
                 Simple, Transparent Plans
               </h2>
-              <p className="mt-3 text-muted-foreground text-base">
-                Browse deals and learn for free, or unlock creator tools to collaborate with brands.
-              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
@@ -377,20 +334,6 @@ export default function LandingPage() {
                   </Link>
                 </CardFooter>
               </Card>
-            </div>
-
-            {/* Brand Manager Callout */}
-            <div className="mt-12 p-5 rounded-2xl bg-muted/40 border border-border text-center max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-left">
-                <p className="text-sm font-semibold text-foreground">Are you a Company or Brand Manager?</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Post product-for-review campaigns and discover creators 100% free.</p>
-              </div>
-              <Link 
-                href="/sign-up" 
-                className={cn(buttonVariants({ size: "sm" }), "bg-[#08739C] hover:bg-[#02547A] text-white border-0 font-medium shrink-0")}
-              >
-                Post a Campaign Free
-              </Link>
             </div>
           </div>
         </section>
