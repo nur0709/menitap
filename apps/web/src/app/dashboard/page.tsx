@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getCurrentUser, signOut } from '@/features/auth/actions'
-import { getUserLinks } from '@/features/links/actions'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,40 +8,36 @@ import { BrandBorder } from '@/components/brand-border'
 import { BrandLogo } from '@/components/brand-logo'
 import { ThemeToggle } from '@/components/theme-toggle'
 import {
-  Video,
-  Link as LinkIcon,
-  Building2,
+  ShoppingBag,
+  Bookmark,
+  PlayCircle,
+  Sparkles,
   ArrowRight,
-  UserCheck,
   LogOut,
-  PlusCircle,
-  Clock,
+  Tag,
   CheckCircle2,
-  XCircle,
-  ExternalLink,
+  BookOpen
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ submitted?: string }>
-}) {
+export const metadata = {
+  title: 'My Account | Menitap',
+  description: 'Manage your saved deals, explore UGC video lessons, and discover verified discounts.',
+}
+
+export default async function DashboardPage() {
   const user = await getCurrentUser()
 
   if (!user) {
     redirect('/sign-in')
   }
 
-  const { submitted } = await searchParams
-  const email = user.email || 'Creator'
+  const email = user.email || 'Shopper'
   const fullName = user.user_metadata?.full_name || email.split('@')[0]
   const role = user.user_metadata?.role || 'USER'
 
-  const { affiliateLinks, brandLinks } = await getUserLinks()
-
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors">
+    <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors selection:bg-[#FC801A]/30">
       {/* Decorative Top Border Ribbon */}
       <BrandBorder position="top" height="h-6 sm:h-8" />
 
@@ -60,17 +55,6 @@ export default async function DashboardPage({
 
           <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
-
-            <Link
-              href="/dashboard/submit"
-              className={cn(
-                buttonVariants({ size: 'sm' }), 
-                'bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 shadow-sm'
-              )}
-            >
-              <PlusCircle className="h-4 w-4 mr-1.5" />
-              <span>Submit Link</span>
-            </Link>
 
             <div className="hidden sm:flex flex-col text-right ml-1">
               <span className="text-xs font-semibold text-foreground">{fullName}</span>
@@ -91,267 +75,157 @@ export default async function DashboardPage({
 
       {/* Main Content */}
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 max-w-6xl flex-1">
-        {/* Success Alert if just submitted */}
-        {submitted && (
-          <div className="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-500/40 text-emerald-800 dark:text-emerald-200 flex items-center justify-between shadow-sm">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <p className="text-sm">
-                <span className="font-semibold">Successfully submitted!</span> Your{' '}
-                {submitted === 'brand' ? 'brand collab opportunity' : 'affiliate deal'} is now in review and will appear publicly once approved.
-              </p>
-            </div>
-            <Link href="/dashboard" className="text-xs text-emerald-700 dark:text-emerald-300 hover:underline shrink-0 ml-4 font-medium">
-              Dismiss
-            </Link>
-          </div>
-        )}
-
         {/* Welcome Banner */}
-        <div className="rounded-2xl p-6 sm:p-8 bg-card border border-border mb-10 shadow-sm">
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-2">
-              <Badge variant="outline" className="border-[#08739C]/40 text-[#08739C] dark:text-[#38BDF8] bg-[#08739C]/10">
-                Buyer-User Tier (Free)
-              </Badge>
-            </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-foreground">
+        <div className="rounded-2xl p-6 sm:p-8 bg-card border border-border mb-10 shadow-sm relative overflow-hidden">
+          <div className="relative z-10 max-w-2xl">
+            <Badge variant="outline" className="border-[#08739C]/40 text-[#08739C] dark:text-[#38BDF8] bg-[#08739C]/10 mb-3 font-semibold">
+              Shopper & Learner Plan (Free)
+            </Badge>
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-foreground tracking-tight">
               Welcome back, {fullName}!
             </h1>
-            <p className="mt-2 text-muted-foreground max-w-xl text-sm sm:text-base">
-              Submit affiliate links for products you love, or direct brand collaboration links to help creators discover opportunities.
+            <p className="mt-2 text-muted-foreground text-sm sm:text-base leading-relaxed">
+              Explore verified creator discounts, learn foundational UGC skills with free video lessons, and bookmark deals for later.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
-                href="/dashboard/submit"
+                href="/about#shoppers"
                 className={cn(
                   buttonVariants({ size: 'sm' }), 
-                  'bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 shadow-sm'
+                  'bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 shadow-sm font-medium'
                 )}
               >
-                <PlusCircle className="mr-1.5 h-4 w-4" /> Submit a Deal or Brand Link
+                <Tag className="mr-1.5 h-4 w-4" /> Browse Verified Deals
               </Link>
               <Link
                 href="/plans"
                 className={cn(
                   buttonVariants({ variant: 'outline', size: 'sm' }), 
-                  'border-border hover:bg-accent text-foreground'
+                  'border-border hover:bg-accent text-foreground font-medium'
                 )}
               >
-                Upgrade to Basic or Standard <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                Upgrade to Creator Plan <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Quick Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-          <Card className="bg-card border-border shadow-sm">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-muted-foreground flex items-center justify-between">
-                <span>Current Plan</span>
-                <UserCheck className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8]" />
+        {/* 3 Core Hub Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {/* Card 1: Saved For Later */}
+          <Card className="bg-card border-border shadow-sm flex flex-col hover:border-[#08739C]/40 transition-colors">
+            <CardHeader className="pb-3">
+              <div className="h-10 w-10 rounded-xl bg-[#08739C]/10 flex items-center justify-center text-[#08739C] dark:text-[#38BDF8] mb-3">
+                <Bookmark className="h-5 w-5" />
+              </div>
+              <CardTitle className="text-lg text-foreground">Saved for Later</CardTitle>
+              <CardDescription className="text-xs text-muted-foreground">
+                Your bookmarked discount deals & tutorials
               </CardDescription>
-              <CardTitle className="text-xl font-bold text-foreground">Free Buyer</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">Access to free videos & affiliate deals</p>
+            <CardContent className="flex-1 space-y-3">
+              <div className="p-4 rounded-xl bg-muted/30 border border-border/60 text-center">
+                <Bookmark className="h-6 w-6 text-muted-foreground/50 mx-auto mb-2" />
+                <p className="text-xs text-muted-foreground">No saved items yet.</p>
+                <p className="text-[11px] text-muted-foreground/70 mt-0.5">Click the bookmark icon on any deal or lesson to save it here.</p>
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-border shadow-sm">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-muted-foreground flex items-center justify-between">
-                <span>Affiliate Links</span>
-                <LinkIcon className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8]" />
+          {/* Card 2: Trending Creator Deals */}
+          <Card className="bg-card border-border shadow-sm flex flex-col hover:border-[#08739C]/40 transition-colors">
+            <CardHeader className="pb-3">
+              <div className="h-10 w-10 rounded-xl bg-[#FC801A]/10 flex items-center justify-center text-[#FC801A] mb-3">
+                <ShoppingBag className="h-5 w-5" />
+              </div>
+              <CardTitle className="text-lg text-foreground">Creator Deals</CardTitle>
+              <CardDescription className="text-xs text-muted-foreground">
+                Exclusive affiliate discounts verified by creators
               </CardDescription>
-              <CardTitle className="text-xl font-bold text-foreground">{affiliateLinks.length} submitted</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">Product discount deals you shared</p>
+            <CardContent className="flex-1 space-y-2.5 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 text-foreground font-medium">
+                <CheckCircle2 className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8]" />
+                <span>Up to 40% off top lifestyle & tech products</span>
+              </div>
+              <div className="flex items-center gap-2 text-foreground font-medium">
+                <CheckCircle2 className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8]" />
+                <span>Direct promo codes tested and verified</span>
+              </div>
+              <div className="flex items-center gap-2 text-foreground font-medium">
+                <CheckCircle2 className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8]" />
+                <span>Authentic creator reviews before you buy</span>
+              </div>
+              <div className="pt-2">
+                <Link
+                  href="/about#shoppers"
+                  className="text-xs font-semibold text-[#08739C] dark:text-[#38BDF8] hover:underline inline-flex items-center gap-1"
+                >
+                  Explore All Deals <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-border shadow-sm">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-muted-foreground flex items-center justify-between">
-                <span>Brand Collabs</span>
-                <Building2 className="h-4 w-4 text-[#FC801A]" />
+          {/* Card 3: Free UGC Lessons */}
+          <Card className="bg-card border-border shadow-sm flex flex-col hover:border-[#08739C]/40 transition-colors">
+            <CardHeader className="pb-3">
+              <div className="h-10 w-10 rounded-xl bg-[#08739C]/10 flex items-center justify-center text-[#08739C] dark:text-[#38BDF8] mb-3">
+                <PlayCircle className="h-5 w-5" />
+              </div>
+              <CardTitle className="text-lg text-foreground">Free UGC Academy</CardTitle>
+              <CardDescription className="text-xs text-muted-foreground">
+                Beginner guides for aspiring creators
               </CardDescription>
-              <CardTitle className="text-xl font-bold text-foreground">{brandLinks.length} submitted</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">Creator collaboration links</p>
+            <CardContent className="flex-1 space-y-2.5 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 text-foreground font-medium">
+                <BookOpen className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8]" />
+                <span>How to film product reviews with your phone</span>
+              </div>
+              <div className="flex items-center gap-2 text-foreground font-medium">
+                <BookOpen className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8]" />
+                <span>Scripting 30s hooks that get engagement</span>
+              </div>
+              <div className="flex items-center gap-2 text-foreground font-medium">
+                <BookOpen className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8]" />
+                <span>Lighting and basic CapCut video editing</span>
+              </div>
+              <div className="pt-2">
+                <Link
+                  href="/about#creators"
+                  className="text-xs font-semibold text-[#08739C] dark:text-[#38BDF8] hover:underline inline-flex items-center gap-1"
+                >
+                  Watch Tutorials <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* User Submitted Links Section */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-foreground">My Submitted Links</h2>
-            <Link
-              href="/dashboard/submit"
-              className="text-xs text-[#FC801A] hover:underline font-medium inline-flex items-center gap-1"
-            >
-              <PlusCircle className="h-3.5 w-3.5" /> Submit New Link
-            </Link>
-          </div>
-
-          {affiliateLinks.length === 0 && brandLinks.length === 0 ? (
-            <Card className="bg-card border-border p-8 text-center shadow-sm">
-              <p className="text-muted-foreground text-sm mb-4">You haven&apos;t submitted any links yet.</p>
-              <Link
-                href="/dashboard/submit"
-                className={cn(
-                  buttonVariants({ size: 'sm' }), 
-                  'bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 shadow-sm'
-                )}
-              >
-                Submit Your First Deal or Brand Link
-              </Link>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {/* Affiliate links list */}
-              {affiliateLinks.map((link) => (
-                <div
-                  key={`aff-${link.id}`}
-                  className="p-4 rounded-xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm hover:border-[#08739C]/40 transition-colors"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded bg-[#08739C]/10 text-[#08739C] dark:text-[#38BDF8] border border-[#08739C]/20">
-                        Affiliate Deal
-                      </span>
-                      {link.status === 'PENDING' && (
-                        <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-300 bg-amber-500/10 text-xs">
-                          <Clock className="h-3 w-3 mr-1" /> Pending Review
-                        </Badge>
-                      )}
-                      {link.status === 'APPROVED' && (
-                        <Badge variant="outline" className="border-emerald-500/40 text-emerald-600 dark:text-emerald-300 bg-emerald-500/10 text-xs">
-                          <CheckCircle2 className="h-3 w-3 mr-1" /> Approved
-                        </Badge>
-                      )}
-                      {link.status === 'REJECTED' && (
-                        <Badge variant="outline" className="border-rose-500/40 text-rose-600 dark:text-rose-300 bg-rose-500/10 text-xs">
-                          <XCircle className="h-3 w-3 mr-1" /> Rejected
-                        </Badge>
-                      )}
-                    </div>
-                    <h3 className="font-semibold text-foreground">{link.title}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {link.discount_percentage ? `${link.discount_percentage}% off • ` : ''}
-                      {link.promo_code ? `Code: ${link.promo_code} • ` : ''}
-                      {new Date(link.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-
-                  <a
-                    href={link.product_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-xs text-[#08739C] dark:text-[#38BDF8] hover:underline font-medium gap-1 sm:self-center"
-                  >
-                    View Link <ExternalLink className="h-3 w-3" />
-                  </a>
-                </div>
-              ))}
-
-              {/* Brand links list */}
-              {brandLinks.map((link) => (
-                <div
-                  key={`brand-${link.id}`}
-                  className="p-4 rounded-xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm hover:border-[#FC801A]/40 transition-colors"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded bg-[#FC801A]/10 text-[#FC801A] border border-[#FC801A]/20">
-                        Brand Collaboration
-                      </span>
-                      {link.status === 'PENDING' && (
-                        <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-300 bg-amber-500/10 text-xs">
-                          <Clock className="h-3 w-3 mr-1" /> Pending Review
-                        </Badge>
-                      )}
-                      {link.status === 'APPROVED' && (
-                        <Badge variant="outline" className="border-emerald-500/40 text-emerald-600 dark:text-emerald-300 bg-emerald-500/10 text-xs">
-                          <CheckCircle2 className="h-3 w-3 mr-1" /> Approved
-                        </Badge>
-                      )}
-                      {link.status === 'REJECTED' && (
-                        <Badge variant="outline" className="border-rose-500/40 text-rose-600 dark:text-rose-300 bg-rose-500/10 text-xs">
-                          <XCircle className="h-3 w-3 mr-1" /> Rejected
-                        </Badge>
-                      )}
-                    </div>
-                    <h3 className="font-semibold text-foreground">{link.brand_name}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {link.products_provided ? 'Free products provided • ' : ''}
-                      {new Date(link.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-
-                  <a
-                    href={link.application_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-xs text-[#FC801A] hover:underline font-medium gap-1 sm:self-center"
-                  >
-                    View Application <ExternalLink className="h-3 w-3" />
-                  </a>
-                </div>
-              ))}
+        {/* Upgrade Banner for Creators */}
+        <div className="p-6 rounded-2xl bg-card border border-border shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <Sparkles className="h-4 w-4 text-[#FC801A]" />
+              <span className="text-xs font-bold text-[#FC801A] uppercase tracking-wider">Ready to make content?</span>
             </div>
-          )}
-        </div>
-
-        {/* Action Sections */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="bg-card border-border shadow-sm">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-[#08739C]/10 dark:bg-[#08739C]/20 flex items-center justify-center text-[#08739C] dark:text-[#38BDF8]">
-                  <Video className="h-5 w-5" />
-                </div>
-                <div>
-                  <CardTitle className="text-foreground">UGC Academy</CardTitle>
-                  <CardDescription className="text-muted-foreground">Learn how to film, edit, and pitch brand deals</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Start watching our foundational lessons on creating authentic user-generated content for TikTok, Instagram Reels, and YouTube Shorts.
-              </p>
-              <Link href="/about" className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'border-border text-foreground hover:bg-accent')}>
-                Watch Free Tutorials
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border shadow-sm">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-[#FC801A]/10 dark:bg-[#FC801A]/20 flex items-center justify-center text-[#FC801A]">
-                  <Building2 className="h-5 w-5" />
-                </div>
-                <div>
-                  <CardTitle className="text-foreground">Become a UGC Creator</CardTitle>
-                  <CardDescription className="text-muted-foreground">Unlock brand applications & products for review</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Upgrade to the Standard Plan to access direct brand links, apply for product-for-review campaigns, and produce paid UGC videos.
-              </p>
-              <Link href="/plans" className={cn(buttonVariants({ size: 'sm' }), 'bg-[#08739C] hover:bg-[#02547A] text-white border-0 shadow-sm')}>
-                View Creator Plans
-              </Link>
-            </CardContent>
-          </Card>
+            <h2 className="text-lg sm:text-xl font-bold text-foreground">
+              Receive Products to Review & Monetize Your Videos
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
+              Upgrade to Creator Basic ($10/mo) to unlock direct brand collaboration campaigns, test products without paying, and publish your own affiliate links.
+            </p>
+          </div>
+          <Link
+            href="/plans"
+            className={cn(
+              buttonVariants(), 
+              'bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 shadow-sm font-semibold shrink-0 px-6 h-11'
+            )}
+          >
+            View Creator Plans <ArrowRight className="ml-1.5 h-4 w-4" />
+          </Link>
         </div>
       </main>
 
