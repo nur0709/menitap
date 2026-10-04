@@ -10,6 +10,7 @@ import { BrandLogo } from '@/components/brand-logo'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { UserAvatar } from '@/components/user-avatar'
 import { UpgradeToCreatorButton } from '@/features/account/upgrade-button'
+import { DeleteAccountSection } from '@/features/account/delete-account-section'
 import { LogOut, ArrowLeft, ShoppingBag, Video, Building2, ShieldCheck } from 'lucide-react'
 
 export const metadata = {
@@ -133,13 +134,16 @@ export default async function DashboardPage() {
               <UpgradeToCreatorButton />
             )}
 
-            <div className="pt-4 flex justify-center gap-3">
+            <div className="pt-2 flex justify-center gap-3">
               <Link href="/">
                 <Button variant="outline" className="border-border hover:bg-accent text-xs sm:text-sm">
                   Back to Home
                 </Button>
               </Link>
             </div>
+
+            {/* Danger Zone: Delete Account */}
+            <DeleteAccountSection />
           </CardContent>
         </Card>
       </main>

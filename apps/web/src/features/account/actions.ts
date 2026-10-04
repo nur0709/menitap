@@ -65,3 +65,31 @@ export async function upgradeToCreator(): Promise<UpgradeState> {
 
   return { success: 'Your account has been switched to Creator! Welcome aboard.' }
 }
+
+export type DeleteAccountState = {
+  error?: string
+  success?: string
+}
+
+export async function deleteUserAccount(): Promise<DeleteAccountState> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'You must be signed in to delete your account.' }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error: rpcError } = await (supabase as any).rpc('request_account_deletion')
+  if (rpcError) {
+    return { error: rpcError.message }
+  }
+
+  // Sign out user session
+  await supabase.auth.signOut()
+
+  revalidatePath('/', 'layout')
+  return { success: 'Your account has been deleted.' }
+}
