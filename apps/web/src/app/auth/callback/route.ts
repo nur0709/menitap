@@ -8,8 +8,25 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
+      const roleParam = searchParams.get('role')
+      if (roleParam && ['USER', 'CREATOR', 'BRAND'].includes(roleParam) && data.user) {
+        // If user already has a specific role set in profiles, don't overwrite it unless they are still default USER
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single()
+
+        if (!existingProfile || existingProfile.role === 'USER') {
+          await supabase.from('profiles').update({ role: roleParam }).eq('id', data.user.id)
+          await supabase.auth.updateUser({
+            data: { role: roleParam },
+          })
+        }
+      }
+
       const forwardedHost = request.headers.get('x-forwarded-host')
       const isLocalEnv = process.env.NODE_ENV === 'development'
       if (isLocalEnv) {

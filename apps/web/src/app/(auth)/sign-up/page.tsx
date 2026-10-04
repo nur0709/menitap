@@ -3,7 +3,18 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { GoogleButton } from '@/features/auth/components/google-button'
 import { SignUpForm } from '@/features/auth/components/sign-up-form'
 
-export default function SignUpPage() {
+export default async function SignUpPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ role?: string }>
+}) {
+  const { role: rawRole } = await searchParams
+  const defaultRole = (
+    rawRole && ['USER', 'CREATOR', 'BRAND'].includes(rawRole.toUpperCase())
+      ? rawRole.toUpperCase()
+      : 'USER'
+  ) as 'USER' | 'CREATOR' | 'BRAND'
+
   return (
     <Card className="bg-card border-border shadow-xl transition-colors">
       <CardHeader className="text-center pb-4">
@@ -13,7 +24,7 @@ export default function SignUpPage() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <GoogleButton />
+        <GoogleButton role={defaultRole} />
 
         <div className="relative flex items-center justify-center">
           <div className="border-t border-border w-full" />
@@ -23,7 +34,7 @@ export default function SignUpPage() {
           <div className="border-t border-border w-full" />
         </div>
 
-        <SignUpForm />
+        <SignUpForm defaultRole={defaultRole} />
       </CardContent>
       <CardFooter className="flex justify-center border-t border-border/50 pt-4">
         <p className="text-sm text-muted-foreground">

@@ -120,7 +120,7 @@ export default function PlansPage() {
               </CardContent>
               <CardFooter>
                 <Link 
-                  href="/sign-up" 
+                  href="/sign-up?role=USER" 
                   className={cn(buttonVariants({ variant: "outline" }), "w-full border-border hover:bg-accent font-medium")}
                 >
                   Start Free
@@ -162,7 +162,7 @@ export default function PlansPage() {
               </CardContent>
               <CardFooter>
                 <Link 
-                  href="/sign-up" 
+                  href="/sign-up?role=CREATOR" 
                   className={cn(buttonVariants({ variant: "outline" }), "w-full border-border hover:bg-accent font-medium")}
                 >
                   Join Basic
@@ -209,7 +209,7 @@ export default function PlansPage() {
               </CardContent>
               <CardFooter>
                 <Link 
-                  href="/sign-up" 
+                  href="/sign-up?role=CREATOR" 
                   className={cn(
                     buttonVariants(), 
                     "w-full bg-[#FC801A] hover:bg-[#E66F0D] text-white font-semibold border-0 shadow-sm"
@@ -258,7 +258,7 @@ export default function PlansPage() {
               </CardContent>
               <CardFooter>
                 <Link 
-                  href="/sign-up" 
+                  href="/sign-up?role=BRAND" 
                   className={cn(
                     buttonVariants(), 
                     "w-full bg-[#08739C] hover:bg-[#02547A] text-white font-medium border-0"

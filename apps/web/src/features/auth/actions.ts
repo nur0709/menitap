@@ -10,6 +10,7 @@ import { headers } from 'next/headers'
 const AuthSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters long'),
+  role: z.enum(['USER', 'CREATOR', 'BRAND']).optional(),
 })
 
 export type AuthState = {
@@ -44,8 +45,10 @@ export async function signUpWithEmail(prevState: AuthState | null, formData: For
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const fullName = formData.get('fullName') as string
+  const rawRole = (formData.get('role') as string) || 'USER'
+  const role = ['USER', 'CREATOR', 'BRAND'].includes(rawRole) ? rawRole : 'USER'
 
-  const validation = AuthSchema.safeParse({ email, password })
+  const validation = AuthSchema.safeParse({ email, password, role })
   if (!validation.success) {
     return { error: validation.error.issues[0]?.message || 'Invalid input' }
   }
@@ -57,7 +60,7 @@ export async function signUpWithEmail(prevState: AuthState | null, formData: For
     options: {
       data: {
         full_name: fullName || '',
-        role: 'USER',
+        role,
       },
     },
   })
@@ -72,8 +75,9 @@ export async function signUpWithEmail(prevState: AuthState | null, formData: For
   }
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(formData?: FormData) {
   const supabase = await createClient()
+  const requestedRole = formData ? (formData.get('role') as string) : null
   
   let origin = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   try {
@@ -87,10 +91,15 @@ export async function signInWithGoogle() {
     // fallback to env var
   }
 
+  const callbackUrl = new URL(`${origin}/auth/callback`)
+  if (requestedRole && ['USER', 'CREATOR', 'BRAND'].includes(requestedRole)) {
+    callbackUrl.searchParams.set('role', requestedRole)
+  }
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${origin}/auth/callback`,
+      redirectTo: callbackUrl.toString(),
     },
   })
 

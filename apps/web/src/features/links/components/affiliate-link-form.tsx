@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createAffiliateLink, type LinkActionState } from '../actions'
 
-type Category = {
+export type Category = {
   id: number
   name: string
   slug: string

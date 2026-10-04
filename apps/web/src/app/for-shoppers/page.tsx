@@ -120,7 +120,7 @@ export default function ForShoppersPage() {
             </CardContent>
             <CardFooter className="pt-4 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4">
               <Link 
-                href="/sign-up" 
+                href="/sign-up?role=USER" 
                 className={cn(
                   buttonVariants({ size: "lg" }),
                   "w-full sm:w-auto bg-[#FC801A] hover:bg-[#E66F0D] text-white font-medium"
