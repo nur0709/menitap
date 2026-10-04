@@ -26,7 +26,7 @@ export default function PlansPage() {
           
           <nav className="hidden items-center gap-1.5 md:flex">
             <Link 
-              href="/about#shoppers" 
+              href="/for-shoppers" 
               className={cn(
                 buttonVariants({ size: "sm" }), 
                 "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
@@ -35,7 +35,7 @@ export default function PlansPage() {
               For Shoppers
             </Link>
             <Link 
-              href="/about#creators" 
+              href="/for-creators" 
               className={cn(
                 buttonVariants({ size: "sm" }), 
                 "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
@@ -44,7 +44,7 @@ export default function PlansPage() {
               For Creators
             </Link>
             <Link 
-              href="/about#brands" 
+              href="/for-brands" 
               className={cn(
                 buttonVariants({ size: "sm" }), 
                 "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
