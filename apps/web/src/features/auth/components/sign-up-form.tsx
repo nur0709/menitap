@@ -15,31 +15,31 @@ export function SignUpForm() {
   return (
     <form action={formAction} className="space-y-4">
       {state?.error && (
-        <div className="p-3 text-sm text-rose-300 bg-rose-950/50 border border-rose-800/50 rounded-lg">
+        <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg">
           {state.error}
         </div>
       )}
 
       {state?.success && (
-        <div className="p-3 text-sm text-emerald-300 bg-emerald-950/50 border border-emerald-800/50 rounded-lg">
+        <div className="p-3 text-sm text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 rounded-lg">
           {state.success}
         </div>
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="fullName" className="text-zinc-300 text-sm">Full Name</Label>
+        <Label htmlFor="fullName" className="text-foreground text-sm font-medium">Full Name</Label>
         <Input
           id="fullName"
           name="fullName"
           type="text"
           autoComplete="name"
           placeholder="Alex Rivera"
-          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-purple-500 h-11"
+          className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-[#08739C] h-11"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email" className="text-zinc-300 text-sm">Email Address</Label>
+        <Label htmlFor="email" className="text-foreground text-sm font-medium">Email Address</Label>
         <Input
           id="email"
           name="email"
@@ -47,12 +47,12 @@ export function SignUpForm() {
           autoComplete="email"
           required
           placeholder="creator@example.com"
-          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-purple-500 h-11"
+          className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-[#08739C] h-11"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password" className="text-zinc-300 text-sm">Password (min. 6 characters)</Label>
+        <Label htmlFor="password" className="text-foreground text-sm font-medium">Password (min. 6 characters)</Label>
         <Input
           id="password"
           name="password"
@@ -60,14 +60,14 @@ export function SignUpForm() {
           autoComplete="new-password"
           required
           placeholder="••••••••"
-          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-purple-500 h-11"
+          className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-[#08739C] h-11"
         />
       </div>
 
       <Button
         type="submit"
         disabled={isPending}
-        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-medium h-11 border-0"
+        className="w-full bg-[#08739C] hover:bg-[#02547A] text-white font-medium h-11 border-0 shadow-sm transition-all"
       >
         {isPending ? 'Creating Account...' : 'Create Account'}
       </Button>

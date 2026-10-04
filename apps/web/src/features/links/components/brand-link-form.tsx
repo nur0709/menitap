@@ -21,86 +21,87 @@ export function BrandLinkForm({ categories }: { categories: Category[] }) {
   return (
     <form action={formAction} className="space-y-5">
       {state?.error && (
-        <div className="p-3 text-sm text-rose-300 bg-rose-950/50 border border-rose-800/50 rounded-lg">
+        <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg">
           {state.error}
         </div>
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="brand_name" className="text-zinc-300 text-sm">Brand Name *</Label>
+        <Label htmlFor="brand_name" className="text-foreground text-sm font-medium">Brand Name *</Label>
         <Input
           id="brand_name"
           name="brand_name"
           required
           placeholder="e.g. Glossier, Gymshark, Anker"
-          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-600 h-11"
+          className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-[#FC801A] h-11"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="application_url" className="text-zinc-300 text-sm">Application / Collab Portal URL *</Label>
+        <Label htmlFor="application_url" className="text-foreground text-sm font-medium">Application / Collab Portal URL *</Label>
         <Input
           id="application_url"
           name="application_url"
           type="url"
           required
           placeholder="https://brand.com/collab or https://forms.gle/..."
-          className="bg-zinc-900 border-white/10 text-white placeholder:text-zinc-600 h-11"
+          className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-[#FC801A] h-11"
         />
-        <p className="text-xs text-zinc-500">The direct link where UGC creators apply to receive products or brand deals.</p>
+        <p className="text-xs text-muted-foreground">The direct link where UGC creators apply to receive products or brand deals.</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="brand_category_id" className="text-zinc-300 text-sm">Category *</Label>
+        <Label htmlFor="brand_category_id" className="text-foreground text-sm font-medium">Category *</Label>
         <select
           id="brand_category_id"
           name="category_id"
           required
-          className="w-full h-11 rounded-lg bg-zinc-900 border border-white/10 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+          defaultValue=""
+          className="w-full h-11 rounded-lg bg-background border border-border px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#FC801A]"
         >
-          <option value="" disabled selected>Select category</option>
+          <option value="" disabled>Select category</option>
           {categories.map((cat) => (
-            <option key={cat.id} value={cat.id} className="bg-zinc-900 text-white">
+            <option key={cat.id} value={cat.id} className="bg-background text-foreground">
               {cat.name}
             </option>
           ))}
         </select>
       </div>
 
-      <div className="flex items-center gap-3 p-3.5 rounded-lg bg-zinc-900 border border-white/10">
+      <div className="flex items-center gap-3 p-3.5 rounded-lg bg-muted/50 border border-border">
         <input
           type="checkbox"
           id="products_provided"
           name="products_provided"
           defaultChecked
-          className="h-4 w-4 rounded border-zinc-700 bg-zinc-950 text-purple-600 focus:ring-purple-500"
+          className="h-4 w-4 rounded border-border text-[#FC801A] focus:ring-[#FC801A]"
         />
-        <Label htmlFor="products_provided" className="text-xs sm:text-sm text-zinc-300 cursor-pointer">
+        <Label htmlFor="products_provided" className="text-xs sm:text-sm text-foreground cursor-pointer">
           Free products / gifting provided to approved UGC creators
         </Label>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="brand_description" className="text-zinc-300 text-sm">Collaboration Details (Optional)</Label>
+        <Label htmlFor="brand_description" className="text-foreground text-sm font-medium">Collaboration Details (Optional)</Label>
         <textarea
           id="brand_description"
           name="description"
           rows={3}
           placeholder="What kind of content are they looking for? (e.g. TikTok unboxings, honest reviews, 30s Reels)"
-          className="w-full rounded-lg bg-zinc-900 border border-white/10 p-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full rounded-lg bg-background border border-border p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#FC801A]"
         />
       </div>
 
-      <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-3.5 text-xs text-yellow-300/90">
+      <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 p-3.5 text-xs text-amber-700 dark:text-amber-300">
         ⭐ <span className="font-semibold">Earn Points:</span> When your contributed brand link is reviewed and approved by admins, you will earn reward points redeemable for subscription discounts!
       </div>
 
       <Button
         type="submit"
         disabled={isPending}
-        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-medium h-11 border-0"
+        className="w-full bg-[#FC801A] hover:bg-[#E66F0D] text-white font-medium h-11 border-0 shadow-sm transition-all"
       >
-        {isPending ? 'Submitting...' : 'Submit Brand Opportunity'}
+        {isPending ? 'Submitting...' : 'Submit Brand Collaboration'}
       </Button>
     </form>
   )

@@ -9,7 +9,7 @@ export function GoogleButton() {
       <Button
         type="submit"
         variant="outline"
-        className="w-full flex items-center justify-center gap-3 bg-zinc-900 border-white/10 hover:bg-zinc-800 text-white h-11"
+        className="w-full flex items-center justify-center gap-3 bg-card hover:bg-accent border border-border text-foreground h-11 shadow-sm font-medium transition-colors"
       >
         <svg className="w-4 h-4" viewBox="0 0 24 24">
           <path

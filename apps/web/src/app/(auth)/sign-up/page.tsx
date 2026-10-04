@@ -5,10 +5,10 @@ import { SignUpForm } from '@/features/auth/components/sign-up-form'
 
 export default function SignUpPage() {
   return (
-    <Card className="bg-zinc-950 border-white/10 shadow-2xl">
+    <Card className="bg-card border-border shadow-xl transition-colors">
       <CardHeader className="text-center pb-4">
-        <CardTitle className="text-2xl font-bold text-white">Create an account</CardTitle>
-        <CardDescription className="text-zinc-400">
+        <CardTitle className="text-2xl font-bold text-foreground">Create an account</CardTitle>
+        <CardDescription className="text-muted-foreground">
           Join Menitap to start creating or discovering deals
         </CardDescription>
       </CardHeader>
@@ -16,19 +16,19 @@ export default function SignUpPage() {
         <GoogleButton />
 
         <div className="relative flex items-center justify-center">
-          <div className="border-t border-white/10 w-full" />
-          <span className="bg-zinc-950 px-3 text-xs uppercase text-zinc-500 font-medium">
+          <div className="border-t border-border w-full" />
+          <span className="bg-card px-3 text-xs uppercase text-muted-foreground font-medium">
             or with email
           </span>
-          <div className="border-t border-white/10 w-full" />
+          <div className="border-t border-border w-full" />
         </div>
 
         <SignUpForm />
       </CardContent>
-      <CardFooter className="flex justify-center border-t border-white/5 pt-4">
-        <p className="text-sm text-zinc-400">
+      <CardFooter className="flex justify-center border-t border-border/50 pt-4">
+        <p className="text-sm text-muted-foreground">
           Already have an account?{' '}
-          <Link href="/sign-in" className="text-purple-400 hover:text-purple-300 font-medium">
+          <Link href="/sign-in" className="text-[#FC801A] hover:text-[#E66F0D] font-medium">
             Sign in
           </Link>
         </p>
