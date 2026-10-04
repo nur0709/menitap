@@ -65,7 +65,7 @@ export default function LandingPage() {
             {/* Value Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border bg-muted/60 text-xs sm:text-sm font-medium text-muted-foreground mb-8">
               <Gift className="h-4 w-4 text-[#FC801A]" />
-              <span>Get free products to review & keep — start creating today</span>
+              <span>Get free products in exchange for reviews — start creating today</span>
             </div>
 
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">
@@ -103,7 +103,7 @@ export default function LandingPage() {
             {/* Quick Micro Badges */}
             <div className="mt-14 flex justify-center gap-3 sm:gap-6 flex-wrap text-xs sm:text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <Gift className="h-4 w-4 text-[#FC801A]" /> Free Products to Keep
+                <Gift className="h-4 w-4 text-[#FC801A]" /> Free Products to Test & Keep
               </span>
               <span className="flex items-center gap-1.5">
                 <Tag className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8]" /> Verified Creator Deals
@@ -169,16 +169,16 @@ export default function LandingPage() {
                   <Badge className="w-fit text-xs font-semibold bg-[#FC801A] text-white border-0 mb-2">
                     For UGC Creators
                   </Badge>
-                  <CardTitle className="text-xl text-foreground">Get Free Products & Work</CardTitle>
+                  <CardTitle className="text-xl text-foreground">Products For Review & Deals</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 flex-1">
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Start creating with free beginner guides, receive products to test without paying, and monetize your links.
+                    Start creating with free beginner guides, receive brand products to test and keep in exchange for video reviews.
                   </p>
                   <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
                     <li className="flex gap-2">
                       <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
-                      <span>Receive free gifted products to review & keep</span>
+                      <span>Receive products to test & keep for video reviews</span>
                     </li>
                     <li className="flex gap-2">
                       <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
@@ -205,12 +205,12 @@ export default function LandingPage() {
                 </CardHeader>
                 <CardContent className="space-y-4 flex-1">
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Connect directly with real creators. Post product gifting and video campaigns to generate authentic user reviews.
+                    Connect directly with real creators. Post product-for-review campaigns to generate authentic video content.
                   </p>
                   <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
                     <li className="flex gap-2">
                       <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Post collaboration & gifting links at zero cost</span>
+                      <span>Post product-for-review campaigns at zero cost</span>
                     </li>
                     <li className="flex gap-2">
                       <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
@@ -292,11 +292,11 @@ export default function LandingPage() {
                     </li>
                     <li className="flex gap-2.5">
                       <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Access verified brand campaign links</span>
+                      <span>Access direct brand application links</span>
                     </li>
                     <li className="flex gap-2.5">
                       <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Apply for free gifted products to keep</span>
+                      <span>Receive products to test & keep for reviews</span>
                     </li>
                     <li className="flex gap-2.5">
                       <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
@@ -366,7 +366,7 @@ export default function LandingPage() {
             <div className="mt-12 p-5 rounded-2xl bg-muted/40 border border-border text-center max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-left">
                 <p className="text-sm font-semibold text-foreground">Are you a Company or Brand Manager?</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Post product gifting campaigns and discover creators 100% free.</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Post product-for-review campaigns and discover creators 100% free.</p>
               </div>
               <Link 
                 href="/sign-up" 
