@@ -137,3 +137,18 @@ export async function getCurrentUser() {
 
   return user
 }
+
+export async function getCurrentUserRole(): Promise<string | null> {
+  const user = await getCurrentUser()
+  if (!user) return null
+
+  const supabase = await createClient()
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const rawRole = (profile?.role || user.user_metadata?.role || 'USER').toUpperCase()
+  return rawRole === 'DELETED' ? 'USER' : rawRole
+}

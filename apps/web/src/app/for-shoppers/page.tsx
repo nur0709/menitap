@@ -5,11 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { BrandBorder } from "@/components/brand-border";
 import { BrandLogo } from "@/components/brand-logo";
 import { AuthNav } from "@/components/auth-nav";
+import { MainNav } from "@/components/main-nav";
 import { Check, ShoppingBag, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const metadata = {
-  title: "For Shoppers | Menitap",
+  title: "Explore Deals | Menitap",
   description: "Save with verified creator discounts, honest video reviews, and promo codes.",
 };
 
@@ -23,46 +24,7 @@ export default function ForShoppersPage() {
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md transition-colors">
         <div className="container mx-auto flex h-18 sm:h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
           <BrandLogo size="md" />
-          
-          <nav className="hidden items-center gap-1.5 md:flex">
-            <Link 
-              href="/for-shoppers" 
-              className={cn(
-                buttonVariants({ size: "sm" }), 
-                "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0 ring-2 ring-[#08739C]/40"
-              )}
-            >
-              For Shoppers
-            </Link>
-            <Link 
-              href="/for-creators" 
-              className={cn(
-                buttonVariants({ size: "sm" }), 
-                "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
-              )}
-            >
-              For Creators
-            </Link>
-            <Link 
-              href="/for-brands" 
-              className={cn(
-                buttonVariants({ size: "sm" }), 
-                "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
-              )}
-            >
-              For Brands
-            </Link>
-            <Link 
-              href="/plans" 
-              className={cn(
-                buttonVariants({ size: "sm" }), 
-                "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
-              )}
-            >
-              Plans
-            </Link>
-          </nav>
-
+          <MainNav currentPath="/for-shoppers" />
           <AuthNav />
         </div>
       </header>
