@@ -34,8 +34,8 @@ export async function upgradeToCreator(plan: UpgradePlan = 'BASIC'): Promise<Upg
     return { error: 'Brand accounts cannot be converted to Creator accounts.' }
   }
 
-  if (currentRole === 'CREATOR') {
-    // If already CREATOR, upgrade or switch subscription plan
+  if (currentRole === 'CREATOR' || currentRole === 'ADMIN') {
+    // If already CREATOR or ADMIN, upgrade or switch subscription plan without losing admin privileges
     const { error: subError } = await supabase
       .from('subscriptions')
       .upsert({
@@ -58,7 +58,7 @@ export async function upgradeToCreator(plan: UpgradePlan = 'BASIC'): Promise<Upg
     }
   }
 
-  // Update profile role to CREATOR
+  // Update profile role to CREATOR (for normal users)
   const { error: profileError } = await supabase
     .from('profiles')
     .update({ role: 'CREATOR' })
@@ -108,24 +108,26 @@ export async function downgradeToConsumer(): Promise<UpgradeState> {
 
   const currentRole = (profile?.role || 'USER').toUpperCase()
 
-  if (currentRole !== 'CREATOR') {
+  if (currentRole !== 'CREATOR' && currentRole !== 'ADMIN') {
     return { error: 'Only Creator accounts can be switched back to Consumer.' }
   }
 
-  // Update profile role to USER
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .update({ role: 'USER' })
-    .eq('id', user.id)
+  // If normal Creator, revert profile role to USER. If ADMIN, preserve ADMIN role.
+  if (currentRole !== 'ADMIN') {
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ role: 'USER' })
+      .eq('id', user.id)
 
-  if (profileError) {
-    return { error: profileError.message }
+    if (profileError) {
+      return { error: profileError.message }
+    }
+
+    // Update auth metadata
+    await supabase.auth.updateUser({
+      data: { role: 'USER' },
+    })
   }
-
-  // Update auth metadata
-  await supabase.auth.updateUser({
-    data: { role: 'USER' },
-  })
 
   // Revert subscription plan to FREE (canceled creator subscription)
   await supabase
