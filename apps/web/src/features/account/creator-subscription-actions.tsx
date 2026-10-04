@@ -46,7 +46,7 @@ export function CreatorSubscriptionActions({ currentPlan }: { currentPlan: strin
       )}
 
       <div className="flex flex-wrap items-center justify-center gap-2.5">
-        {/* If on $10 Basic, show button to upgrade to $15 Standard */}
+        {/* If on $10 Basic, show button to upgrade to Standard */}
         {isBasic && (
           <Button
             type="button"
@@ -63,13 +63,13 @@ export function CreatorSubscriptionActions({ currentPlan }: { currentPlan: strin
             ) : (
               <>
                 <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                Upgrade to $15 Standard Plan
+                Upgrade to Standard
               </>
             )}
           </Button>
         )}
 
-        {/* If on $15 Standard, show button to switch to $10 Basic */}
+        {/* If on $15 Standard, show button to downgrade to Basic */}
         {isStandard && (
           <Button
             type="button"
@@ -86,7 +86,7 @@ export function CreatorSubscriptionActions({ currentPlan }: { currentPlan: strin
               </>
             ) : (
               <>
-                Switch to $10 Basic Plan
+                Downgrade to Basic
               </>
             )}
           </Button>
