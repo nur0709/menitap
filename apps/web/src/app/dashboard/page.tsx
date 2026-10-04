@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { getCurrentUser, signOut } from '@/features/auth/actions'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { BrandBorder } from '@/components/brand-border'
 import { BrandLogo } from '@/components/brand-logo'
@@ -109,12 +109,7 @@ export default async function DashboardPage() {
           <CardHeader className="flex flex-col items-center gap-4 pb-4">
             <UserAvatar user={{ email, fullName, avatarUrl }} size="lg" />
             <div className="space-y-2">
-              <CardTitle className="text-3xl font-extrabold text-foreground">My Account</CardTitle>
-              {fullName && <p className="text-base font-medium text-foreground">{fullName}</p>}
-              {email && <p className="text-xs text-muted-foreground">{email}</p>}
-              
-              {/* Account Type Indicator Tag */}
-              <div className="pt-2 flex justify-center">
+              <div className="flex justify-center">
                 <Badge
                   variant="outline"
                   className={`text-xs px-3 py-1 font-semibold flex items-center gap-1.5 ${roleConfig.badgeBg}`}
@@ -123,6 +118,8 @@ export default async function DashboardPage() {
                   <span>{roleConfig.name} Account</span>
                 </Badge>
               </div>
+              {fullName && <p className="text-base font-medium text-foreground">{fullName}</p>}
+              {email && <p className="text-xs text-muted-foreground">{email}</p>}
             </div>
           </CardHeader>
 
