@@ -26,68 +26,58 @@ export function DeleteAccountSection() {
   }
 
   return (
-    <div className="w-full pt-6 border-t border-border mt-6 text-left">
-      <div className="p-4 rounded-xl border border-destructive/20 bg-destructive/5 space-y-3">
-        <div className="flex items-center gap-2 text-destructive font-semibold text-sm">
-          <Trash2 className="h-4 w-4" />
-          <span>Danger Zone: Delete Account</span>
+    <div className="w-full pt-4 border-t border-border mt-4 flex flex-col items-center justify-center">
+      {error && (
+        <div className="mb-3 p-2.5 rounded-lg text-xs font-medium bg-destructive/10 text-destructive border border-destructive/20 w-full text-center">
+          {error}
         </div>
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          Once you delete your account, your profile and saved data will be permanently removed. This action cannot be undone.
-        </p>
+      )}
 
-        {error && (
-          <div className="p-2.5 rounded-lg text-xs font-medium bg-destructive/10 text-destructive border border-destructive/20">
-            {error}
-          </div>
-        )}
-
-        {!showConfirm ? (
+      {!showConfirm ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setShowConfirm(true)}
+          className="border-destructive/30 text-destructive hover:bg-destructive hover:text-white transition-colors text-xs cursor-pointer"
+        >
+          <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+          Delete Account
+        </Button>
+      ) : (
+        <div className="flex flex-col sm:flex-row items-center gap-2">
           <Button
             type="button"
-            variant="outline"
+            variant="destructive"
             size="sm"
-            onClick={() => setShowConfirm(true)}
-            className="border-destructive/30 text-destructive hover:bg-destructive hover:text-white transition-colors text-xs cursor-pointer"
+            disabled={isPending}
+            onClick={handleDelete}
+            className="text-xs cursor-pointer"
           >
-            <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-            Delete Account
+            {isPending ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                Deleting Account...
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="h-3.5 w-3.5 mr-1.5" />
+                Yes, permanently delete my account
+              </>
+            )}
           </Button>
-        ) : (
-          <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              disabled={isPending}
-              onClick={handleDelete}
-              className="text-xs cursor-pointer"
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
-                  Deleting Account...
-                </>
-              ) : (
-                <>
-                  <AlertTriangle className="h-3.5 w-3.5 mr-1.5" />
-                  Yes, permanently delete my account
-                </>
-              )}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={isPending}
-              onClick={() => setShowConfirm(false)}
-              className="text-xs text-muted-foreground hover:text-foreground cursor-pointer"
-            >
-              Cancel
-            </Button>
-          </div>
-        )}
-      </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={isPending}
+            onClick={() => setShowConfirm(false)}
+            className="text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+          >
+            Cancel
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
