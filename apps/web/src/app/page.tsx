@@ -63,16 +63,9 @@ export default function LandingPage() {
         {/* Video-First Hero Section */}
         <section className="pt-10 pb-16 sm:pt-14 sm:pb-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-4xl">
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl max-w-4xl mx-auto flex flex-col gap-1 sm:gap-2">
-              <span className="text-[#08739C] dark:text-[#38BDF8]">
-                Discover Deals.
-              </span>
-              <span className="text-[#FC801A]">
-                Create Content.
-              </span>
-              <span className="text-[#08739C] dark:text-[#38BDF8]">
-                Grow Your Brand.
-              </span>
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto text-foreground">
+              The UGC Marketplace for Shoppers,{' '}
+              <span className="text-[#FC801A]">Creators</span>, and Brands.
             </h1>
 
             {/* Embedded Video Centerpiece */}
