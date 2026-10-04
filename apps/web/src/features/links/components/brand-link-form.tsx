@@ -77,7 +77,7 @@ export function BrandLinkForm({ categories }: { categories: Category[] }) {
           className="h-4 w-4 rounded border-border text-[#FC801A] focus:ring-[#FC801A]"
         />
         <Label htmlFor="products_provided" className="text-xs sm:text-sm text-foreground cursor-pointer">
-          Free products / gifting provided to approved UGC creators
+          Free products provided for review to approved UGC creators
         </Label>
       </div>
 
@@ -92,8 +92,8 @@ export function BrandLinkForm({ categories }: { categories: Category[] }) {
         />
       </div>
 
-      <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 p-3.5 text-xs text-amber-700 dark:text-amber-300">
-        ⭐ <span className="font-semibold">Earn Points:</span> When your contributed brand link is reviewed and approved by admins, you will earn reward points redeemable for subscription discounts!
+      <div className="rounded-lg bg-[#08739C]/10 border border-[#08739C]/20 p-3.5 text-xs text-[#08739C] dark:text-[#38BDF8]">
+        ✨ <span className="font-semibold">Review & Quality Check:</span> Contributed links are reviewed to verify active campaign availability before appearing in the creator discovery directory.
       </div>
 
       <Button

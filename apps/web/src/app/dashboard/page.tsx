@@ -12,7 +12,6 @@ import {
   Video,
   Link as LinkIcon,
   Building2,
-  Coins,
   ArrowRight,
   UserCheck,
   LogOut,
@@ -54,8 +53,8 @@ export default async function DashboardPage({
             <BrandLogo size="md" />
             <nav className="hidden sm:flex gap-4 text-sm text-muted-foreground">
               <Link href="/dashboard" className="text-foreground font-semibold">Dashboard</Link>
-              <Link href="/#features" className="hover:text-foreground transition-colors">Deals</Link>
-              <Link href="/#how-it-works" className="hover:text-foreground transition-colors">Academy</Link>
+              <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
+              <Link href="/plans" className="hover:text-foreground transition-colors">Plans</Link>
             </nav>
           </div>
 
@@ -120,7 +119,7 @@ export default async function DashboardPage({
               Welcome back, {fullName}!
             </h1>
             <p className="mt-2 text-muted-foreground max-w-xl text-sm sm:text-base">
-              Submit affiliate links for products you love, or contribute brand partnerships to earn points redeemable for subscription discounts.
+              Submit affiliate links for products you love, or direct brand collaboration links to help creators discover opportunities.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
@@ -133,7 +132,7 @@ export default async function DashboardPage({
                 <PlusCircle className="mr-1.5 h-4 w-4" /> Submit a Deal or Brand Link
               </Link>
               <Link
-                href="/#pricing"
+                href="/plans"
                 className={cn(
                   buttonVariants({ variant: 'outline', size: 'sm' }), 
                   'border-border hover:bg-accent text-foreground'
@@ -146,7 +145,7 @@ export default async function DashboardPage({
         </div>
 
         {/* Quick Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
           <Card className="bg-card border-border shadow-sm">
             <CardHeader className="pb-2">
               <CardDescription className="text-muted-foreground flex items-center justify-between">
@@ -163,33 +162,20 @@ export default async function DashboardPage({
           <Card className="bg-card border-border shadow-sm">
             <CardHeader className="pb-2">
               <CardDescription className="text-muted-foreground flex items-center justify-between">
-                <span>Earned Points</span>
-                <Coins className="h-4 w-4 text-[#FC801A]" />
-              </CardDescription>
-              <CardTitle className="text-xl font-bold text-foreground">0 pts</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">Earn points when brand links are approved</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card border-border shadow-sm">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-muted-foreground flex items-center justify-between">
                 <span>Affiliate Links</span>
                 <LinkIcon className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8]" />
               </CardDescription>
               <CardTitle className="text-xl font-bold text-foreground">{affiliateLinks.length} submitted</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-xs text-muted-foreground">Product deals you shared</p>
+              <p className="text-xs text-muted-foreground">Product discount deals you shared</p>
             </CardContent>
           </Card>
 
           <Card className="bg-card border-border shadow-sm">
             <CardHeader className="pb-2">
               <CardDescription className="text-muted-foreground flex items-center justify-between">
-                <span>Brand Deals</span>
+                <span>Brand Collabs</span>
                 <Building2 className="h-4 w-4 text-[#FC801A]" />
               </CardDescription>
               <CardTitle className="text-xl font-bold text-foreground">{brandLinks.length} submitted</CardTitle>
@@ -339,7 +325,7 @@ export default async function DashboardPage({
               <p className="text-sm text-muted-foreground">
                 Start watching our foundational lessons on creating authentic user-generated content for TikTok, Instagram Reels, and YouTube Shorts.
               </p>
-              <Link href="/#how-it-works" className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'border-border text-foreground hover:bg-accent')}>
+              <Link href="/about" className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'border-border text-foreground hover:bg-accent')}>
                 Watch Free Tutorials
               </Link>
             </CardContent>
@@ -353,15 +339,15 @@ export default async function DashboardPage({
                 </div>
                 <div>
                   <CardTitle className="text-foreground">Become a UGC Creator</CardTitle>
-                  <CardDescription className="text-muted-foreground">Unlock brand applications & product gifting</CardDescription>
+                  <CardDescription className="text-muted-foreground">Unlock brand applications & products for review</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Upgrade to the Standard Plan to access direct brand links, apply for product gifting campaigns, and produce paid UGC videos.
+                Upgrade to the Standard Plan to access direct brand links, apply for product-for-review campaigns, and produce paid UGC videos.
               </p>
-              <Link href="/#pricing" className={cn(buttonVariants({ size: 'sm' }), 'bg-[#08739C] hover:bg-[#02547A] text-white border-0 shadow-sm')}>
+              <Link href="/plans" className={cn(buttonVariants({ size: 'sm' }), 'bg-[#08739C] hover:bg-[#02547A] text-white border-0 shadow-sm')}>
                 View Creator Plans
               </Link>
             </CardContent>
