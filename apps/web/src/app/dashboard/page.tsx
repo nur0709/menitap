@@ -109,7 +109,7 @@ export default async function DashboardPage({
         )}
 
         {/* Welcome Banner */}
-        <div className="rounded-2xl p-6 sm:p-8 bg-gradient-to-r from-[#08739C]/10 via-[#08739C]/5 to-[#FC801A]/10 border border-border mb-10 relative overflow-hidden shadow-sm">
+        <div className="rounded-2xl p-6 sm:p-8 bg-card border border-border mb-10 shadow-sm">
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-2">
               <Badge variant="outline" className="border-[#08739C]/40 text-[#08739C] dark:text-[#38BDF8] bg-[#08739C]/10">

@@ -54,16 +54,11 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative overflow-hidden pt-20 pb-28 sm:pt-28 sm:pb-36">
-          {/* Subtle Ambient Brand Glow */}
-          <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
-            <div className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#08739C] to-[#FC801A] opacity-15 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"></div>
-          </div>
-          
+        <section className="relative pt-20 pb-28 sm:pt-28 sm:pb-36">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="mx-auto max-w-4xl text-5xl font-extrabold tracking-tight sm:text-7xl">
               Your Gateway to{" "}
-              <span className="bg-gradient-to-r from-[#08739C] via-[#0284C7] to-[#FC801A] bg-clip-text text-transparent">
+              <span className="text-[#08739C] dark:text-[#38BDF8]">
                 UGC Success
               </span>
             </h1>
@@ -75,7 +70,7 @@ export default function LandingPage() {
                 href="#pricing" 
                 className={cn(
                   buttonVariants({ size: "lg" }), 
-                  "bg-gradient-to-r from-[#08739C] to-[#FC801A] hover:opacity-95 text-white border-0 shadow-lg shadow-[#08739C]/20"
+                  "bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 shadow-sm"
                 )}
               >
                 Start Creating <ArrowRight className="ml-2 h-4 w-4" />
@@ -415,8 +410,7 @@ export default function LandingPage() {
         </section>
 
         {/* CTA Banner Section */}
-        <section className="relative overflow-hidden py-24">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#08739C] via-[#02658E] to-[#FC801A] opacity-95"></div>
+        <section className="relative overflow-hidden py-24 bg-[#08739C]">
           <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-4">Ready to Start Your UGC Journey?</h2>
             <p className="text-lg text-white/90 max-w-2xl mx-auto mb-8">
@@ -426,7 +420,7 @@ export default function LandingPage() {
               href="/sign-up" 
               className={cn(
                 buttonVariants({ size: "lg" }), 
-                "bg-white text-[#08739C] hover:bg-zinc-100 font-bold text-lg px-8 h-14 inline-flex items-center justify-center shadow-lg"
+                "bg-[#FC801A] hover:bg-[#E66F0D] text-white font-bold text-lg px-8 h-14 inline-flex items-center justify-center shadow-md border-0"
               )}
             >
               Create Free Account

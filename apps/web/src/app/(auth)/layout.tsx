@@ -18,10 +18,6 @@ export default function AuthLayout({
         <ThemeToggle />
       </div>
 
-      {/* Ambient Brand Glow */}
-      <div className="absolute top-1/4 -left-40 w-96 h-96 bg-[#08739C]/15 dark:bg-[#08739C]/25 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-40 w-96 h-96 bg-[#FC801A]/10 dark:bg-[#FC801A]/20 rounded-full blur-3xl pointer-events-none" />
-
       {/* Center Auth Card */}
       <div className="w-full max-w-md px-4 py-8 sm:py-12 relative z-10 flex flex-col items-center">
         {/* Brand Header */}
