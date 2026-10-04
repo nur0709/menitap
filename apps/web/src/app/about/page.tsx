@@ -24,12 +24,45 @@ export default function AboutPage() {
         <div className="container mx-auto flex h-18 sm:h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
           <BrandLogo size="md" />
           
-          <nav className="hidden gap-6 md:flex">
-            <Link href="/about" className="text-sm font-semibold text-foreground transition-colors">
-              About
+          <nav className="hidden items-center gap-1.5 md:flex">
+            <Link 
+              href="/about#shoppers" 
+              className={cn(
+                buttonVariants({ size: "sm" }), 
+                "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
+              )}
+            >
+              For Shoppers
             </Link>
-            <Link href="/plans" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+            <Link 
+              href="/about#creators" 
+              className={cn(
+                buttonVariants({ size: "sm" }), 
+                "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
+              )}
+            >
+              For Creators
+            </Link>
+            <Link 
+              href="/about#brands" 
+              className={cn(
+                buttonVariants({ size: "sm" }), 
+                "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
+              )}
+            >
+              For Brands
+            </Link>
+            <Link 
+              href="/plans" 
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground px-3 py-1.5 ml-1"
+            >
               Plans
+            </Link>
+            <Link 
+              href="/about" 
+              className="text-sm font-semibold text-foreground transition-colors px-3 py-1.5"
+            >
+              About
             </Link>
           </nav>
 
@@ -37,18 +70,12 @@ export default function AboutPage() {
             <ThemeToggle />
             <Link 
               href="/sign-in" 
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5"
-            >
-              Sign In
-            </Link>
-            <Link 
-              href="/sign-up" 
               className={cn(
                 buttonVariants(), 
-                "bg-[#FC801A] hover:bg-[#E66F0D] text-white shadow-sm font-medium transition-all"
+                "bg-[#FC801A] hover:bg-[#E66F0D] text-white shadow-sm font-medium transition-all px-4 sm:px-5"
               )}
             >
-              Get Started
+              Sign In
             </Link>
           </div>
         </div>
@@ -67,7 +94,7 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {/* Pillar 1: Shoppers */}
-            <Card className="bg-card border-border shadow-sm flex flex-col h-full hover:border-[#08739C]/40 transition-colors">
+            <Card id="shoppers" className="bg-card border-border shadow-sm flex flex-col h-full hover:border-[#08739C]/40 transition-colors scroll-mt-24">
               <CardHeader>
                 <div className="h-12 w-12 rounded-xl bg-[#08739C]/10 flex items-center justify-center text-[#08739C] dark:text-[#38BDF8] mb-4">
                   <ShoppingBag className="h-6 w-6" />
@@ -107,7 +134,7 @@ export default function AboutPage() {
             </Card>
 
             {/* Pillar 2: UGC Creators */}
-            <Card className="bg-card border-[#FC801A]/40 shadow-sm flex flex-col h-full ring-1 ring-[#FC801A]/20">
+            <Card id="creators" className="bg-card border-[#FC801A]/40 shadow-sm flex flex-col h-full ring-1 ring-[#FC801A]/20 scroll-mt-24">
               <CardHeader>
                 <div className="h-12 w-12 rounded-xl bg-[#FC801A]/10 flex items-center justify-center text-[#FC801A] mb-4">
                   <Video className="h-6 w-6" />
@@ -147,7 +174,7 @@ export default function AboutPage() {
             </Card>
 
             {/* Pillar 3: Brands */}
-            <Card className="bg-card border-border shadow-sm flex flex-col h-full hover:border-[#08739C]/40 transition-colors">
+            <Card id="brands" className="bg-card border-border shadow-sm flex flex-col h-full hover:border-[#08739C]/40 transition-colors scroll-mt-24">
               <CardHeader>
                 <div className="h-12 w-12 rounded-xl bg-[#08739C]/10 flex items-center justify-center text-[#08739C] dark:text-[#38BDF8] mb-4">
                   <Building2 className="h-6 w-6" />

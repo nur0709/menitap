@@ -16,12 +16,45 @@ export default function LandingPage() {
         <div className="container mx-auto flex h-18 sm:h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
           <BrandLogo size="md" />
           
-          <nav className="hidden gap-6 md:flex">
-            <Link href="/about" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-              About
+          <nav className="hidden items-center gap-1.5 md:flex">
+            <Link 
+              href="/about#shoppers" 
+              className={cn(
+                buttonVariants({ size: "sm" }), 
+                "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
+              )}
+            >
+              For Shoppers
             </Link>
-            <Link href="/plans" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+            <Link 
+              href="/about#creators" 
+              className={cn(
+                buttonVariants({ size: "sm" }), 
+                "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
+              )}
+            >
+              For Creators
+            </Link>
+            <Link 
+              href="/about#brands" 
+              className={cn(
+                buttonVariants({ size: "sm" }), 
+                "bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0"
+              )}
+            >
+              For Brands
+            </Link>
+            <Link 
+              href="/plans" 
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground px-3 py-1.5 ml-1"
+            >
               Plans
+            </Link>
+            <Link 
+              href="/about" 
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground px-3 py-1.5"
+            >
+              About
             </Link>
           </nav>
 
@@ -29,18 +62,12 @@ export default function LandingPage() {
             <ThemeToggle />
             <Link 
               href="/sign-in" 
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5"
-            >
-              Sign In
-            </Link>
-            <Link 
-              href="/sign-up" 
               className={cn(
                 buttonVariants(), 
-                "bg-[#FC801A] hover:bg-[#E66F0D] text-white shadow-sm font-medium transition-all"
+                "bg-[#FC801A] hover:bg-[#E66F0D] text-white shadow-sm font-medium transition-all px-4 sm:px-5"
               )}
             >
-              Get Started
+              Sign In
             </Link>
           </div>
         </div>
