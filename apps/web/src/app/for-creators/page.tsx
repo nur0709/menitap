@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { BrandBorder } from "@/components/brand-border";
 import { BrandLogo } from "@/components/brand-logo";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { AuthNav } from "@/components/auth-nav";
 import { Check, Video, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -63,18 +63,7 @@ export default function ForCreatorsPage() {
             </Link>
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link 
-              href="/sign-in" 
-              className={cn(
-                buttonVariants(), 
-                "bg-[#FC801A] hover:bg-[#E66F0D] text-white shadow-sm font-medium transition-all px-4 sm:px-5"
-              )}
-            >
-              Sign In
-            </Link>
-            <ThemeToggle />
-          </div>
+          <AuthNav />
         </div>
       </header>
 

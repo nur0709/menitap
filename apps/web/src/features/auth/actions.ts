@@ -38,7 +38,7 @@ export async function signInWithEmail(prevState: AuthState | null, formData: For
   }
 
   revalidatePath('/', 'layout')
-  redirect('/dashboard')
+  redirect('/')
 }
 
 export async function signUpWithEmail(prevState: AuthState | null, formData: FormData): Promise<AuthState> {
@@ -116,7 +116,7 @@ export async function signOut() {
   const supabase = await createClient()
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
-  redirect('/sign-in')
+  redirect('/')
 }
 
 export async function getCurrentUser() {

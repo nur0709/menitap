@@ -2,7 +2,7 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { BrandBorder } from "@/components/brand-border";
 import { BrandLogo } from "@/components/brand-logo";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { AuthNav } from "@/components/auth-nav";
 import { cn } from "@/lib/utils";
 
 export default function LandingPage() {
@@ -55,18 +55,7 @@ export default function LandingPage() {
             </Link>
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link 
-              href="/sign-in" 
-              className={cn(
-                buttonVariants(), 
-                "bg-[#FC801A] hover:bg-[#E66F0D] text-white shadow-sm font-medium transition-all px-4 sm:px-5"
-              )}
-            >
-              Sign In
-            </Link>
-            <ThemeToggle />
-          </div>
+          <AuthNav />
         </div>
       </header>
 
