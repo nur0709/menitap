@@ -8,8 +8,11 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://menitap.vercel.app'
+const siteUrl = rawAppUrl.startsWith('http') ? rawAppUrl : `https://${rawAppUrl}`
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://menitap.vercel.app'),
+  metadataBase: new URL(siteUrl),
   title: "Menitap — Find Your UGC Opportunity",
   description:
     "Menitap is an all-in-one platform for UGC creators and shoppers. Access educational resources, produce UGC videos, and discover discounted products through curated affiliate networks.",

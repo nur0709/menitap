@@ -49,7 +49,7 @@ export default async function DashboardPage({
 
       {/* Top Navbar */}
       <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <BrandLogo size="md" />
             <nav className="hidden sm:flex gap-4 text-sm text-muted-foreground">

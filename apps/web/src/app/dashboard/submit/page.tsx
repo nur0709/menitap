@@ -30,7 +30,7 @@ export default async function SubmitLinkPage({
 
       {/* Top Header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between max-w-4xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between max-w-4xl">
           <BrandLogo size="md" />
           <div className="flex items-center gap-3">
             <ThemeToggle />

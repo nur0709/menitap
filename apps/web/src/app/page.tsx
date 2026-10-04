@@ -16,7 +16,7 @@ export default function LandingPage() {
 
       {/* Navigation */}
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md transition-colors">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto flex h-18 sm:h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
           <BrandLogo size="md" />
           
           <nav className="hidden gap-6 md:flex">
