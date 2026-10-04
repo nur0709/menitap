@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { GoogleButton } from '@/features/auth/components/google-button'
 import { SignUpForm } from '@/features/auth/components/sign-up-form'
 
 export default async function SignUpPage({
@@ -23,17 +22,7 @@ export default async function SignUpPage({
           Join Menitap to start creating or discovering deals
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <GoogleButton role={defaultRole} />
-
-        <div className="relative flex items-center justify-center">
-          <div className="border-t border-border w-full" />
-          <span className="bg-card px-3 text-xs uppercase text-muted-foreground font-medium">
-            or with email
-          </span>
-          <div className="border-t border-border w-full" />
-        </div>
-
+      <CardContent>
         <SignUpForm defaultRole={defaultRole} />
       </CardContent>
       <CardFooter className="flex justify-center border-t border-border/50 pt-4">

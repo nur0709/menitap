@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { BrandBorder } from '@/components/brand-border'
 import { BrandLogo } from '@/components/brand-logo'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { RoleSwitcher } from '@/features/account/role-switcher'
 import {
   ShoppingBag,
   Bookmark,
@@ -94,7 +95,18 @@ export default async function DashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 max-w-6xl flex-1">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 max-w-6xl flex-1">
+        {/* Account Role Switcher Toolbar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-border">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">Account Hub</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Current mode: <strong className="text-foreground">{role === 'CREATOR' ? 'Creator' : role === 'BRAND' ? 'Brand / Agency' : 'Shopper & Learner'}</strong>
+            </p>
+          </div>
+          <RoleSwitcher currentRole={role} />
+        </div>
+
         {/* ============================================================== */}
         {/* ROLE 1: CREATOR VIEW */}
         {/* ============================================================== */}
