@@ -4,11 +4,13 @@ import { getCurrentUser, signOut } from '@/features/auth/actions'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { BrandBorder } from '@/components/brand-border'
 import { BrandLogo } from '@/components/brand-logo'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { UserAvatar } from '@/components/user-avatar'
-import { LogOut, ArrowLeft } from 'lucide-react'
+import { UpgradeToCreatorButton } from '@/features/account/upgrade-button'
+import { LogOut, ArrowLeft, ShoppingBag, Video, Building2, ShieldCheck } from 'lucide-react'
 
 export const metadata = {
   title: 'My Account | Menitap',
@@ -32,6 +34,42 @@ export default async function DashboardPage() {
   const email = user.email || ''
   const fullName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || ''
   const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || null
+  const role = (profile?.role || user.user_metadata?.role || 'USER').toUpperCase()
+
+  // Format account role display and indicator tag
+  const roleConfigMap: Record<
+    string,
+    { name: string; description: string; badgeBg: string; icon: React.ElementType }
+  > = {
+    USER: {
+      name: 'Consumer',
+      description: 'Find verified deals and watch honest creator reviews.',
+      badgeBg: 'bg-[#08739C]/10 text-[#08739C] dark:text-[#38BDF8] border-[#08739C]/30',
+      icon: ShoppingBag,
+    },
+    CREATOR: {
+      name: 'Creator',
+      description: 'Receive free products to review and share affiliate deals.',
+      badgeBg: 'bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30',
+      icon: Video,
+    },
+    BRAND: {
+      name: 'Brand',
+      description: 'Post review campaigns and collaborate with UGC creators.',
+      badgeBg: 'bg-[#08739C] text-white border-0',
+      icon: Building2,
+    },
+    ADMIN: {
+      name: 'Admin',
+      description: 'System administrator.',
+      badgeBg: 'bg-destructive/10 text-destructive border-destructive/30',
+      icon: ShieldCheck,
+    },
+  }
+
+  const roleConfig = roleConfigMap[role] || roleConfigMap['USER']
+
+  const RoleIcon = roleConfig.icon
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors selection:bg-[#FC801A]/30">
@@ -62,23 +100,42 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      {/* Main empty/clean My Account page */}
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 max-w-2xl flex-1 flex flex-col justify-center">
-        <Card className="bg-card border-border shadow-sm text-center py-10 px-6">
-          <CardHeader className="flex flex-col items-center gap-4">
+      {/* Main My Account page */}
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-14 max-w-2xl flex-1 flex flex-col justify-center">
+        <Card className="bg-card border-border shadow-sm text-center py-8 px-6 sm:px-8">
+          <CardHeader className="flex flex-col items-center gap-4 pb-4">
             <UserAvatar user={{ email, fullName, avatarUrl }} size="lg" />
-            <div>
+            <div className="space-y-2">
               <CardTitle className="text-3xl font-extrabold text-foreground">My Account</CardTitle>
-              {email && <p className="text-sm text-muted-foreground mt-1">{email}</p>}
+              {fullName && <p className="text-base font-medium text-foreground">{fullName}</p>}
+              {email && <p className="text-xs text-muted-foreground">{email}</p>}
+              
+              {/* Account Type Indicator Tag */}
+              <div className="pt-2 flex justify-center">
+                <Badge
+                  variant="outline"
+                  className={`text-xs px-3 py-1 font-semibold flex items-center gap-1.5 ${roleConfig.badgeBg}`}
+                >
+                  <RoleIcon className="h-3.5 w-3.5" />
+                  <span>{roleConfig.name} Account</span>
+                </Badge>
+              </div>
             </div>
           </CardHeader>
-          <CardContent className="pt-2">
-            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-              Account content will be configured here.
+
+          <CardContent className="space-y-6 pt-2">
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
+              {roleConfig.description}
             </p>
-            <div className="mt-8 flex justify-center gap-3">
+
+            {/* If Consumer (USER), allow switching to Creator (not Brand) */}
+            {role === 'USER' && (
+              <UpgradeToCreatorButton />
+            )}
+
+            <div className="pt-4 flex justify-center gap-3">
               <Link href="/">
-                <Button variant="outline" className="border-border hover:bg-accent">
+                <Button variant="outline" className="border-border hover:bg-accent text-xs sm:text-sm">
                   Back to Home
                 </Button>
               </Link>

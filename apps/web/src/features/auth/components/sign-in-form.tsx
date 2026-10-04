@@ -17,7 +17,15 @@ export function SignInForm() {
     <form action={formAction} className="space-y-4">
       {state?.error && (
         <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg">
-          {state.error}
+          <p>{state.error}</p>
+          {state.error.toLowerCase().includes('sign up') && (
+            <Link
+              href="/sign-up"
+              className="mt-2 inline-flex items-center text-xs font-semibold text-[#FC801A] hover:underline"
+            >
+              Go to Sign Up page →
+            </Link>
+          )}
         </div>
       )}
 

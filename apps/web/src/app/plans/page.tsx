@@ -83,7 +83,7 @@ export default function PlansPage() {
             <Card className="bg-card border-border flex flex-col h-full shadow-sm hover:border-[#08739C]/40 transition-colors">
               <CardHeader>
                 <Badge variant="secondary" className="w-fit text-xs font-semibold mb-2">
-                  Shoppers & Learners
+                  Consumer
                 </Badge>
                 <CardTitle className="text-lg text-foreground">Free</CardTitle>
                 <div className="mt-2 flex items-baseline text-3xl font-extrabold text-foreground">

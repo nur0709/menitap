@@ -28,6 +28,16 @@ export async function signInWithEmail(prevState: AuthState | null, formData: For
   }
 
   const supabase = await createClient()
+
+  // Verify whether the account exists
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: userExists } = await (supabase as any).rpc('check_user_exists', { p_email: email })
+  if (userExists === false) {
+    return {
+      error: 'Account not found. Please sign up first to create an account.',
+    }
+  }
+
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
