@@ -80,7 +80,7 @@ export default async function SubmitLinkPage({
             </CardTitle>
             <CardDescription className="text-muted-foreground">
               {type === 'brand'
-                ? 'Share a direct link where creators apply to receive products for UGC content and earn reward points.'
+                ? 'Share a direct link where creators apply to receive products for review and UGC content.'
                 : 'Share an affiliate discount link for a great product with the Menitap community.'}
             </CardDescription>
           </CardHeader>
