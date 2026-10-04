@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getCurrentUser, signOut } from '@/features/auth/actions'
 import { createClient } from '@/lib/supabase/server'
@@ -11,7 +10,7 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { UserAvatar } from '@/components/user-avatar'
 import { UpgradeToCreatorButton } from '@/features/account/upgrade-button'
 import { DeleteAccountSection } from '@/features/account/delete-account-section'
-import { LogOut, ArrowLeft, ShoppingBag, Video, Building2, ShieldCheck } from 'lucide-react'
+import { LogOut, ShoppingBag, Video, Building2, ShieldCheck } from 'lucide-react'
 
 export const metadata = {
   title: 'My Account | Menitap',
@@ -80,14 +79,7 @@ export default async function DashboardPage() {
       {/* Header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <BrandLogo size="md" />
-            <nav className="hidden sm:flex gap-4 text-sm text-muted-foreground">
-              <Link href="/" className="hover:text-foreground transition-colors flex items-center gap-1">
-                <ArrowLeft className="h-4 w-4" /> Home
-              </Link>
-            </nav>
-          </div>
+          <BrandLogo size="md" />
 
           <div className="flex items-center gap-3">
             <UserAvatar user={{ email, fullName, avatarUrl }} size="sm" />
@@ -134,14 +126,6 @@ export default async function DashboardPage() {
             {role === 'USER' && (
               <UpgradeToCreatorButton />
             )}
-
-            <div className="pt-2 flex justify-center gap-3">
-              <Link href="/">
-                <Button variant="outline" className="border-border hover:bg-accent text-xs sm:text-sm">
-                  Back to Home
-                </Button>
-              </Link>
-            </div>
 
             {/* Danger Zone: Delete Account */}
             <DeleteAccountSection />
