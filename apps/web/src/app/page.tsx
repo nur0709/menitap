@@ -59,27 +59,44 @@ export default function LandingPage() {
       </header>
 
       <main className="flex-1">
-        {/* 1. Hero Section */}
-        <section className="pt-16 pb-20 sm:pt-24 sm:pb-28 border-b border-border/50">
+        {/* 1. Video-First Hero Section */}
+        <section className="pt-12 pb-16 sm:pt-16 sm:pb-20 border-b border-border/50">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-4xl">
             {/* Value Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border bg-muted/60 text-xs sm:text-sm font-medium text-muted-foreground mb-8">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border bg-muted/60 text-xs sm:text-sm font-medium text-muted-foreground mb-6">
               <Gift className="h-4 w-4 text-[#FC801A]" />
               <span>Get free products in exchange for reviews — start creating today</span>
             </div>
 
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">
+            <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl max-w-3xl mx-auto">
               Discover Great Deals.{" "}
-              <span className="block mt-1 sm:mt-2 text-[#08739C] dark:text-[#38BDF8]">
+              <span className="text-[#08739C] dark:text-[#38BDF8]">
                 Collaborate With Brands.
               </span>
             </h1>
 
-            <p className="mt-6 max-w-2xl mx-auto text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Shoppers save with verified creator discounts. Everyday users start their UGC journey with free products. Brands recruit authentic talent — all in one place.
+            <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-muted-foreground leading-relaxed">
+              Save on creator deals, receive products to review & keep, and connect directly with brands.
             </p>
 
-            <div className="mt-10 flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
+            {/* Embedded Video Centerpiece */}
+            <div className="mt-8 sm:mt-10 max-w-3xl mx-auto">
+              <div className="relative aspect-video rounded-2xl overflow-hidden shadow-lg border border-border bg-card">
+                <iframe 
+                  className="absolute inset-0 w-full h-full"
+                  src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                  title="How Menitap Works" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                />
+              </div>
+              <p className="mt-2.5 text-xs text-muted-foreground">
+                🌍 YouTube auto-translates captions — click CC to watch in your language
+              </p>
+            </div>
+
+            {/* Primary Action Buttons */}
+            <div className="mt-8 flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
               <Link 
                 href="/sign-up" 
                 className={cn(
@@ -101,7 +118,7 @@ export default function LandingPage() {
             </div>
 
             {/* Quick Micro Badges */}
-            <div className="mt-14 flex justify-center gap-3 sm:gap-6 flex-wrap text-xs sm:text-sm text-muted-foreground">
+            <div className="mt-8 flex justify-center gap-4 sm:gap-8 flex-wrap text-xs sm:text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <Gift className="h-4 w-4 text-[#FC801A]" /> Free Products to Test & Keep
               </span>
