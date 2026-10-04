@@ -1,17 +1,8 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { BrandBorder } from "@/components/brand-border";
 import { BrandLogo } from "@/components/brand-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { 
-  Check, 
-  ShoppingBag, 
-  Video, 
-  Building2, 
-  Sparkles 
-} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function LandingPage() {
@@ -26,11 +17,11 @@ export default function LandingPage() {
           <BrandLogo size="md" />
           
           <nav className="hidden gap-6 md:flex">
-            <Link href="#pillars" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-              How It Works
+            <Link href="/about" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+              About
             </Link>
-            <Link href="#pricing" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-              Pricing
+            <Link href="/plans" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+              Plans
             </Link>
           </nav>
 
@@ -56,8 +47,8 @@ export default function LandingPage() {
       </header>
 
       <main className="flex-1">
-        {/* 1. Video-First Hero Section */}
-        <section className="pt-10 pb-16 sm:pt-14 sm:pb-20 border-b border-border/50">
+        {/* Video-First Hero Section */}
+        <section className="pt-10 pb-16 sm:pt-14 sm:pb-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-4xl">
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl max-w-3xl mx-auto">
               Discover Great Deals.{" "}
@@ -94,249 +85,6 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-
-        {/* 2. The 3 Pillars Section */}
-        <section id="pillars" className="py-20 sm:py-24 bg-muted/20">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-                Ecosystem for Everyone
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-              {/* Pillar 1: Shoppers */}
-              <Card className="bg-card border-border shadow-sm flex flex-col h-full hover:border-[#08739C]/40 transition-colors">
-                <CardHeader>
-                  <div className="h-12 w-12 rounded-xl bg-[#08739C]/10 flex items-center justify-center text-[#08739C] dark:text-[#38BDF8] mb-4">
-                    <ShoppingBag className="h-6 w-6" />
-                  </div>
-                  <Badge variant="secondary" className="w-fit text-xs font-semibold mb-2">
-                    For Shoppers • Free
-                  </Badge>
-                  <CardTitle className="text-xl text-foreground">Find Deals & Save</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 flex-1">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Access verified discount codes and honest product reviews before you purchase.
-                  </p>
-                  <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
-                    <li className="flex gap-2">
-                      <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Verified creator discounts & promo codes</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Watch authentic video reviews before buying</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Save favorite deals & learning guides for later</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              {/* Pillar 2: UGC Creators */}
-              <Card className="bg-card border-[#FC801A]/40 shadow-sm flex flex-col h-full ring-1 ring-[#FC801A]/20">
-                <CardHeader>
-                  <div className="h-12 w-12 rounded-xl bg-[#FC801A]/10 flex items-center justify-center text-[#FC801A] mb-4">
-                    <Video className="h-6 w-6" />
-                  </div>
-                  <Badge className="w-fit text-xs font-semibold bg-[#FC801A] text-white border-0 mb-2">
-                    For UGC Creators
-                  </Badge>
-                  <CardTitle className="text-xl text-foreground">Products For Review & Deals</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 flex-1">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Start creating with free beginner guides, receive brand products to test and keep in exchange for video reviews.
-                  </p>
-                  <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
-                    <li className="flex gap-2">
-                      <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
-                      <span>Receive products to test & keep for video reviews</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
-                      <span>Free beginner video lessons on filming & pitching</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
-                      <span>Post affiliate deals & build a public portfolio</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              {/* Pillar 3: Brands */}
-              <Card className="bg-card border-border shadow-sm flex flex-col h-full hover:border-[#08739C]/40 transition-colors">
-                <CardHeader>
-                  <div className="h-12 w-12 rounded-xl bg-[#08739C]/10 flex items-center justify-center text-[#08739C] dark:text-[#38BDF8] mb-4">
-                    <Building2 className="h-6 w-6" />
-                  </div>
-                  <Badge variant="secondary" className="w-fit text-xs font-semibold mb-2">
-                    For Brands • 100% Free
-                  </Badge>
-                  <CardTitle className="text-xl text-foreground">Post Campaigns & Recruit</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 flex-1">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Connect directly with real creators. Post product-for-review campaigns to generate authentic video content.
-                  </p>
-                  <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
-                    <li className="flex gap-2">
-                      <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Post product-for-review campaigns at zero cost</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Discover creators filtered by category</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Direct creator applications without middlemen</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* 3. Transparent Pricing Section */}
-        <section id="pricing" className="py-20 sm:py-24 border-t border-border/50">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-                Simple, Transparent Plans
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-              {/* Free Tier */}
-              <Card className="bg-card border-border flex flex-col h-full shadow-sm">
-                <CardHeader>
-                  <CardTitle className="text-lg text-foreground">Shopper & Learner</CardTitle>
-                  <div className="mt-4 flex items-baseline text-4xl font-extrabold text-foreground">
-                    Free
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">For deal hunters and beginner creators</p>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <ul className="space-y-3.5 text-sm text-muted-foreground">
-                    <li className="flex gap-2.5">
-                      <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Browse all creator affiliate deals</span>
-                    </li>
-                    <li className="flex gap-2.5">
-                      <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Watch free beginner UGC tutorials</span>
-                    </li>
-                    <li className="flex gap-2.5">
-                      <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Save deals & guides for later</span>
-                    </li>
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Link 
-                    href="/sign-up" 
-                    className={cn(buttonVariants({ variant: "outline" }), "w-full border-border hover:bg-accent font-medium")}
-                  >
-                    Start Free
-                  </Link>
-                </CardFooter>
-              </Card>
-
-              {/* Basic Creator Tier */}
-              <Card className="bg-card border-border flex flex-col h-full shadow-sm">
-                <CardHeader>
-                  <CardTitle className="text-lg text-foreground">Creator Basic</CardTitle>
-                  <div className="mt-4 flex items-baseline text-4xl font-extrabold text-foreground">
-                    $10<span className="text-base font-normal text-muted-foreground">/mo</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">For active UGC creators starting out</p>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <ul className="space-y-3.5 text-sm text-muted-foreground">
-                    <li className="flex gap-2.5 font-medium text-foreground">
-                      <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Everything in Free</span>
-                    </li>
-                    <li className="flex gap-2.5">
-                      <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Access direct brand application links</span>
-                    </li>
-                    <li className="flex gap-2.5">
-                      <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Receive products to test & keep for reviews</span>
-                    </li>
-                    <li className="flex gap-2.5">
-                      <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                      <span>Publish your affiliate links to shoppers</span>
-                    </li>
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Link 
-                    href="/sign-up" 
-                    className={cn(buttonVariants({ variant: "outline" }), "w-full border-border hover:bg-accent font-medium")}
-                  >
-                    Join Basic
-                  </Link>
-                </CardFooter>
-              </Card>
-
-              {/* Standard Creator Tier (Featured) */}
-              <Card className="bg-card border-[#FC801A] shadow-md relative flex flex-col h-full ring-2 ring-[#FC801A]/30">
-                <div className="absolute -top-3.5 left-0 right-0 flex justify-center">
-                  <Badge className="bg-[#FC801A] text-white border-0 text-xs font-bold px-3 py-0.5 shadow-sm">
-                    Recommended
-                  </Badge>
-                </div>
-                <CardHeader>
-                  <CardTitle className="text-lg text-foreground">Creator Standard</CardTitle>
-                  <div className="mt-4 flex items-baseline text-4xl font-extrabold text-foreground">
-                    $15<span className="text-base font-normal text-muted-foreground">/mo</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Get discovered and hired by companies</p>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <ul className="space-y-3.5 text-sm text-muted-foreground">
-                    <li className="flex gap-2.5 font-medium text-foreground">
-                      <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
-                      <span>Everything in Basic</span>
-                    </li>
-                    <li className="flex gap-2.5">
-                      <Sparkles className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
-                      <span className="font-medium text-foreground">Public Creator Profile & Portfolio</span>
-                    </li>
-                    <li className="flex gap-2.5">
-                      <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
-                      <span>Category-filtered visibility to brand managers</span>
-                    </li>
-                    <li className="flex gap-2.5">
-                      <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
-                      <span>Showcase social media & video work</span>
-                    </li>
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Link 
-                    href="/sign-up" 
-                    className={cn(
-                      buttonVariants(), 
-                      "w-full bg-[#FC801A] hover:bg-[#E66F0D] text-white font-semibold border-0 shadow-sm"
-                    )}
-                  >
-                    Join Standard
-                  </Link>
-                </CardFooter>
-              </Card>
-            </div>
-          </div>
-        </section>
       </main>
 
       {/* Decorative Bottom Border Ribbon */}
@@ -350,9 +98,9 @@ export default function LandingPage() {
             © 2026 Menitap. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm text-muted-foreground">
-            <Link href="#" className="hover:text-foreground transition-colors">Terms</Link>
+            <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
+            <Link href="/plans" className="hover:text-foreground transition-colors">Plans</Link>
             <Link href="#" className="hover:text-foreground transition-colors">Privacy</Link>
-            <Link href="#" className="hover:text-foreground transition-colors">Contact</Link>
           </div>
         </div>
       </footer>
