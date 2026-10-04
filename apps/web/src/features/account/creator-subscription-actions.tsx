@@ -77,7 +77,7 @@ export function CreatorSubscriptionActions({ currentPlan }: { currentPlan: strin
             size="sm"
             disabled={isPending}
             onClick={() => handlePlanChange('BASIC')}
-            className="border-border text-foreground hover:bg-muted text-xs cursor-pointer font-medium"
+            className="bg-[#FC801A]/10 text-[#FC801A] hover:bg-[#FC801A]/20 hover:text-[#FC801A] border-[#FC801A]/30 text-xs cursor-pointer font-medium"
           >
             {isPending ? (
               <>
