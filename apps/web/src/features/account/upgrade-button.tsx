@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { upgradeToCreator } from './actions'
 import { Video, ArrowRight, Loader2, Sparkles } from 'lucide-react'
@@ -9,7 +8,6 @@ import { Video, ArrowRight, Loader2, Sparkles } from 'lucide-react'
 export function UpgradeToCreatorButton() {
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null)
-  const router = useRouter()
 
   const handleUpgrade = () => {
     setMessage(null)
@@ -19,7 +17,7 @@ export function UpgradeToCreatorButton() {
         setMessage({ text: result.error, isError: true })
       } else if (result.success) {
         setMessage({ text: result.success, isError: false })
-        router.refresh()
+        window.location.reload()
       }
     })
   }
