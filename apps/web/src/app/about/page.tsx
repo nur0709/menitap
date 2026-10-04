@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BrandBorder } from "@/components/brand-border";
 import { BrandLogo } from "@/components/brand-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Check, ShoppingBag, Video, Building2 } from "lucide-react";
+import { Check, ShoppingBag, Video, Building2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const metadata = {
   title: "About | Menitap",
-  description: "Learn how Menitap connects shoppers, UGC creators, and brand managers in a unified ecosystem.",
+  description: "Learn how Menitap connects shoppers, UGC creators, and brands in The Complete UGC Ecosystem.",
 };
 
 export default function AboutPage() {
@@ -58,7 +58,7 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
           <div className="text-center max-w-2xl mx-auto mb-14">
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl text-foreground">
-              Ecosystem for Everyone
+              The Complete UGC Ecosystem
             </h1>
             <p className="mt-4 text-base sm:text-lg text-muted-foreground">
               Connecting shoppers, creators, and brands in a transparent, direct collaboration network.
@@ -92,10 +92,18 @@ export default function AboutPage() {
                   </li>
                   <li className="flex gap-2">
                     <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Save favorite deals & learning guides for later</span>
+                    <span>Save favorite deals and promo codes for later</span>
                   </li>
                 </ul>
               </CardContent>
+              <CardFooter className="pt-2 border-t border-border/50">
+                <Link 
+                  href="/sign-up" 
+                  className="text-sm font-semibold text-[#08739C] dark:text-[#38BDF8] hover:underline inline-flex items-center gap-1.5"
+                >
+                  Start Shopping <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </CardFooter>
             </Card>
 
             {/* Pillar 2: UGC Creators */}
@@ -107,7 +115,7 @@ export default function AboutPage() {
                 <Badge className="w-fit text-xs font-semibold bg-[#FC801A] text-white border-0 mb-2">
                   For UGC Creators
                 </Badge>
-                <CardTitle className="text-xl text-foreground">Products For Review & Deals</CardTitle>
+                <CardTitle className="text-xl text-foreground">Review Products & Build a Portfolio</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 flex-1">
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -124,10 +132,18 @@ export default function AboutPage() {
                   </li>
                   <li className="flex gap-2">
                     <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
-                    <span>Post affiliate deals & build a public portfolio</span>
+                    <span>Share affiliate links to monetize your audience</span>
                   </li>
                 </ul>
               </CardContent>
+              <CardFooter className="pt-2 border-t border-[#FC801A]/20">
+                <Link 
+                  href="/sign-up" 
+                  className="text-sm font-semibold text-[#FC801A] hover:underline inline-flex items-center gap-1.5"
+                >
+                  Become a Creator <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </CardFooter>
             </Card>
 
             {/* Pillar 3: Brands */}
@@ -139,7 +155,7 @@ export default function AboutPage() {
                 <Badge variant="secondary" className="w-fit text-xs font-semibold mb-2">
                   For Brands • 100% Free
                 </Badge>
-                <CardTitle className="text-xl text-foreground">Post Campaigns & Recruit</CardTitle>
+                <CardTitle className="text-xl text-foreground">Post Campaigns & Hire Directly</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 flex-1">
                 <p className="text-sm text-muted-foreground leading-relaxed">
@@ -156,10 +172,18 @@ export default function AboutPage() {
                   </li>
                   <li className="flex gap-2">
                     <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Direct creator applications without middlemen</span>
+                    <span>Hire creators directly—zero agency fees or middlemen</span>
                   </li>
                 </ul>
               </CardContent>
+              <CardFooter className="pt-2 border-t border-border/50">
+                <Link 
+                  href="/sign-up" 
+                  className="text-sm font-semibold text-[#08739C] dark:text-[#38BDF8] hover:underline inline-flex items-center gap-1.5"
+                >
+                  Post a Campaign <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </CardFooter>
             </Card>
           </div>
 
