@@ -48,7 +48,7 @@ export default async function DashboardPage() {
 
   // Determine dynamic account type configuration based on role & subscription plan
   let accountTag = {
-    name: 'Consumer',
+    name: 'Explorer',
     description: 'Find verified deals and watch honest creator reviews.',
     badgeBg: 'bg-[#08739C]/10 text-[#08739C] dark:text-[#38BDF8] border-[#08739C]/30',
     icon: ShoppingBag,

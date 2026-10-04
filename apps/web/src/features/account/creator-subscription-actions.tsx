@@ -11,11 +11,12 @@ export function CreatorSubscriptionActions({ currentPlan }: { currentPlan: strin
   const [error, setError] = useState<string | null>(null)
 
   const isBasic = currentPlan === 'BASIC' || currentPlan === 'CREATOR_TRIAL'
+  const isStandard = currentPlan === 'STANDARD'
 
-  const handleUpgradeToStandard = () => {
+  const handlePlanChange = (targetPlan: 'BASIC' | 'STANDARD') => {
     setError(null)
     startTransition(async () => {
-      const res = await upgradeToCreator('STANDARD')
+      const res = await upgradeToCreator(targetPlan)
       if (res.error) {
         setError(res.error)
       } else {
@@ -51,13 +52,13 @@ export function CreatorSubscriptionActions({ currentPlan }: { currentPlan: strin
             type="button"
             size="sm"
             disabled={isPending}
-            onClick={handleUpgradeToStandard}
+            onClick={() => handlePlanChange('STANDARD')}
             className="bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 text-xs shadow-xs cursor-pointer font-medium"
           >
             {isPending ? (
               <>
                 <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
-                Upgrading...
+                Switching...
               </>
             ) : (
               <>
@@ -68,7 +69,30 @@ export function CreatorSubscriptionActions({ currentPlan }: { currentPlan: strin
           </Button>
         )}
 
-        {/* Cancel Creator subscription and switch to Consumer */}
+        {/* If on $15 Standard, show button to switch to $10 Basic */}
+        {isStandard && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={isPending}
+            onClick={() => handlePlanChange('BASIC')}
+            className="border-border text-foreground hover:bg-muted text-xs cursor-pointer font-medium"
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                Switching...
+              </>
+            ) : (
+              <>
+                Switch to $10 Basic Plan
+              </>
+            )}
+          </Button>
+        )}
+
+        {/* Cancel Creator subscription and switch to Explorer */}
         {!showConfirmCancel ? (
           <Button
             type="button"
@@ -78,7 +102,7 @@ export function CreatorSubscriptionActions({ currentPlan }: { currentPlan: strin
             className="border-border text-foreground hover:bg-muted text-xs cursor-pointer"
           >
             <ShoppingBag className="h-3.5 w-3.5 mr-1.5 text-[#08739C]" />
-            Cancel & Switch to Consumer
+            Cancel & Switch to Explorer
           </Button>
         ) : (
           <div className="flex items-center gap-2">

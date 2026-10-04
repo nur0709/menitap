@@ -83,9 +83,9 @@ export default function PlansPage() {
             <Card className="bg-card border-border flex flex-col h-full shadow-sm hover:border-[#08739C]/40 transition-colors">
               <CardHeader>
                 <Badge variant="outline" className="w-fit text-xs font-semibold mb-2 bg-[#08739C]/10 text-[#08739C] dark:text-[#38BDF8] border-[#08739C]/30">
-                  Consumer
+                  Shopper & UGC starter
                 </Badge>
-                <CardTitle className="text-lg text-foreground">Free</CardTitle>
+                <CardTitle className="text-lg text-foreground">Explorer</CardTitle>
                 <div className="mt-2 flex items-baseline text-3xl font-extrabold text-foreground">
                   $0
                 </div>
@@ -133,7 +133,7 @@ export default function PlansPage() {
                 <ul className="space-y-3 text-xs sm:text-sm text-muted-foreground">
                   <li className="flex gap-2 font-medium text-foreground">
                     <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Everything in Free</span>
+                    <span>Everything in Explorer</span>
                   </li>
                   <li className="flex gap-2">
                     <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
