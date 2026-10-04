@@ -63,21 +63,28 @@ export default function LandingPage() {
         {/* Video-First Hero Section */}
         <section className="pt-10 pb-16 sm:pt-14 sm:pb-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-4xl">
-            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-x-2.5 sm:gap-x-3.5 gap-y-2 whitespace-nowrap">
-              <span>
-                <span className="text-[#08739C] dark:text-[#38BDF8]">Shoppers</span>{' '}
-                <span className="text-[#FC801A]">Save</span>
-              </span>
-              <span className="text-muted-foreground/70 font-semibold">+</span>
-              <span>
-                <span className="text-[#08739C] dark:text-[#38BDF8]">Creators</span>{' '}
-                <span className="text-[#FC801A]">Earn</span>
-              </span>
-              <span className="text-muted-foreground/70 font-semibold">=</span>
-              <span>
-                <span className="text-[#08739C] dark:text-[#38BDF8]">Brands</span>{' '}
-                <span className="text-[#FC801A]">Grow</span>
-              </span>
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto flex flex-col items-center justify-center gap-2 sm:gap-3">
+              {/* Line 1: Shoppers Save + Creators Earn */}
+              <div className="flex flex-wrap items-center justify-center gap-x-2.5 sm:gap-x-3.5">
+                <span>
+                  <span className="text-[#08739C] dark:text-[#38BDF8]">Shoppers</span>{' '}
+                  <span className="text-[#FC801A]">Save</span>
+                </span>
+                <span className="text-muted-foreground/70 font-semibold text-2xl sm:text-4xl lg:text-5xl">+</span>
+                <span>
+                  <span className="text-[#08739C] dark:text-[#38BDF8]">Creators</span>{' '}
+                  <span className="text-[#FC801A]">Earn</span>
+                </span>
+              </div>
+
+              {/* Line 2: = Brands Grow */}
+              <div className="flex items-center justify-center gap-x-2.5 sm:gap-x-3.5">
+                <span className="text-muted-foreground/70 font-semibold text-2xl sm:text-4xl lg:text-5xl">=</span>
+                <span>
+                  <span className="text-[#08739C] dark:text-[#38BDF8]">Brands</span>{' '}
+                  <span className="text-[#FC801A]">Grow</span>
+                </span>
+              </div>
             </h1>
 
             {/* Embedded Video Centerpiece */}
