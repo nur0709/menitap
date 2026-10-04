@@ -23,9 +23,6 @@ export default function AuthLayout({
         {/* Brand Header */}
         <div className="mb-6 text-center">
           <BrandLogo size="lg" />
-          <p className="mt-3 text-sm text-muted-foreground">
-            User-Generated Content & Deals Platform
-          </p>
         </div>
 
         {/* Main Form Container */}
