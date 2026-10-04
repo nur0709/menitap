@@ -63,10 +63,10 @@ export default function LandingPage() {
         {/* Video-First Hero Section */}
         <section className="pt-10 pb-16 sm:pt-14 sm:pb-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-4xl">
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto text-foreground flex flex-wrap items-center justify-center gap-x-3 sm:gap-x-4 gap-y-2">
-              <span>Shoppers <span className="text-[#FC801A]">Save</span>.</span>
-              <span>Creators <span className="text-[#FC801A]">Earn</span>.</span>
-              <span>Brands <span className="text-[#FC801A]">Grow</span>.</span>
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-x-3 sm:gap-x-4 gap-y-2">
+              <span><span className="text-[#08739C] dark:text-[#38BDF8]">Shoppers</span> <span className="text-[#FC801A]">Save</span>.</span>
+              <span><span className="text-[#08739C] dark:text-[#38BDF8]">Creators</span> <span className="text-[#FC801A]">Earn</span>.</span>
+              <span><span className="text-[#08739C] dark:text-[#38BDF8]">Brands</span> <span className="text-[#FC801A]">Grow</span>.</span>
             </h1>
 
             {/* Embedded Video Centerpiece */}
