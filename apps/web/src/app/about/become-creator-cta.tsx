@@ -3,7 +3,6 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AuthModal } from '@/features/auth/components/auth-modal'
-import { CreatorUpgradeModal } from '@/features/account/creator-upgrade-modal'
 import { ArrowRight } from 'lucide-react'
 
 interface BecomeCreatorCtaProps {
@@ -13,7 +12,6 @@ interface BecomeCreatorCtaProps {
 
 export function BecomeCreatorCta({ isAuthenticated, role }: BecomeCreatorCtaProps) {
   const [authModalOpen, setAuthModalOpen] = useState(false)
-  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false)
   const router = useRouter()
 
   const handleClick = () => {
@@ -26,8 +24,8 @@ export function BecomeCreatorCta({ isAuthenticated, role }: BecomeCreatorCtaProp
     const normalizedRole = (role || 'USER').toUpperCase()
 
     if (normalizedRole === 'USER') {
-      // 2. Signed in as free consumer account: Pop up Creator upgrade / plan selection modal
-      setUpgradeModalOpen(true)
+      // 2. Signed in as free consumer account: Forward to /plans to pick Creator tier
+      router.push('/plans')
       return
     }
 
@@ -46,18 +44,14 @@ export function BecomeCreatorCta({ isAuthenticated, role }: BecomeCreatorCtaProp
       </button>
 
       {/* Auth Modal for signed-out users */}
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        initialMode="signup"
-        initialRole="CREATOR"
-      />
-
-      {/* Upgrade Modal for logged-in free consumer users */}
-      <CreatorUpgradeModal
-        isOpen={upgradeModalOpen}
-        onClose={() => setUpgradeModalOpen(false)}
-      />
+      {authModalOpen && (
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          initialMode="signup"
+          initialRole="CREATOR"
+        />
+      )}
     </>
   )
 }

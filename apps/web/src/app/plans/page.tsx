@@ -2,14 +2,55 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Check, Sparkles } from "lucide-react";
-import { PlanCtaButton } from "./plan-cta-button";
+import { PlanCtaButton, type PlanId } from "./plan-cta-button";
+import { getEffectiveUserContext } from "@/features/auth/actions";
 
 export const metadata = {
   title: "Plans & Pricing | Menitap",
   description: "Transparent pricing for shoppers and UGC creators.",
 };
 
-export default function PlansPage() {
+export default async function PlansPage() {
+  const { user, role, effectivePlan } = await getEffectiveUserContext();
+
+  // Determine current active plan id:
+  // If not logged in -> null
+  // If logged in as USER -> FREE
+  // If logged in as CREATOR -> BASIC or STANDARD based on subscription
+  let currentPlanId: PlanId | null = null;
+  if (user) {
+    if (role === 'CREATOR' || role === 'ADMIN') {
+      currentPlanId = (effectivePlan === 'STANDARD' ? 'STANDARD' : 'BASIC') as PlanId;
+    } else {
+      currentPlanId = 'FREE';
+    }
+  }
+
+  // Determine dynamic CTA button text for Explorer
+  const explorerButtonText = !currentPlanId
+    ? "Start Free"
+    : currentPlanId === "FREE"
+    ? "Current Plan"
+    : "Downgrade to Free";
+
+  // Determine dynamic CTA button text for Creator Basic
+  const basicButtonText = !currentPlanId
+    ? "Join Basic"
+    : currentPlanId === "BASIC"
+    ? "Current Plan"
+    : currentPlanId === "FREE"
+    ? "Switch to Basic ($10/mo)"
+    : "Downgrade to Basic ($10/mo)";
+
+  // Determine dynamic CTA button text for Creator Standard
+  const standardButtonText = !currentPlanId
+    ? "Join Standard"
+    : currentPlanId === "STANDARD"
+    ? "Current Plan"
+    : currentPlanId === "FREE"
+    ? "Switch to Standard ($15/mo)"
+    : "Upgrade to Standard ($15/mo)";
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-[#FC801A]/30 selection:text-foreground">
       <SiteHeader currentPath="/plans" />
@@ -26,7 +67,7 @@ export default function PlansPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch max-w-5xl mx-auto">
-            {/* Free Tier */}
+            {/* Free Tier: Explorer */}
             <Card className="bg-card border-border flex flex-col h-full shadow-sm hover:border-[#08739C]/40 transition-colors">
               <CardHeader className="pt-6 pb-4">
                 <CardTitle className="text-2xl sm:text-3xl font-extrabold text-[#08739C] dark:text-[#38BDF8] tracking-tight">
@@ -55,11 +96,13 @@ export default function PlansPage() {
               </CardContent>
               <CardFooter className="pt-2">
                 <PlanCtaButton
+                  targetPlan="FREE"
+                  userPlan={currentPlanId}
                   role="USER"
                   variant="outline"
                   className="h-11 rounded-xl border-border hover:bg-accent text-foreground text-sm font-semibold"
                 >
-                  Start Free
+                  {explorerButtonText}
                 </PlanCtaButton>
               </CardFooter>
             </Card>
@@ -97,11 +140,13 @@ export default function PlansPage() {
               </CardContent>
               <CardFooter className="pt-2">
                 <PlanCtaButton
+                  targetPlan="BASIC"
+                  userPlan={currentPlanId}
                   role="CREATOR"
                   variant="outline"
                   className="h-11 rounded-xl border border-[#FC801A] text-[#FC801A] hover:bg-[#FC801A]/10 text-sm font-semibold"
                 >
-                  Join Basic
+                  {basicButtonText}
                 </PlanCtaButton>
               </CardFooter>
             </Card>
@@ -139,10 +184,12 @@ export default function PlansPage() {
               </CardContent>
               <CardFooter className="pt-2">
                 <PlanCtaButton
+                  targetPlan="STANDARD"
+                  userPlan={currentPlanId}
                   role="CREATOR"
                   className="h-11 rounded-xl bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 shadow-sm text-sm font-semibold"
                 >
-                  Join Standard
+                  {standardButtonText}
                 </PlanCtaButton>
               </CardFooter>
             </Card>

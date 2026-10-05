@@ -10,15 +10,15 @@ import { MainNav } from '@/components/main-nav'
 import { MobileNav } from '@/components/mobile-nav'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { UserAvatar } from '@/components/user-avatar'
-import { UpgradeToCreatorButton } from '@/features/account/upgrade-button'
-import { CreatorSubscriptionActions } from '@/features/account/creator-subscription-actions'
+import Link from 'next/link'
 import { DeleteAccountSection } from '@/features/account/delete-account-section'
 import { CreatorLinksManager } from '@/features/account/creator-links-manager'
 import { BrandCampaignsManager } from '@/features/account/brand-campaigns-manager'
 import { CreatorPublicProfileManager } from '@/features/account/creator-public-profile-manager'
 import { AdminCategoryManager } from '@/features/account/admin-category-manager'
 import { getUserLinks, getUserBrandLinks, getAllCategories } from '@/features/links/actions'
-import { LogOut, ShoppingBag, Video, Building2, ShieldCheck } from 'lucide-react'
+import { LogOut, ShoppingBag, Video, Building2, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react'
+
 
 export const metadata = {
   title: 'My Account | Menitap',
@@ -141,11 +141,6 @@ export default async function DashboardPage() {
               {accountTag.description}
             </p>
 
-            {/* If Consumer (USER), allow switching to Creator (with plan pop-up) */}
-            {role === 'USER' && (
-              <UpgradeToCreatorButton />
-            )}
-
             {/* Creator Standard: Public Creator Profile & Portfolio Manager (Creator Standard only) */}
             {role === 'CREATOR' && currentPlan === 'STANDARD' && (
               <CreatorPublicProfileManager profile={profile || {}} />
@@ -161,10 +156,20 @@ export default async function DashboardPage() {
               <BrandCampaignsManager campaigns={brandLinks} />
             )}
 
-            {/* If Creator, allow upgrading from $10 to $15 or downgrading/canceling back to Consumer */}
-            {role === 'CREATOR' && (
-              <CreatorSubscriptionActions currentPlan={currentPlan} />
-            )}
+            {/* Switch Plan button: forwards to /plans to compare, upgrade, or switch tiers */}
+            <div className="w-full pt-4 border-t border-border mt-4 flex justify-center">
+              <Link
+                href="/plans"
+                className="inline-flex items-center gap-1.5 bg-[#FC801A] hover:bg-[#E66F0D] text-white font-medium text-xs shadow-xs px-5 h-9 rounded-lg transition-colors"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Switch Plan</span>
+                <ArrowRight className="h-3.5 w-3.5 ml-0.5" />
+              </Link>
+            </div>
+
+
+
 
             {/* Danger Zone: Delete Account (Regular accounts only) */}
             {!isAdmin && <DeleteAccountSection />}
