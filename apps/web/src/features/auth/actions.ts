@@ -152,7 +152,6 @@ export type EffectiveUserContext = {
   role: string | null
   effectivePlan: string | null
   isAdmin: boolean
-  adminViewMode: string | null
 }
 
 export const getEffectiveUserContext = cache(async (): Promise<EffectiveUserContext> => {
@@ -166,7 +165,6 @@ export const getEffectiveUserContext = cache(async (): Promise<EffectiveUserCont
       role: null,
       effectivePlan: null,
       isAdmin: false,
-      adminViewMode: null,
     }
   }
 
@@ -191,31 +189,8 @@ export const getEffectiveUserContext = cache(async (): Promise<EffectiveUserCont
   const trueRole = rawRole === 'DELETED' ? 'USER' : rawRole
   const isAdmin = trueRole === 'ADMIN'
 
-  let adminViewMode: string | null = null
-  if (isAdmin) {
-    const { cookies } = await import('next/headers')
-    const cookieStore = await cookies()
-    adminViewMode = cookieStore.get('admin_view_mode')?.value || null
-  }
-
-  let role = trueRole
-  let effectivePlan = subscription?.plan || 'FREE'
-
-  if (isAdmin && adminViewMode) {
-    if (adminViewMode === 'USER') {
-      role = 'USER'
-      effectivePlan = 'FREE'
-    } else if (adminViewMode === 'CREATOR_BASIC') {
-      role = 'CREATOR'
-      effectivePlan = 'BASIC'
-    } else if (adminViewMode === 'CREATOR_STANDARD') {
-      role = 'CREATOR'
-      effectivePlan = 'STANDARD'
-    } else if (adminViewMode === 'BRAND') {
-      role = 'BRAND'
-      effectivePlan = 'BRAND_MANAGER'
-    }
-  }
+  const role = trueRole
+  const effectivePlan = subscription?.plan || 'FREE'
 
   return {
     user,
@@ -225,7 +200,6 @@ export const getEffectiveUserContext = cache(async (): Promise<EffectiveUserCont
     role,
     effectivePlan,
     isAdmin,
-    adminViewMode,
   }
 })
 

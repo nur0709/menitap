@@ -199,45 +199,6 @@ export async function deleteUserAccount(): Promise<DeleteAccountState> {
   return { success: 'Your account has been deleted.' }
 }
 
-export async function adminSwitchMode(targetMode: 'USER' | 'CREATOR_BASIC' | 'CREATOR_STANDARD' | 'BRAND' | 'ADMIN'): Promise<{ error?: string; success?: string }> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { error: 'You must be signed in.' }
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  const trueRole = (profile?.role || user.user_metadata?.role || '').toUpperCase()
-  if (trueRole !== 'ADMIN') {
-    return { error: 'Only admins can switch account viewing modes.' }
-  }
-
-  const { cookies } = await import('next/headers')
-  const cookieStore = await cookies()
-
-  if (targetMode === 'ADMIN') {
-    cookieStore.delete('admin_view_mode')
-  } else {
-    cookieStore.set('admin_view_mode', targetMode, {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      httpOnly: true,
-      sameSite: 'lax',
-    })
-  }
-
-  revalidatePath('/', 'layout')
-  return { success: `Switched view mode to ${targetMode}.` }
-}
-
 export async function setPublicProfileVisibility(enabled: boolean): Promise<{ error?: string; success?: string }> {
   const supabase = await createClient()
   const {

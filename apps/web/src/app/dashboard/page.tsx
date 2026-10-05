@@ -13,7 +13,6 @@ import { UserAvatar } from '@/components/user-avatar'
 import { UpgradeToCreatorButton } from '@/features/account/upgrade-button'
 import { CreatorSubscriptionActions } from '@/features/account/creator-subscription-actions'
 import { DeleteAccountSection } from '@/features/account/delete-account-section'
-import { AdminRoleSwitcher } from '@/features/account/admin-role-switcher'
 import { CreatorLinksManager } from '@/features/account/creator-links-manager'
 import { BrandCampaignsManager } from '@/features/account/brand-campaigns-manager'
 import { CreatorPublicProfileManager } from '@/features/account/creator-public-profile-manager'
@@ -28,7 +27,7 @@ export const metadata = {
 
 export default async function DashboardPage() {
   const context = await getEffectiveUserContext()
-  const { user, role, effectivePlan, isAdmin, adminViewMode } = context
+  const { user, role, effectivePlan, isAdmin } = context
 
   if (!user) {
     redirect('/sign-in')
@@ -169,9 +168,6 @@ export default async function DashboardPage() {
 
             {/* Danger Zone: Delete Account (Regular accounts only) */}
             {!isAdmin && <DeleteAccountSection />}
-
-            {/* Admin Role / View Mode Switcher */}
-            {isAdmin && <AdminRoleSwitcher currentMode={adminViewMode} />}
 
             {/* Admin Category Manager: add/remove categories across tabs */}
             {isAdmin && <AdminCategoryManager categories={allCategories} />}
