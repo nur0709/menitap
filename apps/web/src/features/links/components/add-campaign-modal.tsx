@@ -44,7 +44,7 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
       <Button
         onClick={() => setIsOpen(true)}
         size="sm"
-        className="bg-[#08739C] hover:bg-[#02547A] text-white border-0 font-semibold shadow-xs cursor-pointer text-xs sm:text-sm px-4 h-9"
+        className="bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 font-semibold shadow-xs cursor-pointer text-xs sm:text-sm px-4 h-9"
       >
         <Plus className="h-4 w-4 mr-1.5" />
         Post Campaign
@@ -181,7 +181,7 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
                     type="submit"
                     size="sm"
                     disabled={isPending}
-                    className="bg-[#08739C] hover:bg-[#02547A] text-white border-0 text-xs font-medium cursor-pointer"
+                    className="bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 text-xs font-medium cursor-pointer"
                   >
                     {isPending ? (
                       <>
