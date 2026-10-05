@@ -10,6 +10,8 @@ import { MainNav } from "@/components/main-nav";
 import { AddDealModal } from "@/features/links/components/add-deal-modal";
 import { ExternalLink, Tag, Sparkles, ShoppingBag } from "lucide-react";
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: "Explore Deals | Menitap",
   description: "Browse verified creator affiliate deals and promo codes.",
