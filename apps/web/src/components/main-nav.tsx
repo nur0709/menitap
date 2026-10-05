@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { getCurrentUserRole } from '@/features/auth/actions'
-import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 interface MainNavProps {
@@ -14,18 +13,21 @@ export async function MainNav({ currentPath, role: roleProp }: MainNavProps) {
   const isCreator = role === 'CREATOR' || role === 'ADMIN'
   const isBrand = role === 'BRAND' || role === 'ADMIN'
 
+  const navTabClass = (isActive: boolean) =>
+    cn(
+      'inline-flex items-center justify-center font-medium text-xs sm:text-sm px-3.5 h-9 rounded-lg border transition-all duration-150 cursor-pointer',
+      'border-[#08739C] text-[#08739C] dark:border-[#38BDF8] dark:text-[#38BDF8]',
+      isActive
+        ? 'bg-[#08739C]/15 dark:bg-[#38BDF8]/20 font-bold shadow-xs'
+        : 'bg-transparent hover:bg-[#08739C]/10 dark:hover:bg-[#38BDF8]/10'
+    )
+
   return (
     <nav className="hidden items-center gap-2 md:flex" aria-label="Main Navigation">
       {/* Explore Deals: visible to everyone with or without account */}
       <Link
         href="/for-shoppers"
-        className={cn(
-          buttonVariants({ size: 'sm' }),
-          'font-medium text-xs sm:text-sm px-3.5 h-9 border-0 transition-all duration-150',
-          currentPath === '/for-shoppers'
-            ? 'bg-[#02547A] text-white shadow-md ring-2 ring-[#FC801A] font-semibold ring-offset-1 ring-offset-background'
-            : 'bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm'
-        )}
+        className={navTabClass(currentPath === '/for-shoppers')}
       >
         Explore Deals
       </Link>
@@ -34,13 +36,7 @@ export async function MainNav({ currentPath, role: roleProp }: MainNavProps) {
       {(isCreator || isBrand) && (
         <Link
           href="/for-creators"
-          className={cn(
-            buttonVariants({ size: 'sm' }),
-            'font-medium text-xs sm:text-sm px-3.5 h-9 border-0 transition-all duration-150',
-            currentPath === '/for-creators'
-              ? 'bg-[#02547A] text-white shadow-md ring-2 ring-[#FC801A] font-semibold ring-offset-1 ring-offset-background'
-              : 'bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm'
-          )}
+          className={navTabClass(currentPath === '/for-creators')}
         >
           Campaign Links
         </Link>
@@ -50,13 +46,7 @@ export async function MainNav({ currentPath, role: roleProp }: MainNavProps) {
       {isBrand && (
         <Link
           href="/for-brands"
-          className={cn(
-            buttonVariants({ size: 'sm' }),
-            'font-medium text-xs sm:text-sm px-3.5 h-9 border-0 transition-all duration-150',
-            currentPath === '/for-brands'
-              ? 'bg-[#02547A] text-white shadow-md ring-2 ring-[#FC801A] font-semibold ring-offset-1 ring-offset-background'
-              : 'bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm'
-          )}
+          className={navTabClass(currentPath === '/for-brands')}
         >
           Explore Creators
         </Link>
@@ -65,13 +55,7 @@ export async function MainNav({ currentPath, role: roleProp }: MainNavProps) {
       {/* Plans: visible to everyone */}
       <Link
         href="/plans"
-        className={cn(
-          buttonVariants({ size: 'sm' }),
-          'font-medium text-xs sm:text-sm px-3.5 h-9 border-0 transition-all duration-150',
-          currentPath === '/plans'
-            ? 'bg-[#02547A] text-white shadow-md ring-2 ring-[#FC801A] font-semibold ring-offset-1 ring-offset-background'
-            : 'bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm'
-        )}
+        className={navTabClass(currentPath === '/plans')}
       >
         Plans
       </Link>

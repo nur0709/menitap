@@ -21,11 +21,13 @@ export async function SiteHeader({ currentPath }: SiteHeaderProps) {
       {/* Sticky Header Navigation */}
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md transition-colors">
         <div className="container mx-auto flex h-18 sm:h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <BrandLogo size="md" />
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <MobileNav currentPath={currentPath} role={role} />
+            <BrandLogo size="md" />
+          </div>
           <MainNav currentPath={currentPath} role={role} />
           <div className="flex items-center gap-2 sm:gap-3">
             <AuthNav />
-            <MobileNav currentPath={currentPath} role={role} />
           </div>
         </div>
       </header>

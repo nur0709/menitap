@@ -1,9 +1,11 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { BrandLogo } from '@/components/brand-logo'
 import {
   Menu,
   X,
@@ -13,7 +15,6 @@ import {
   CreditCard,
   Info,
   User,
-  LogIn,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -26,6 +27,12 @@ export function MobileNav({ currentPath: initialPath, role }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const activePath = pathname || initialPath || ''
+
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
 
   const isCreator = role === 'CREATOR' || role === 'ADMIN'
   const isBrand = role === 'BRAND' || role === 'ADMIN'
@@ -111,26 +118,36 @@ export function MobileNav({ currentPath: initialPath, role }: MobileNavProps) {
         {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </Button>
 
-      {/* Drawer Overlay & Content */}
-      {isOpen && (
-        <div className="fixed inset-0 top-[73px] sm:top-[81px] z-50 flex flex-col">
+      {/* Drawer Overlay & Content Portalled to document.body */}
+      {isOpen && mounted && createPortal(
+        <div className="fixed inset-0 z-[9999] md:hidden">
           {/* Dimmed Backdrop */}
           <div
-            className="fixed inset-0 top-[73px] sm:top-[81px] bg-black/50 backdrop-blur-xs transition-opacity duration-200"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-200 animate-in fade-in"
             onClick={() => setIsOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Menu Panel */}
+          {/* Drawer Menu Panel from Left */}
           <div
             id="mobile-navigation-menu"
-            className="relative z-10 w-full bg-background border-b border-border shadow-2xl p-5 overflow-y-auto max-h-[calc(100vh-5.5rem)] animate-in slide-in-from-top-2 duration-200"
+            className="fixed inset-y-0 left-0 z-10 w-[82%] max-w-xs bg-background border-r border-border shadow-2xl flex flex-col justify-between animate-in slide-in-from-left duration-200"
           >
-            <div className="flex flex-col gap-2">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground px-2 pt-1 pb-1">
-                Navigation
-              </p>
+            {/* Header of Drawer */}
+            <div className="p-4 border-b border-border flex items-center justify-between">
+              <BrandLogo size="sm" />
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                aria-label="Close menu"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
+            {/* Nav Items List */}
+            <div className="p-4 flex-1 overflow-y-auto space-y-2">
               {navItems.map((item) => {
                 const Icon = item.icon
                 const isActive = activePath === item.href
@@ -141,17 +158,17 @@ export function MobileNav({ currentPath: initialPath, role }: MobileNavProps) {
                     href={item.href}
                     onClick={() => setIsOpen(false)}
                     className={cn(
-                      'flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all text-sm font-medium',
+                      'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm font-medium',
                       isActive
-                        ? 'bg-[#08739C]/10 text-[#08739C] dark:text-[#38BDF8] border border-[#08739C]/30 font-semibold shadow-xs'
-                        : 'text-foreground/80 hover:text-foreground hover:bg-muted/70 border border-transparent'
+                        ? 'border border-[#08739C] text-[#08739C] dark:border-[#38BDF8] dark:text-[#38BDF8] bg-[#08739C]/10 dark:bg-[#38BDF8]/10 font-bold shadow-xs'
+                        : 'text-foreground hover:bg-muted/70 border border-transparent'
                     )}
                   >
                     <div
                       className={cn(
                         'h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
                         isActive
-                          ? 'bg-[#08739C] text-white shadow-xs'
+                          ? 'border border-[#08739C] text-[#08739C] dark:border-[#38BDF8] dark:text-[#38BDF8] bg-[#08739C]/15'
                           : 'bg-muted text-muted-foreground'
                       )}
                     >
@@ -169,44 +186,28 @@ export function MobileNav({ currentPath: initialPath, role }: MobileNavProps) {
                   </Link>
                 )
               })}
+            </div>
 
-              <div className="my-2 border-t border-border" />
-
-              {/* Bottom Quick Action: My Account or Sign In */}
+            {/* Bottom Actions */}
+            <div className="p-4 border-t border-border">
               {role ? (
                 <Link
                   href="/dashboard"
                   onClick={() => setIsOpen(false)}
-                  className={cn(
-                    'flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all text-sm font-medium',
-                    activePath === '/dashboard'
-                      ? 'bg-[#FC801A]/10 text-[#FC801A] border border-[#FC801A]/30 font-semibold'
-                      : 'text-foreground/80 hover:text-foreground hover:bg-muted/70 border border-transparent'
-                  )}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-muted transition-colors text-foreground"
                 >
-                  <div className="h-8 w-8 rounded-lg bg-[#FC801A]/10 text-[#FC801A] flex items-center justify-center shrink-0">
-                    <User className="h-4 w-4" />
-                  </div>
-                  <div className="flex flex-col flex-1">
-                    <span className="text-sm leading-tight">My Account</span>
-                    <span className="text-[11px] text-muted-foreground leading-tight mt-0.5 font-normal">
-                      Profile, subscription & settings
-                    </span>
-                  </div>
+                  <User className="h-4 w-4 text-[#FC801A]" />
+                  <span>My Account</span>
                 </Link>
               ) : (
-                <Link
-                  href="/sign-in"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-3.5 px-3.5 py-3 rounded-xl bg-[#FC801A] text-white font-semibold text-sm hover:bg-[#E66F0D] transition-all shadow-xs"
-                >
-                  <LogIn className="h-4 w-4 shrink-0" />
-                  <span>Sign In / Create Account</span>
-                </Link>
+                <p className="text-xs text-center text-muted-foreground">
+                  Menitap © 2026
+                </p>
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
