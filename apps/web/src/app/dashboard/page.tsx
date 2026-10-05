@@ -1,14 +1,10 @@
 import { redirect } from 'next/navigation'
-import { getEffectiveUserContext, signOut } from '@/features/auth/actions'
+import { getEffectiveUserContext } from '@/features/auth/actions'
 import { createClient } from '@/lib/supabase/server'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { SiteHeader } from '@/components/site-header'
 import { BrandBorder } from '@/components/brand-border'
-import { BrandLogo } from '@/components/brand-logo'
-import { MainNav } from '@/components/main-nav'
-import { MobileNav } from '@/components/mobile-nav'
-import { ThemeToggle } from '@/components/theme-toggle'
 import { UserAvatar } from '@/components/user-avatar'
 import Link from 'next/link'
 import { DeleteAccountSection } from '@/features/account/delete-account-section'
@@ -17,7 +13,8 @@ import { BrandCampaignsManager } from '@/features/account/brand-campaigns-manage
 import { CreatorPublicProfileManager } from '@/features/account/creator-public-profile-manager'
 import { AdminCategoryManager } from '@/features/account/admin-category-manager'
 import { getUserLinks, getUserBrandLinks, getAllCategories } from '@/features/links/actions'
-import { LogOut, ShoppingBag, Video, Building2, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react'
+import { ShoppingBag, Video, Building2, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react'
+
 
 
 export const metadata = {
@@ -94,32 +91,10 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors selection:bg-[#FC801A]/30">
-      <BrandBorder position="top" height="h-7 sm:h-9" />
-
-      {/* Header */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            <MobileNav currentPath="/dashboard" role={role} />
-            <BrandLogo size="md" />
-          </div>
-          <MainNav currentPath="/dashboard" />
-
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <UserAvatar user={{ email, fullName, avatarUrl }} size="sm" />
-            <form action={signOut}>
-              <Button variant="ghost" size="sm" type="submit" className="text-muted-foreground hover:text-foreground">
-                <LogOut className="h-4 w-4 mr-1.5" />
-                <span className="hidden sm:inline">Sign Out</span>
-              </Button>
-            </form>
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <SiteHeader currentPath="/dashboard" />
 
       {/* Main My Account page */}
+
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-14 max-w-2xl flex-1 flex flex-col justify-center">
         <Card className="bg-card border-border shadow-sm text-center py-8 px-6 sm:px-8">
           <CardHeader className="flex flex-col items-center gap-4 pb-4">
