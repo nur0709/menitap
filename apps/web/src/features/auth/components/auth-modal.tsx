@@ -26,13 +26,14 @@ import { cn } from '@/lib/utils'
 
 export type AuthMode = 'login' | 'signup'
 
+export type AccountType = 'USER' | 'CREATOR'
+
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
   initialMode?: AuthMode
+  initialRole?: AccountType
 }
-
-type AccountType = 'USER' | 'CREATOR'
 
 const ACCOUNT_TYPES = [
   {
@@ -49,7 +50,12 @@ const ACCOUNT_TYPES = [
   },
 ]
 
-export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) {
+export function AuthModal({
+  isOpen,
+  onClose,
+  initialMode = 'login',
+  initialRole = 'USER',
+}: AuthModalProps) {
   const mounted = React.useSyncExternalStore(
     () => () => {},
     () => true,
@@ -57,7 +63,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
   )
   const [view, setView] = useState<'options' | 'email'>('options')
   const [mode, setMode] = useState<AuthMode>(initialMode)
-  const [selectedRole, setSelectedRole] = useState<AccountType>('USER')
+  const [selectedRole, setSelectedRole] = useState<AccountType>(initialRole)
 
   // Close on Escape key & lock scroll
   useEffect(() => {

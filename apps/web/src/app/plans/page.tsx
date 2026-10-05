@@ -1,11 +1,8 @@
-import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Check, Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { PlanCtaButton } from "./plan-cta-button";
 
 export const metadata = {
   title: "Plans & Pricing | Menitap",
@@ -31,11 +28,10 @@ export default function PlansPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch max-w-5xl mx-auto">
             {/* Free Tier */}
             <Card className="bg-card border-border flex flex-col h-full shadow-sm hover:border-[#08739C]/40 transition-colors">
-              <CardHeader>
-                <Badge variant="outline" className="w-fit text-xs font-semibold mb-2 bg-[#08739C]/10 text-[#08739C] dark:text-[#38BDF8] border-[#08739C]/30">
-                  Shopper & UGC starter
-                </Badge>
-                <CardTitle className="text-lg text-foreground">Explorer</CardTitle>
+              <CardHeader className="pt-6 pb-4">
+                <CardTitle className="text-2xl sm:text-3xl font-extrabold text-[#08739C] dark:text-[#38BDF8] tracking-tight">
+                  Explorer
+                </CardTitle>
                 <div className="mt-2 flex items-baseline text-3xl font-extrabold text-foreground">
                   $0
                 </div>
@@ -57,23 +53,23 @@ export default function PlansPage() {
                   </li>
                 </ul>
               </CardContent>
-              <CardFooter>
-                <Link 
-                  href="/sign-up?role=USER" 
-                  className={cn(buttonVariants({ variant: "outline" }), "w-full border-border hover:bg-accent font-medium")}
+              <CardFooter className="pt-2">
+                <PlanCtaButton
+                  role="USER"
+                  variant="outline"
+                  className="h-11 rounded-xl border-border hover:bg-accent text-foreground text-sm font-semibold"
                 >
                   Start Free
-                </Link>
+                </PlanCtaButton>
               </CardFooter>
             </Card>
 
             {/* Basic Creator Tier */}
-            <Card className="bg-card border-border flex flex-col h-full shadow-sm hover:border-[#08739C]/40 transition-colors">
-              <CardHeader>
-                <Badge variant="outline" className="w-fit text-xs font-semibold mb-2 bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30">
+            <Card className="bg-card border-border flex flex-col h-full shadow-sm hover:border-[#FC801A]/40 transition-colors">
+              <CardHeader className="pt-6 pb-4">
+                <CardTitle className="text-2xl sm:text-3xl font-extrabold text-[#FC801A] tracking-tight">
                   Creator Basic
-                </Badge>
-                <CardTitle className="text-lg text-foreground">Creator Basic</CardTitle>
+                </CardTitle>
                 <div className="mt-2 flex items-baseline text-3xl font-extrabold text-foreground">
                   $10<span className="text-xs font-normal text-muted-foreground">/mo</span>
                 </div>
@@ -82,7 +78,7 @@ export default function PlansPage() {
               <CardContent className="flex-1">
                 <ul className="space-y-3 text-xs sm:text-sm text-muted-foreground">
                   <li className="flex gap-2 font-medium text-foreground">
-                    <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
+                    <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
                     <span>Everything in Explorer</span>
                   </li>
                   <li className="flex gap-2">
@@ -99,28 +95,23 @@ export default function PlansPage() {
                   </li>
                 </ul>
               </CardContent>
-              <CardFooter>
-                <Link 
-                  href="/sign-up?role=CREATOR" 
-                  className={cn(buttonVariants({ variant: "outline" }), "w-full border-border hover:bg-accent font-medium")}
+              <CardFooter className="pt-2">
+                <PlanCtaButton
+                  role="CREATOR"
+                  variant="outline"
+                  className="h-11 rounded-xl border border-[#FC801A] text-[#FC801A] hover:bg-[#FC801A]/10 text-sm font-semibold"
                 >
                   Join Basic
-                </Link>
+                </PlanCtaButton>
               </CardFooter>
             </Card>
 
             {/* Standard Creator Tier (Featured) */}
-            <Card className="bg-card border-[#FC801A] shadow-md relative flex flex-col h-full ring-2 ring-[#FC801A]/30">
-              <div className="absolute -top-3 left-0 right-0 flex justify-center">
-                <Badge className="bg-[#FC801A] text-white border-0 text-[10px] font-bold px-2.5 py-0.5 shadow-sm">
-                  Recommended
-                </Badge>
-              </div>
-              <CardHeader>
-                <Badge className="w-fit text-xs font-semibold bg-[#FC801A] text-white border-0 mb-2">
+            <Card className="bg-card border-[#FC801A] shadow-md flex flex-col h-full ring-2 ring-[#FC801A]/30">
+              <CardHeader className="pt-6 pb-4">
+                <CardTitle className="text-2xl sm:text-3xl font-extrabold text-[#FC801A] tracking-tight">
                   Creator Standard
-                </Badge>
-                <CardTitle className="text-lg text-foreground">Creator Standard</CardTitle>
+                </CardTitle>
                 <div className="mt-2 flex items-baseline text-3xl font-extrabold text-foreground">
                   $15<span className="text-xs font-normal text-muted-foreground">/mo</span>
                 </div>
@@ -146,16 +137,13 @@ export default function PlansPage() {
                   </li>
                 </ul>
               </CardContent>
-              <CardFooter>
-                <Link 
-                  href="/sign-up?role=CREATOR" 
-                  className={cn(
-                    buttonVariants(), 
-                    "w-full bg-[#FC801A] hover:bg-[#E66F0D] text-white font-semibold border-0 shadow-sm"
-                  )}
+              <CardFooter className="pt-2">
+                <PlanCtaButton
+                  role="CREATOR"
+                  className="h-11 rounded-xl bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 shadow-sm text-sm font-semibold"
                 >
                   Join Standard
-                </Link>
+                </PlanCtaButton>
               </CardFooter>
             </Card>
           </div>
