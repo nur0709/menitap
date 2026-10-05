@@ -33,7 +33,7 @@ export function AuthModalButtons({ className }: { className?: string }) {
           variant="ghost"
           size="sm"
           onClick={() => handleOpen('login')}
-          className="text-foreground hover:bg-muted font-medium text-xs sm:text-sm px-2.5 sm:px-3 h-9 rounded-lg cursor-pointer transition-colors"
+          className="border border-[#FC801A] text-[#FC801A] hover:bg-[#FC801A]/10 hover:text-[#FC801A] hover:border-[#FC801A] font-semibold text-xs sm:text-sm px-3 sm:px-3.5 h-9 rounded-lg cursor-pointer transition-all"
         >
           Log in
         </Button>
