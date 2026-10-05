@@ -1,6 +1,6 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { deleteAffiliateLink } from '@/features/links/actions'
 import { Button } from '@/components/ui/button'
@@ -16,13 +16,16 @@ export interface AffiliateLinkItem {
 }
 
 export function CreatorLinksManager({ links }: { links: AffiliateLinkItem[] }) {
-  const [isPending, startTransition] = useTransition()
+  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [, startTransition] = useTransition()
   const router = useRouter()
 
   const handleDelete = (id: number) => {
+    setDeletingId(id)
     startTransition(async () => {
       await deleteAffiliateLink(id)
       router.refresh()
+      setDeletingId(null)
     })
   }
 
@@ -87,12 +90,12 @@ export function CreatorLinksManager({ links }: { links: AffiliateLinkItem[] }) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                disabled={isPending}
+                disabled={deletingId === link.id}
                 onClick={() => handleDelete(link.id)}
                 className="h-7 px-2 text-destructive hover:bg-destructive/10 text-xs cursor-pointer"
                 title="Remove deal"
               >
-                {isPending ? (
+                {deletingId === link.id ? (
                   <Loader2 className="h-3 w-3 animate-spin" />
                 ) : (
                   <Trash2 className="h-3.5 w-3.5" />

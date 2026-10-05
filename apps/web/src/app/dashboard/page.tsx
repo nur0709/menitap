@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { BrandBorder } from '@/components/brand-border'
 import { BrandLogo } from '@/components/brand-logo'
+import { MainNav } from '@/components/main-nav'
+import { MobileNav } from '@/components/mobile-nav'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { UserAvatar } from '@/components/user-avatar'
 import { UpgradeToCreatorButton } from '@/features/account/upgrade-button'
@@ -13,9 +15,10 @@ import { CreatorSubscriptionActions } from '@/features/account/creator-subscript
 import { DeleteAccountSection } from '@/features/account/delete-account-section'
 import { AdminRoleSwitcher } from '@/features/account/admin-role-switcher'
 import { CreatorLinksManager } from '@/features/account/creator-links-manager'
+import { BrandCampaignsManager } from '@/features/account/brand-campaigns-manager'
 import { CreatorPublicProfileManager } from '@/features/account/creator-public-profile-manager'
 import { AdminCategoryManager } from '@/features/account/admin-category-manager'
-import { getUserLinks, getAllCategories } from '@/features/links/actions'
+import { getUserLinks, getUserBrandLinks, getAllCategories } from '@/features/links/actions'
 import { LogOut, ShoppingBag, Video, Building2, ShieldCheck } from 'lucide-react'
 
 export const metadata = {
@@ -32,13 +35,14 @@ export default async function DashboardPage() {
   }
 
   const supabase = await createClient()
-  const [{ data: profile }, { affiliateLinks }, allCategories] = await Promise.all([
+  const [{ data: profile }, { affiliateLinks }, { brandLinks }, allCategories] = await Promise.all([
     supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single(),
-    role === 'CREATOR' ? getUserLinks() : Promise.resolve({ affiliateLinks: [] }),
+    role === 'CREATOR' || isAdmin ? getUserLinks() : Promise.resolve({ affiliateLinks: [] }),
+    role === 'BRAND' || isAdmin ? getUserBrandLinks() : Promise.resolve({ brandLinks: [] }),
     isAdmin ? getAllCategories() : Promise.resolve([]),
   ])
 
@@ -97,8 +101,9 @@ export default async function DashboardPage() {
       <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between">
           <BrandLogo size="md" />
+          <MainNav currentPath="/dashboard" role={role} />
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <UserAvatar user={{ email, fullName, avatarUrl }} size="sm" />
             <form action={signOut}>
               <Button variant="ghost" size="sm" type="submit" className="text-muted-foreground hover:text-foreground">
@@ -107,6 +112,7 @@ export default async function DashboardPage() {
               </Button>
             </form>
             <ThemeToggle />
+            <MobileNav currentPath="/dashboard" role={role} />
           </div>
         </div>
       </header>
@@ -149,6 +155,11 @@ export default async function DashboardPage() {
             {/* Creator Links Manager: manage shared affiliate deals (Creator only) */}
             {role === 'CREATOR' && (
               <CreatorLinksManager links={affiliateLinks} />
+            )}
+
+            {/* Brand Campaigns Manager: manage posted brand collab links (Brand and Admin) */}
+            {(role === 'BRAND' || isAdmin) && (
+              <BrandCampaignsManager campaigns={brandLinks} />
             )}
 
             {/* If Creator, allow upgrading from $10 to $15 or downgrading/canceling back to Consumer */}

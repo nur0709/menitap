@@ -329,6 +329,30 @@ export async function getUserLinks() {
   }
 }
 
+export async function getUserBrandLinks() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { brandLinks: [] }
+
+  const { data, error } = await supabase
+    .from('brand_links')
+    .select('*, categories(name)')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching user brand links:', error)
+    return { brandLinks: [] }
+  }
+
+  return {
+    brandLinks: data || [],
+  }
+}
+
 export async function getCampaignLinks(categoryId?: number) {
   const supabase = await createClient()
 

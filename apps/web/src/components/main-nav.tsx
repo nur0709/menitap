@@ -5,23 +5,26 @@ import { cn } from '@/lib/utils'
 
 interface MainNavProps {
   currentPath?: string
+  role?: string | null
 }
 
-export async function MainNav({ currentPath }: MainNavProps) {
-  const role = await getCurrentUserRole()
+export async function MainNav({ currentPath, role: roleProp }: MainNavProps) {
+  const role = roleProp !== undefined ? roleProp : await getCurrentUserRole()
 
   const isCreator = role === 'CREATOR' || role === 'ADMIN'
   const isBrand = role === 'BRAND' || role === 'ADMIN'
 
   return (
-    <nav className="hidden items-center gap-1.5 md:flex">
+    <nav className="hidden items-center gap-2 md:flex" aria-label="Main Navigation">
       {/* Explore Deals: visible to everyone with or without account */}
       <Link
         href="/for-shoppers"
         className={cn(
           buttonVariants({ size: 'sm' }),
-          'bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0',
-          currentPath === '/for-shoppers' && 'ring-2 ring-[#08739C]/40'
+          'font-medium text-xs sm:text-sm px-3.5 h-9 border-0 transition-all duration-150',
+          currentPath === '/for-shoppers'
+            ? 'bg-[#02547A] text-white shadow-md ring-2 ring-[#FC801A] font-semibold ring-offset-1 ring-offset-background'
+            : 'bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm'
         )}
       >
         Explore Deals
@@ -33,8 +36,10 @@ export async function MainNav({ currentPath }: MainNavProps) {
           href="/for-creators"
           className={cn(
             buttonVariants({ size: 'sm' }),
-            'bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0',
-            currentPath === '/for-creators' && 'ring-2 ring-[#08739C]/40'
+            'font-medium text-xs sm:text-sm px-3.5 h-9 border-0 transition-all duration-150',
+            currentPath === '/for-creators'
+              ? 'bg-[#02547A] text-white shadow-md ring-2 ring-[#FC801A] font-semibold ring-offset-1 ring-offset-background'
+              : 'bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm'
           )}
         >
           Campaign Links
@@ -47,8 +52,10 @@ export async function MainNav({ currentPath }: MainNavProps) {
           href="/for-brands"
           className={cn(
             buttonVariants({ size: 'sm' }),
-            'bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0',
-            currentPath === '/for-brands' && 'ring-2 ring-[#08739C]/40'
+            'font-medium text-xs sm:text-sm px-3.5 h-9 border-0 transition-all duration-150',
+            currentPath === '/for-brands'
+              ? 'bg-[#02547A] text-white shadow-md ring-2 ring-[#FC801A] font-semibold ring-offset-1 ring-offset-background'
+              : 'bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm'
           )}
         >
           Explore Creators
@@ -60,8 +67,10 @@ export async function MainNav({ currentPath }: MainNavProps) {
         href="/plans"
         className={cn(
           buttonVariants({ size: 'sm' }),
-          'bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm font-medium text-xs sm:text-sm px-3.5 h-9 border-0',
-          currentPath === '/plans' && 'ring-2 ring-[#08739C]/40'
+          'font-medium text-xs sm:text-sm px-3.5 h-9 border-0 transition-all duration-150',
+          currentPath === '/plans'
+            ? 'bg-[#02547A] text-white shadow-md ring-2 ring-[#FC801A] font-semibold ring-offset-1 ring-offset-background'
+            : 'bg-[#08739C] hover:bg-[#02547A] text-white shadow-sm'
         )}
       >
         Plans
@@ -69,3 +78,4 @@ export async function MainNav({ currentPath }: MainNavProps) {
     </nav>
   )
 }
+
