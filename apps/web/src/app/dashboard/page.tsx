@@ -40,8 +40,8 @@ export default async function DashboardPage() {
       .select('*')
       .eq('id', user.id)
       .single(),
-    role === 'CREATOR' || isAdmin ? getUserLinks() : Promise.resolve({ affiliateLinks: [] }),
-    role === 'BRAND' || isAdmin ? getUserBrandLinks() : Promise.resolve({ brandLinks: [] }),
+    role === 'CREATOR' ? getUserLinks() : Promise.resolve({ affiliateLinks: [] }),
+    role === 'BRAND' ? getUserBrandLinks() : Promise.resolve({ brandLinks: [] }),
     isAdmin ? getAllCategories() : Promise.resolve([]),
   ])
 
@@ -156,8 +156,8 @@ export default async function DashboardPage() {
               <CreatorLinksManager links={affiliateLinks} />
             )}
 
-            {/* Brand Campaigns Manager: manage posted brand collab links (Brand and Admin) */}
-            {(role === 'BRAND' || isAdmin) && (
+            {/* Brand Campaigns Manager: manage posted brand collab links (Brand only) */}
+            {role === 'BRAND' && (
               <BrandCampaignsManager campaigns={brandLinks} />
             )}
 
