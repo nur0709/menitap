@@ -27,8 +27,8 @@ export async function MainNav({ currentPath }: MainNavProps) {
         Explore Deals
       </Link>
 
-      {/* For Creators: only visible to creator accounts */}
-      {isCreator && (
+      {/* Campaign Links: visible to Creators, Brands, and Admins */}
+      {(isCreator || isBrand) && (
         <Link
           href="/for-creators"
           className={cn(
@@ -37,11 +37,11 @@ export async function MainNav({ currentPath }: MainNavProps) {
             currentPath === '/for-creators' && 'ring-2 ring-[#08739C]/40'
           )}
         >
-          For Creators
+          Campaign Links
         </Link>
       )}
 
-      {/* For Brands: only visible to brand accounts */}
+      {/* Explore Creators: only visible to brand accounts and admins */}
       {isBrand && (
         <Link
           href="/for-brands"
@@ -51,7 +51,7 @@ export async function MainNav({ currentPath }: MainNavProps) {
             currentPath === '/for-brands' && 'ring-2 ring-[#08739C]/40'
           )}
         >
-          For Brands
+          Explore Creators
         </Link>
       )}
 

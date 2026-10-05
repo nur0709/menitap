@@ -1,7 +1,6 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 
@@ -110,6 +109,18 @@ export async function createBrandLink(
     return { error: validation.error.issues[0]?.message || 'Validation failed' }
   }
 
+  // Verify user is BRAND or ADMIN
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const role = (profile?.role || '').toUpperCase()
+  if (role !== 'BRAND' && role !== 'ADMIN') {
+    return { error: 'Only brand accounts can post campaign links.' }
+  }
+
   const { error } = await supabase.from('brand_links').insert({
     user_id: user.id,
     category_id: validation.data.category_id,
@@ -117,15 +128,16 @@ export async function createBrandLink(
     application_url: validation.data.application_url,
     description: validation.data.description || null,
     products_provided: validation.data.products_provided,
-    status: 'PENDING',
+    status: 'ACTIVE',
   })
 
   if (error) {
     return { error: error.message }
   }
 
+  revalidatePath('/for-creators')
   revalidatePath('/dashboard')
-  redirect('/dashboard?submitted=brand')
+  return { success: 'Campaign link posted successfully!' }
 }
 
 export async function getCategories(type: 'DEALS' | 'CREATORS' | 'BRANDS' = 'DEALS') {
@@ -304,6 +316,70 @@ export async function getUserLinks() {
     affiliateLinks: affiliateRes.data || [],
     brandLinks: brandRes.data || [],
   }
+}
+
+export async function getCampaignLinks(categoryId?: number) {
+  const supabase = await createClient()
+
+  let query = supabase
+    .from('brand_links')
+    .select('id, brand_name, application_url, description, products_provided, click_count, created_at, category_id, categories(name, slug), profiles(full_name)')
+    .eq('status', 'ACTIVE')
+    .order('created_at', { ascending: false })
+
+  if (categoryId) {
+    query = query.eq('category_id', categoryId)
+  }
+
+  const { data, error } = await query
+  if (error) {
+    console.error('Error fetching campaign links:', error)
+    return []
+  }
+
+  return data || []
+}
+
+export async function deleteBrandLink(linkId: number): Promise<{ error?: string; success?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'You must be signed in to delete a campaign.' }
+  }
+
+  const { error } = await supabase
+    .from('brand_links')
+    .delete()
+    .eq('id', linkId)
+    .eq('user_id', user.id)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/for-creators')
+  revalidatePath('/dashboard')
+  return { success: 'Campaign removed.' }
+}
+
+export async function getPublicCreators() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, avatar_url, bio, instagram_url, tiktok_url, youtube_url, created_at')
+    .eq('is_public_profile', true)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching public creators:', error)
+    return []
+  }
+
+  return data || []
 }
 
 

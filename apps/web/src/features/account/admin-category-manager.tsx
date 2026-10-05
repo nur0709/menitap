@@ -52,8 +52,8 @@ export function AdminCategoryManager({ categories }: { categories: CategoryItem[
 
   const tabLabels = {
     DEALS: 'Explore Deals',
-    CREATORS: 'For Creators',
-    BRANDS: 'For Brands',
+    CREATORS: 'Campaign Links',
+    BRANDS: 'Explore Creators',
   }
 
   return (
