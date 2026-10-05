@@ -12,7 +12,7 @@ export function BrandBorder({
   position = 'top',
   flip = false,
   className,
-  height = 'h-8 sm:h-10 md:h-12',
+  height = 'h-7 sm:h-9',
 }: BrandBorderProps) {
   const shouldFlip = flip || position === 'bottom'
 

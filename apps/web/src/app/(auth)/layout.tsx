@@ -11,7 +11,7 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col justify-between items-center relative overflow-hidden transition-colors">
       {/* Decorative Top Border Ribbon */}
-      <BrandBorder position="top" height="h-6 sm:h-8" />
+      <BrandBorder position="top" height="h-7 sm:h-9" />
 
       {/* Top Controls */}
       <div className="absolute top-8 right-4 sm:right-8 z-20">
@@ -40,7 +40,7 @@ export default function AuthLayout({
       </div>
 
       {/* Decorative Bottom Border Ribbon */}
-      <BrandBorder position="bottom" height="h-6 sm:h-8" />
+      <BrandBorder position="bottom" height="h-7 sm:h-9" />
     </div>
   )
 }
