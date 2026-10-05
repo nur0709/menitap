@@ -85,7 +85,7 @@ Read `AGENTS.md` for coding standards and conventions.
 - [x] User dashboard display with status badges (`PENDING`, `APPROVED`, `REJECTED`)
 - [x] Vercel production deployment verified live
 
-### 🔄 Phase 5 — Browse, Categories & Creator Link Management (In Progress)
+### ✅ Phase 5 — Browse, Categories & Creator Link Management (COMPLETED)
 - [x] Public browsable directory page for **Explore Deals** (`/for-shoppers`)
 - [x] `categories` table upgraded with `type` column (`DEALS`, `CREATORS`, `BRANDS`)
 - [x] Admin Category Manager in `/dashboard` (Add/Delete category tags per tab)
@@ -93,8 +93,10 @@ Read `AGENTS.md` for coding standards and conventions.
 - [x] My Account Shared Deals manager for Creators to track clicks & delete links
 - [x] Dynamic tab visibility based on Account Type (`USER`, `CREATOR`, `BRAND`, `ADMIN`)
 - [x] Safe Admin Mode toggle (allows admin to test any account experience without role loss)
-- [ ] For Creators directory & tab content
-- [ ] For Brands directory & tab content
+- [x] **Campaign Links** directory (`/for-creators`) with `+ Post Campaign` modal for brand accounts
+- [x] **Explore Creators** directory (`/for-brands`) showcasing Creator Standard public portfolios with social media links
+- [x] Independent Public Profile visibility switch & validated social links manager for Creator Standard
+- [x] Automatic public profile deactivation on plan downgrade or cancellation
 
 ### ⬜ Phase 4 — Stripe Subscriptions (Upcoming) — [#3](https://github.com/nur0709/menitap/issues/3)
 - [ ] Stripe product/price creation (Explorer $0, Creator Basic $10, Creator Standard $15)
