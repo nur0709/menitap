@@ -16,13 +16,13 @@ export function AuthModalButtons({ className }: { className?: string }) {
 
   return (
     <>
-      <div className={cn('flex items-center gap-3', className)}>
+      <div className={cn('flex items-center gap-1.5 sm:gap-2', className)}>
         {/* Sign up Button */}
         <Button
           type="button"
-          size="lg"
+          size="sm"
           onClick={() => handleOpen('signup')}
-          className="bg-[#FC801A] hover:bg-[#E66F0D] text-white font-semibold text-sm sm:text-base px-6 sm:px-8 h-11 rounded-xl border-0 shadow-sm cursor-pointer transition-all"
+          className="bg-[#FC801A] hover:bg-[#E66F0D] text-white font-semibold text-xs sm:text-sm px-3 sm:px-4 h-9 rounded-lg border-0 shadow-xs cursor-pointer transition-all"
         >
           Sign up
         </Button>
@@ -30,10 +30,10 @@ export function AuthModalButtons({ className }: { className?: string }) {
         {/* Log in Button */}
         <Button
           type="button"
-          variant="outline"
-          size="lg"
+          variant="ghost"
+          size="sm"
           onClick={() => handleOpen('login')}
-          className="bg-card hover:bg-muted text-foreground border-border font-semibold text-sm sm:text-base px-6 sm:px-8 h-11 rounded-xl shadow-sm cursor-pointer transition-colors"
+          className="text-foreground hover:bg-muted font-medium text-xs sm:text-sm px-2.5 sm:px-3 h-9 rounded-lg cursor-pointer transition-colors"
         >
           Log in
         </Button>

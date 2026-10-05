@@ -1,13 +1,7 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { AuthModalButtons } from "@/features/auth/components/auth-modal-buttons";
-import { getEffectiveUserContext } from "@/features/auth/actions";
-import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
-export default async function LandingPage() {
-  const { user } = await getEffectiveUserContext();
+export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-[#FC801A]/30 selection:text-foreground">
@@ -52,23 +46,6 @@ export default async function LandingPage() {
                   allowFullScreen
                 />
               </div>
-            </div>
-
-            {/* Center Auth / Action Buttons */}
-            <div className="mt-8 sm:mt-10 flex items-center justify-center gap-3">
-              {!user ? (
-                <AuthModalButtons />
-              ) : (
-                <Link
-                  href="/for-shoppers"
-                  className={cn(
-                    buttonVariants({ size: "lg" }),
-                    "bg-[#FC801A] hover:bg-[#E66F0D] text-white font-semibold text-sm sm:text-base px-7 h-11 rounded-xl shadow-xs border-0"
-                  )}
-                >
-                  Explore Deals
-                </Link>
-              )}
             </div>
           </div>
         </section>
