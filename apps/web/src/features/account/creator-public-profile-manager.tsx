@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { updatePublicProfile } from './actions'
+import { setPublicProfileVisibility, updateCreatorLinks } from './actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -17,102 +17,115 @@ interface CreatorProfileData {
 }
 
 export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfileData }) {
-  const initialPublic = Boolean(profile.is_public_profile)
+  // Public toggle state (independently saved directly upon toggle)
+  const [isPublic, setIsPublic] = useState(Boolean(profile.is_public_profile))
+  const [isToggling, startToggleTransition] = useTransition()
+  const [toggleFeedback, setToggleFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null)
+
+  // Links & Bio state (managed by the Save Changes button)
   const initialInstagram = profile.instagram_url || ''
   const initialTiktok = profile.tiktok_url || ''
   const initialYoutube = profile.youtube_url || ''
   const initialBio = profile.bio || ''
 
-  const [isPublic, setIsPublic] = useState(initialPublic)
   const [instagram, setInstagram] = useState(initialInstagram)
   const [tiktok, setTiktok] = useState(initialTiktok)
   const [youtube, setYoutube] = useState(initialYoutube)
   const [bio, setBio] = useState(initialBio)
 
-  // Track saved baseline
-  const [savedBaseline, setSavedBaseline] = useState({
-    isPublic: initialPublic,
+  // Saved baseline for links
+  const [savedLinksBaseline, setSavedLinksBaseline] = useState({
     instagram: initialInstagram,
     tiktok: initialTiktok,
     youtube: initialYoutube,
     bio: initialBio,
   })
 
-  const [isPending, startTransition] = useTransition()
-  const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null)
+  const [isSaving, startSaveTransition] = useTransition()
+  const [saveFeedback, setSaveFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null)
   const [justSaved, setJustSaved] = useState(false)
 
-  // Check if form has unsaved modifications
-  const isDirty =
-    isPublic !== savedBaseline.isPublic ||
-    instagram.trim() !== savedBaseline.instagram.trim() ||
-    tiktok.trim() !== savedBaseline.tiktok.trim() ||
-    youtube.trim() !== savedBaseline.youtube.trim() ||
-    bio.trim() !== savedBaseline.bio.trim()
+  // Dirty state strictly applies to links and bio modifications
+  const isLinksDirty =
+    instagram.trim() !== savedLinksBaseline.instagram.trim() ||
+    tiktok.trim() !== savedLinksBaseline.tiktok.trim() ||
+    youtube.trim() !== savedLinksBaseline.youtube.trim() ||
+    bio.trim() !== savedLinksBaseline.bio.trim()
 
-  const hasAnyLink = Boolean(instagram.trim() || tiktok.trim() || youtube.trim())
+  const hasAnyLink = Boolean(
+    instagram.trim() ||
+    tiktok.trim() ||
+    youtube.trim() ||
+    savedLinksBaseline.instagram.trim() ||
+    savedLinksBaseline.tiktok.trim() ||
+    savedLinksBaseline.youtube.trim()
+  )
 
+  // 1. Independent Toggle Handler: immediately toggles public visibility
   const handleToggle = (newCheckedState: boolean) => {
+    setToggleFeedback(null)
+
     if (newCheckedState && !hasAnyLink) {
-      setIsPublic(false)
-      setFeedback({
+      setToggleFeedback({
         type: 'error',
-        message: 'Please provide at least one social media link (Instagram, TikTok, or YouTube) before enabling your public profile.',
+        message: 'Please provide and save at least one social media link before enabling your public profile.',
       })
       return
     }
-    setIsPublic(newCheckedState)
-    setFeedback(null)
-    setJustSaved(false)
+
+    startToggleTransition(async () => {
+      const res = await setPublicProfileVisibility(newCheckedState)
+      if (res.error) {
+        setToggleFeedback({ type: 'error', message: res.error })
+      } else {
+        setIsPublic(newCheckedState)
+        setToggleFeedback({
+          type: 'success',
+          message: res.success || (newCheckedState ? 'Public profile activated!' : 'Public profile hidden.'),
+        })
+        setTimeout(() => setToggleFeedback(null), 3500)
+      }
+    })
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // 2. Links Save Handler: saves added/modified links & bio
+  const handleSaveLinks = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setFeedback(null)
-
-    // Validation: if public profile is enabled, at least one social media link must be provided
-    if (isPublic && !instagram.trim() && !tiktok.trim() && !youtube.trim()) {
-      setFeedback({
-        type: 'error',
-        message: 'Please provide at least one social media link (Instagram, TikTok, or YouTube) to enable your public profile.',
-      })
-      return
-    }
+    setSaveFeedback(null)
 
     const formData = new FormData()
-    formData.append('is_public_profile', isPublic ? 'true' : 'false')
     formData.append('instagram_url', instagram.trim())
     formData.append('tiktok_url', tiktok.trim())
     formData.append('youtube_url', youtube.trim())
     formData.append('bio', bio.trim())
 
-    startTransition(async () => {
-      const res = await updatePublicProfile(formData)
+    startSaveTransition(async () => {
+      const res = await updateCreatorLinks(formData)
       if (res.error) {
-        setFeedback({ type: 'error', message: res.error })
+        setSaveFeedback({ type: 'error', message: res.error })
       } else {
-        setSavedBaseline({
-          isPublic,
+        setSavedLinksBaseline({
           instagram,
           tiktok,
           youtube,
           bio,
         })
         setJustSaved(true)
-        setFeedback({
+        setSaveFeedback({
           type: 'success',
-          message: res.success || 'Settings saved successfully!',
+          message: res.success || 'Links saved successfully!',
         })
         setTimeout(() => setJustSaved(false), 3000)
+        setTimeout(() => setSaveFeedback(null), 4000)
       }
     })
   }
 
   return (
     <div className="w-full pt-6 border-t border-border mt-6 text-left">
-      <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs">
+      <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs space-y-5">
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 mb-4 pb-4 border-b border-border">
+        <div className="flex items-center justify-between gap-3 pb-4 border-b border-border">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-[#FC801A]" />
             <h3 className="text-sm sm:text-base font-bold text-foreground">
@@ -120,7 +133,7 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
             </h3>
           </div>
 
-          {/* Status Badge */}
+          {/* Live Status Badge */}
           <div className="shrink-0">
             {isPublic ? (
               <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-xs flex items-center gap-1.5 py-1 px-2.5">
@@ -135,57 +148,64 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
           </div>
         </div>
 
-        {feedback && (
+        {/* Independent Toggle Switch */}
+        <div className="p-3.5 rounded-xl bg-muted/30 border border-border flex items-center justify-between gap-4">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <Label
+                htmlFor="public-profile-toggle"
+                className="text-xs sm:text-sm font-semibold text-foreground cursor-pointer"
+              >
+                Enable Public Profile
+              </Label>
+              {isToggling && <Loader2 className="h-3 w-3 animate-spin text-[#FC801A]" />}
+            </div>
+            <p className="text-[11px] sm:text-xs text-muted-foreground">
+              {isPublic
+                ? 'Your profile is active and discoverable on Explore Creators.'
+                : 'Disabled: Your inputs remain saved securely, but your profile is hidden from brands.'}
+            </p>
+          </div>
+
+          <label className="relative inline-flex items-center cursor-pointer shrink-0">
+            <input
+              id="public-profile-toggle"
+              type="checkbox"
+              checked={isPublic}
+              disabled={isToggling}
+              onChange={(e) => handleToggle(e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FC801A]" />
+          </label>
+        </div>
+
+        {toggleFeedback && (
           <div
-            className={`mb-5 p-3 rounded-xl text-xs font-medium flex items-center gap-2 ${
-              feedback.type === 'error'
+            className={`p-3 rounded-xl text-xs font-medium flex items-center gap-2 ${
+              toggleFeedback.type === 'error'
                 ? 'bg-destructive/10 text-destructive border border-destructive/20'
                 : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
             }`}
           >
-            {feedback.type === 'error' ? (
+            {toggleFeedback.type === 'error' ? (
               <AlertCircle className="h-4 w-4 shrink-0" />
             ) : (
               <Check className="h-4 w-4 shrink-0" />
             )}
-            <span>{feedback.message}</span>
+            <span>{toggleFeedback.message}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Toggle Switch */}
-          <div className="flex items-center justify-between p-3.5 rounded-xl bg-muted/30 border border-border">
-            <div className="space-y-0.5">
-              <Label htmlFor="public-profile-toggle" className="text-xs sm:text-sm font-semibold text-foreground cursor-pointer">
-                Enable Public Profile
-              </Label>
-              <p className="text-[11px] sm:text-xs text-muted-foreground">
-                {isPublic
-                  ? 'Your profile & social media links are visible to brands.'
-                  : 'Disabled: Your inputs remain saved securely, but your profile is hidden from brands.'}
-              </p>
-            </div>
-
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                id="public-profile-toggle"
-                type="checkbox"
-                checked={isPublic}
-                onChange={(e) => handleToggle(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FC801A]" />
-            </label>
-          </div>
-
-          {/* Social Media Links Section */}
-          <div className="space-y-3 pt-1">
+        {/* Social Links Form (Uses Save Button Only) */}
+        <form onSubmit={handleSaveLinks} className="space-y-4 pt-1">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                Social Media Links {isPublic && <span className="text-destructive">*</span>}
+                Social Media Links
               </Label>
               <span className="text-[11px] text-muted-foreground">
-                {isPublic ? 'At least 1 required when enabled' : 'Saved for when enabled'}
+                Instagram, TikTok, or YouTube
               </span>
             </div>
 
@@ -198,7 +218,10 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
               </div>
               <Input
                 value={instagram}
-                onChange={(e) => setInstagram(e.target.value)}
+                onChange={(e) => {
+                  setInstagram(e.target.value)
+                  setJustSaved(false)
+                }}
                 placeholder="https://instagram.com/yourhandle"
                 className="pl-9 h-9 text-xs bg-background border-border"
               />
@@ -213,7 +236,10 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
               </div>
               <Input
                 value={tiktok}
-                onChange={(e) => setTiktok(e.target.value)}
+                onChange={(e) => {
+                  setTiktok(e.target.value)
+                  setJustSaved(false)
+                }}
                 placeholder="https://tiktok.com/@yourhandle"
                 className="pl-9 h-9 text-xs bg-background border-border"
               />
@@ -228,7 +254,10 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
               </div>
               <Input
                 value={youtube}
-                onChange={(e) => setYoutube(e.target.value)}
+                onChange={(e) => {
+                  setYoutube(e.target.value)
+                  setJustSaved(false)
+                }}
                 placeholder="https://youtube.com/@yourchannel"
                 className="pl-9 h-9 text-xs bg-background border-border"
               />
@@ -243,42 +272,62 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
             <Input
               id="bio"
               value={bio}
-              onChange={(e) => setBio(e.target.value)}
+              onChange={(e) => {
+                setBio(e.target.value)
+                setJustSaved(false)
+              }}
               placeholder="e.g. Beauty & Tech UGC Creator based in NY"
               className="h-9 text-xs bg-background border-border"
             />
           </div>
 
-          {/* Save Button */}
+          {saveFeedback && (
+            <div
+              className={`p-3 rounded-xl text-xs font-medium flex items-center gap-2 ${
+                saveFeedback.type === 'error'
+                  ? 'bg-destructive/10 text-destructive border border-destructive/20'
+                  : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+              }`}
+            >
+              {saveFeedback.type === 'error' ? (
+                <AlertCircle className="h-4 w-4 shrink-0" />
+              ) : (
+                <Check className="h-4 w-4 shrink-0" />
+              )}
+              <span>{saveFeedback.message}</span>
+            </div>
+          )}
+
+          {/* Save Button (Strictly for added/modified links and bio) */}
           <div className="pt-2 flex items-center justify-between gap-3">
             <div>
-              {isDirty && !justSaved && (
+              {isLinksDirty && !justSaved && (
                 <span className="text-[11px] text-[#FC801A] font-medium flex items-center gap-1.5">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#FC801A] animate-ping" />
-                  You have unsaved changes
+                  Unsaved changes to your links
                 </span>
               )}
               {justSaved && (
                 <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1.5">
                   <Check className="h-3 w-3" />
-                  All changes saved
+                  Links saved
                 </span>
               )}
             </div>
 
             <Button
               type="submit"
-              disabled={isPending || (!isDirty && !feedback)}
+              disabled={isSaving || !isLinksDirty}
               size="sm"
               className={
                 justSaved
                   ? "bg-emerald-600 hover:bg-emerald-700 text-white border-0 font-medium text-xs px-5 h-9 transition-all cursor-default"
-                  : isDirty
+                  : isLinksDirty
                   ? "bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 font-medium text-xs px-5 h-9 cursor-pointer shadow-sm transition-all"
                   : "bg-muted text-muted-foreground border-border hover:bg-muted font-medium text-xs px-5 h-9 cursor-not-allowed opacity-60 transition-all"
               }
             >
-              {isPending ? (
+              {isSaving ? (
                 <>
                   <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
                   Saving...
@@ -291,7 +340,7 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
               ) : (
                 <>
                   <Check className="h-3.5 w-3.5 mr-1.5" />
-                  {isDirty ? 'Save Changes' : 'Saved'}
+                  {isLinksDirty ? 'Save Changes' : 'Saved'}
                 </>
               )}
             </Button>

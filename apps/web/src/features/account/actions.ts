@@ -238,7 +238,7 @@ export async function adminSwitchMode(targetMode: 'USER' | 'CREATOR_BASIC' | 'CR
   return { success: `Switched view mode to ${targetMode}.` }
 }
 
-export async function updatePublicProfile(formData: FormData): Promise<{ error?: string; success?: string }> {
+export async function setPublicProfileVisibility(enabled: boolean): Promise<{ error?: string; success?: string }> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -250,7 +250,7 @@ export async function updatePublicProfile(formData: FormData): Promise<{ error?:
 
   // Verify user is Standard Creator or Admin
   const [{ data: profile }, { data: subscription }] = await Promise.all([
-    supabase.from('profiles').select('role').eq('id', user.id).single(),
+    supabase.from('profiles').select('role, instagram_url, tiktok_url, youtube_url').eq('id', user.id).single(),
     supabase.from('subscriptions').select('plan').eq('user_id', user.id).single(),
   ])
 
@@ -262,15 +262,68 @@ export async function updatePublicProfile(formData: FormData): Promise<{ error?:
     return { error: 'Only Creator Standard members can manage a public portfolio profile.' }
   }
 
-  const isPublic = formData.get('is_public_profile') === 'true'
+  // If enabling, verify creator has at least one social media link saved
+  if (enabled) {
+    const hasAnyLink = Boolean(
+      profile?.instagram_url?.trim() ||
+      profile?.tiktok_url?.trim() ||
+      profile?.youtube_url?.trim()
+    )
+    if (!hasAnyLink) {
+      return { error: 'Please save at least one social media link before enabling your public profile.' }
+    }
+  }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      is_public_profile: enabled,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', user.id)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/for-brands')
+  return { success: enabled ? 'Public profile is now active!' : 'Public profile is now hidden.' }
+}
+
+export async function updateCreatorLinks(formData: FormData): Promise<{ error?: string; success?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'You must be signed in.' }
+  }
+
+  // Verify user is Standard Creator or Admin
+  const [{ data: profile }, { data: subscription }] = await Promise.all([
+    supabase.from('profiles').select('role, is_public_profile').eq('id', user.id).single(),
+    supabase.from('subscriptions').select('plan').eq('user_id', user.id).single(),
+  ])
+
+  const role = (profile?.role || '').toUpperCase()
+  const plan = subscription?.plan || ''
+  const isEligible = (role === 'CREATOR' && plan === 'STANDARD') || role === 'ADMIN'
+
+  if (!isEligible) {
+    return { error: 'Only Creator Standard members can manage a public portfolio profile.' }
+  }
+
   const instagram = ((formData.get('instagram_url') as string) || '').trim()
   const tiktok = ((formData.get('tiktok_url') as string) || '').trim()
   const youtube = ((formData.get('youtube_url') as string) || '').trim()
   const bio = ((formData.get('bio') as string) || '').trim()
 
-  // If enabling public profile, ensure at least one social media link is provided
+  // If profile is currently enabled and user clears all links, prevent it or auto-disable
+  let isPublic = Boolean(profile?.is_public_profile)
   if (isPublic && !instagram && !tiktok && !youtube) {
-    return { error: 'Please provide at least one social media link (Instagram, TikTok, or YouTube) to enable your public profile.' }
+    isPublic = false
   }
 
   const { error } = await supabase
@@ -290,8 +343,12 @@ export async function updatePublicProfile(formData: FormData): Promise<{ error?:
   }
 
   revalidatePath('/dashboard')
-  revalidatePath('/for-creators')
   revalidatePath('/for-brands')
-  return { success: isPublic ? 'Public profile enabled & updated!' : 'Public profile disabled (details saved).' }
+  return { success: 'Links & portfolio saved successfully!' }
+}
+
+// Keep updatePublicProfile for backwards compatibility
+export async function updatePublicProfile(formData: FormData) {
+  return updateCreatorLinks(formData)
 }
 
