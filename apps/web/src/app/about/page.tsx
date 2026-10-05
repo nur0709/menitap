@@ -4,15 +4,19 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { Check, ShoppingBag, Video, Building2, ArrowRight } from "lucide-react";
+import { Check, ShoppingBag, Video, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getEffectiveUserContext } from "@/features/auth/actions";
+import { BecomeCreatorCta } from "./become-creator-cta";
 
 export const metadata = {
   title: "About | Menitap",
-  description: "Learn how Menitap connects shoppers, UGC creators, and brands in The Complete UGC Ecosystem.",
+  description: "Learn how Menitap connects shoppers and UGC creators in The Complete UGC Ecosystem.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const { user, role } = await getEffectiveUserContext();
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-[#FC801A]/30 selection:text-foreground">
       <SiteHeader currentPath="/about" />
@@ -24,11 +28,11 @@ export default function AboutPage() {
               The Complete UGC Ecosystem
             </h1>
             <p className="mt-4 text-base sm:text-lg text-muted-foreground">
-              Connecting shoppers, creators, and brands in a transparent, direct collaboration network.
+              Connecting shoppers and creators in a transparent, direct collaboration network.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
             {/* Pillar 1: Shoppers */}
             <Card id="shoppers" className="bg-card border-border shadow-sm flex flex-col h-full hover:border-[#08739C]/40 transition-colors scroll-mt-24">
               <CardHeader>
@@ -61,7 +65,7 @@ export default function AboutPage() {
               </CardContent>
               <CardFooter className="pt-2 border-t border-border/50">
                 <Link 
-                  href="/sign-up" 
+                  href="/for-shoppers" 
                   className="text-sm font-semibold text-[#08739C] dark:text-[#38BDF8] hover:underline inline-flex items-center gap-1.5"
                 >
                   Start Shopping <ArrowRight className="h-3.5 w-3.5" />
@@ -100,52 +104,7 @@ export default function AboutPage() {
                 </ul>
               </CardContent>
               <CardFooter className="pt-2 border-t border-[#FC801A]/20">
-                <Link 
-                  href="/sign-up" 
-                  className="text-sm font-semibold text-[#FC801A] hover:underline inline-flex items-center gap-1.5"
-                >
-                  Become a Creator <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </CardFooter>
-            </Card>
-
-            {/* Pillar 3: Brands */}
-            <Card id="brands" className="bg-card border-border shadow-sm flex flex-col h-full hover:border-[#08739C]/40 transition-colors scroll-mt-24">
-              <CardHeader>
-                <div className="h-12 w-12 rounded-xl bg-[#08739C]/10 flex items-center justify-center text-[#08739C] dark:text-[#38BDF8] mb-4">
-                  <Building2 className="h-6 w-6" />
-                </div>
-                <Badge variant="secondary" className="w-fit text-xs font-semibold mb-2">
-                  For Brands • 100% Free
-                </Badge>
-                <CardTitle className="text-xl text-foreground">Post Campaigns & Hire Directly</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 flex-1">
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Connect directly with real creators. Post product-for-review campaigns to generate authentic video content.
-                </p>
-                <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
-                  <li className="flex gap-2">
-                    <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Post product-for-review campaigns at zero cost</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Discover creators filtered by category</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Hire creators directly—zero agency fees or middlemen</span>
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter className="pt-2 border-t border-border/50">
-                <Link 
-                  href="/sign-up" 
-                  className="text-sm font-semibold text-[#08739C] dark:text-[#38BDF8] hover:underline inline-flex items-center gap-1.5"
-                >
-                  Post a Campaign <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
+                <BecomeCreatorCta isAuthenticated={Boolean(user)} role={role} />
               </CardFooter>
             </Card>
           </div>
