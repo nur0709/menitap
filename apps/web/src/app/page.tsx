@@ -57,9 +57,7 @@ export default async function LandingPage() {
             {/* Center Auth / Action Buttons */}
             <div className="mt-8 sm:mt-10 flex items-center justify-center gap-3">
               {!user ? (
-                <div className="p-1 rounded-2xl bg-card border border-border shadow-xs inline-flex items-center gap-2">
-                  <AuthModalButtons className="gap-2 sm:gap-3" />
-                </div>
+                <AuthModalButtons />
               ) : (
                 <Link
                   href="/for-shoppers"
