@@ -93,6 +93,15 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
     e.preventDefault()
     setSaveFeedback(null)
 
+    // If public profile is active, disallow deleting all links
+    if (isPublic && !instagram.trim() && !tiktok.trim() && !youtube.trim()) {
+      setSaveFeedback({
+        type: 'error',
+        message: 'Your public profile is active! You must keep at least one link, or disable your public profile first.',
+      })
+      return
+    }
+
     const formData = new FormData()
     formData.append('instagram_url', instagram.trim())
     formData.append('tiktok_url', tiktok.trim())

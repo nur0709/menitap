@@ -320,10 +320,13 @@ export async function updateCreatorLinks(formData: FormData): Promise<{ error?: 
   const youtube = ((formData.get('youtube_url') as string) || '').trim()
   const bio = ((formData.get('bio') as string) || '').trim()
 
-  // If profile is currently enabled and user clears all links, prevent it or auto-disable
-  let isPublic = Boolean(profile?.is_public_profile)
+  const isPublic = Boolean(profile?.is_public_profile)
+
+  // If public profile is currently enabled, creator MUST retain at least one social media link
   if (isPublic && !instagram && !tiktok && !youtube) {
-    isPublic = false
+    return {
+      error: 'Your public profile is currently active. You must keep at least one social media link, or disable your public profile before removing all links.',
+    }
   }
 
   const { error } = await supabase
