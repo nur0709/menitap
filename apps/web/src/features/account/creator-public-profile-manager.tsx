@@ -68,20 +68,12 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
     <div className="w-full pt-6 border-t border-border mt-6 text-left">
       <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-border">
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-[#FC801A]" />
-              <h3 className="text-sm sm:text-base font-bold text-foreground">
-                Public Creator Profile & Portfolio
-              </h3>
-              <Badge className="bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30 text-[10px] font-semibold">
-                Creator Standard
-              </Badge>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Make your UGC creator portfolio visible to brand managers and clients seeking creators.
-            </p>
+        <div className="flex items-center justify-between gap-3 mb-4 pb-4 border-b border-border">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-[#FC801A]" />
+            <h3 className="text-sm sm:text-base font-bold text-foreground">
+              Public Creator Profile & Portfolio
+            </h3>
           </div>
 
           {/* Status Badge */}

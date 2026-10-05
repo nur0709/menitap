@@ -141,11 +141,6 @@ export default async function DashboardPage() {
               <UpgradeToCreatorButton />
             )}
 
-            {/* If Creator, allow upgrading from $10 to $15 or canceling back to Consumer */}
-            {role === 'CREATOR' && (
-              <CreatorSubscriptionActions currentPlan={currentPlan} />
-            )}
-
             {/* Creator Standard: Public Creator Profile & Portfolio Manager */}
             {((role === 'CREATOR' && currentPlan === 'STANDARD') || isAdmin) && (
               <CreatorPublicProfileManager profile={profile || {}} />
@@ -154,6 +149,11 @@ export default async function DashboardPage() {
             {/* Creator Links Manager: manage shared affiliate deals */}
             {(role === 'CREATOR' || isAdmin) && (
               <CreatorLinksManager links={affiliateLinks} />
+            )}
+
+            {/* If Creator, allow upgrading from $10 to $15 or downgrading/canceling back to Consumer */}
+            {role === 'CREATOR' && (
+              <CreatorSubscriptionActions currentPlan={currentPlan} />
             )}
 
             {/* Danger Zone: Delete Account (Regular accounts only) */}
