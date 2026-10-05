@@ -141,13 +141,13 @@ export default async function DashboardPage() {
               <UpgradeToCreatorButton />
             )}
 
-            {/* Creator Standard: Public Creator Profile & Portfolio Manager */}
-            {((role === 'CREATOR' && currentPlan === 'STANDARD') || isAdmin) && (
+            {/* Creator Standard: Public Creator Profile & Portfolio Manager (Creator Standard only) */}
+            {role === 'CREATOR' && currentPlan === 'STANDARD' && (
               <CreatorPublicProfileManager profile={profile || {}} />
             )}
 
-            {/* Creator Links Manager: manage shared affiliate deals */}
-            {(role === 'CREATOR' || isAdmin) && (
+            {/* Creator Links Manager: manage shared affiliate deals (Creator only) */}
+            {role === 'CREATOR' && (
               <CreatorLinksManager links={affiliateLinks} />
             )}
 
