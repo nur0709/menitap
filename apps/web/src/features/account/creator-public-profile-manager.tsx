@@ -26,7 +26,17 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null)
 
+  const hasAnyLink = Boolean(instagram.trim() || tiktok.trim() || youtube.trim())
+
   const handleToggle = (newCheckedState: boolean) => {
+    if (newCheckedState && !hasAnyLink) {
+      setIsPublic(false)
+      setFeedback({
+        type: 'error',
+        message: 'Please provide at least one social media link (Instagram, TikTok, or YouTube) before enabling your public profile.',
+      })
+      return
+    }
     setIsPublic(newCheckedState)
     setFeedback(null)
   }
