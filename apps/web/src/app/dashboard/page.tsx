@@ -13,6 +13,7 @@ import { CreatorSubscriptionActions } from '@/features/account/creator-subscript
 import { DeleteAccountSection } from '@/features/account/delete-account-section'
 import { AdminRoleSwitcher } from '@/features/account/admin-role-switcher'
 import { CreatorLinksManager } from '@/features/account/creator-links-manager'
+import { CreatorPublicProfileManager } from '@/features/account/creator-public-profile-manager'
 import { AdminCategoryManager } from '@/features/account/admin-category-manager'
 import { getUserLinks, getAllCategories } from '@/features/links/actions'
 import { LogOut, ShoppingBag, Video, Building2, ShieldCheck } from 'lucide-react'
@@ -143,6 +144,11 @@ export default async function DashboardPage() {
             {/* If Creator, allow upgrading from $10 to $15 or canceling back to Consumer */}
             {role === 'CREATOR' && (
               <CreatorSubscriptionActions currentPlan={currentPlan} />
+            )}
+
+            {/* Creator Standard: Public Creator Profile & Portfolio Manager */}
+            {((role === 'CREATOR' && currentPlan === 'STANDARD') || isAdmin) && (
+              <CreatorPublicProfileManager profile={profile || {}} />
             )}
 
             {/* Creator Links Manager: manage shared affiliate deals */}

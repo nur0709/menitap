@@ -222,3 +222,60 @@ export async function adminSwitchMode(targetMode: 'USER' | 'CREATOR_BASIC' | 'CR
   return { success: `Switched view mode to ${targetMode}.` }
 }
 
+export async function updatePublicProfile(formData: FormData): Promise<{ error?: string; success?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'You must be signed in.' }
+  }
+
+  // Verify user is Standard Creator or Admin
+  const [{ data: profile }, { data: subscription }] = await Promise.all([
+    supabase.from('profiles').select('role').eq('id', user.id).single(),
+    supabase.from('subscriptions').select('plan').eq('user_id', user.id).single(),
+  ])
+
+  const role = (profile?.role || '').toUpperCase()
+  const plan = subscription?.plan || ''
+  const isEligible = (role === 'CREATOR' && plan === 'STANDARD') || role === 'ADMIN'
+
+  if (!isEligible) {
+    return { error: 'Only Creator Standard members can manage a public portfolio profile.' }
+  }
+
+  const isPublic = formData.get('is_public_profile') === 'true'
+  const instagram = ((formData.get('instagram_url') as string) || '').trim()
+  const tiktok = ((formData.get('tiktok_url') as string) || '').trim()
+  const youtube = ((formData.get('youtube_url') as string) || '').trim()
+  const bio = ((formData.get('bio') as string) || '').trim()
+
+  // If enabling public profile, ensure at least one social media link is provided
+  if (isPublic && !instagram && !tiktok && !youtube) {
+    return { error: 'Please provide at least one social media link (Instagram, TikTok, or YouTube) to enable your public profile.' }
+  }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      is_public_profile: isPublic,
+      instagram_url: instagram,
+      tiktok_url: tiktok,
+      youtube_url: youtube,
+      bio: bio,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', user.id)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/for-creators')
+  revalidatePath('/for-brands')
+  return { success: isPublic ? 'Public profile enabled & updated!' : 'Public profile disabled (details saved).' }
+}
+

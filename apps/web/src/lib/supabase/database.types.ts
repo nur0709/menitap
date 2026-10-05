@@ -205,30 +205,45 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
           email: string
           full_name: string | null
           id: string
+          instagram_url: string | null
+          is_public_profile: boolean
           role: string
+          tiktok_url: string | null
           updated_at: string
+          youtube_url: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           email: string
           full_name?: string | null
           id: string
+          instagram_url?: string | null
+          is_public_profile?: boolean
           role?: string
+          tiktok_url?: string | null
           updated_at?: string
+          youtube_url?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           email?: string
           full_name?: string | null
           id?: string
+          instagram_url?: string | null
+          is_public_profile?: boolean
           role?: string
+          tiktok_url?: string | null
           updated_at?: string
+          youtube_url?: string | null
         }
         Relationships: []
       }
