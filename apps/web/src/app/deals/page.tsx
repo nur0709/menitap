@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { AddDealModal } from "@/features/links/components/add-deal-modal";
-import { ExternalLink, Tag, Sparkles, ShoppingBag } from "lucide-react";
+import { ExternalLink, ShoppingBag } from "lucide-react";
 
 export const dynamic = 'force-dynamic'
 
@@ -39,43 +39,32 @@ export default async function DealsPage({
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-[#FC801A]/30 selection:text-foreground">
       <SiteHeader currentPath="/deals" />
 
-      <main className="flex-1 py-10 sm:py-16">
+      <main className="flex-1 py-8 sm:py-10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-          {/* Header Banner */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-6 border-b border-border">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Badge variant="outline" className="text-xs bg-[#08739C]/10 text-[#08739C] dark:text-[#38BDF8] border-[#08739C]/30">
-                  Verified Creator Deals
-                </Badge>
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-                Deals
-              </h1>
-              <p className="mt-1 text-sm sm:text-base text-muted-foreground">
-                Find discounts, verified promo codes, and honest creator recommendations.
-              </p>
-            </div>
+          {/* Minimalist Toolbar: Title + Action */}
+          <div className="flex items-center justify-between gap-4 mb-5">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+              Deals
+            </h1>
 
-            {/* Creator / Admin Action Button: + Post a Deal */}
             {isCreatorOrAdmin && (
-              <div className="shrink-0 flex items-center gap-2">
+              <div className="shrink-0">
                 <AddDealModal categories={categories} />
               </div>
             )}
           </div>
 
-          {/* Categories Pill Bar */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 scrollbar-none">
+          {/* Minimalist Categories Pill Bar */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none">
             <Link
               href="/deals"
-              className={`text-xs px-3.5 py-1.5 rounded-full font-medium transition-colors whitespace-nowrap ${
+              className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors whitespace-nowrap ${
                 !selectedCategorySlug
-                  ? 'bg-[#08739C] text-white shadow-xs'
-                  : 'bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted'
+                  ? 'bg-[#08739C] text-white'
+                  : 'bg-muted text-muted-foreground hover:text-foreground'
               }`}
             >
-              All Deals ({deals.length})
+              All ({deals.length})
             </Link>
             {categories.map((cat) => {
               const isSelected = selectedCategorySlug === cat.slug
@@ -83,10 +72,10 @@ export default async function DealsPage({
                 <Link
                   key={cat.id}
                   href={`/deals?category=${cat.slug}`}
-                  className={`text-xs px-3.5 py-1.5 rounded-full font-medium transition-colors whitespace-nowrap ${
+                  className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors whitespace-nowrap ${
                     isSelected
-                      ? 'bg-[#08739C] text-white shadow-xs'
-                      : 'bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted'
+                      ? 'bg-[#08739C] text-white'
+                      : 'bg-muted text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   {cat.name}
@@ -97,14 +86,14 @@ export default async function DealsPage({
 
           {/* Deals Grid */}
           {deals.length === 0 ? (
-            <Card className="bg-card border-dashed border-border py-16 text-center">
-              <CardContent className="space-y-3">
-                <ShoppingBag className="h-10 w-10 text-muted-foreground mx-auto" />
-                <CardTitle className="text-lg text-foreground">No Deals In This Category Yet</CardTitle>
-                <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto">
+            <Card className="bg-card border-dashed border-border py-12 text-center">
+              <CardContent className="space-y-2">
+                <ShoppingBag className="h-8 w-8 text-muted-foreground mx-auto" />
+                <CardTitle className="text-base text-foreground">No deals in this category yet</CardTitle>
+                <p className="text-xs text-muted-foreground max-w-xs mx-auto">
                   {isCreatorOrAdmin
-                    ? 'Be the first creator to share an affiliate link in this category!'
-                    : 'Check back soon for new creator discount codes and product deals.'}
+                    ? 'Share an affiliate deal to feature it here.'
+                    : 'Check back soon for new discounts and promo codes.'}
                 </p>
                 {isCreatorOrAdmin && (
                   <div className="pt-2 flex justify-center">
@@ -114,42 +103,33 @@ export default async function DealsPage({
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {deals.map((deal) => {
                 const categoryName = (deal.categories as unknown as { name?: string })?.name || 'General'
-                const creatorName = (deal.profiles as unknown as { full_name?: string })?.full_name || 'Menitap Creator'
 
                 return (
                   <Card
                     key={deal.id}
-                    className="bg-card border-border shadow-xs hover:border-[#08739C]/40 hover:shadow-md transition-all flex flex-col justify-between"
+                    className="bg-card border-border shadow-xs hover:border-[#08739C]/40 transition-colors flex flex-col justify-between"
                   >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <Badge variant="outline" className="text-[11px] bg-muted/60 text-muted-foreground border-border font-medium">
+                    <CardHeader className="p-4 pb-2">
+                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                        <span className="text-[11px] font-medium text-muted-foreground">
                           {categoryName}
-                        </Badge>
+                        </span>
                         {deal.promo_code && (
-                          <Badge className="bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30 font-mono text-[11px] font-bold">
-                            CODE: {deal.promo_code}
+                          <Badge className="bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30 font-mono text-[11px] font-bold px-2 py-0">
+                            {deal.promo_code}
                           </Badge>
                         )}
                       </div>
-                      <CardTitle className="text-base text-foreground font-bold line-clamp-2">
+                      <CardTitle className="text-base text-foreground font-semibold line-clamp-2">
                         {deal.title}
                       </CardTitle>
-                      <p className="text-xs text-muted-foreground pt-1 flex items-center gap-1.5">
-                        <Sparkles className="h-3 w-3 text-[#FC801A]" />
-                        Recommended by {creatorName}
-                      </p>
                     </CardHeader>
 
-                    <CardContent className="pt-0">
-                      <div className="pt-3 border-t border-border flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Tag className="h-3 w-3" />
-                          Affiliate Deal
-                        </span>
+                    <CardContent className="p-4 pt-2">
+                      <div className="pt-2.5 border-t border-border flex items-center justify-end">
                         <a
                           href={deal.product_url}
                           target="_blank"
