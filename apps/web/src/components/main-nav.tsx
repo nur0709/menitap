@@ -1,18 +1,11 @@
 import Link from 'next/link'
-import { getCurrentUserRole } from '@/features/auth/actions'
 import { cn } from '@/lib/utils'
 
 interface MainNavProps {
   currentPath?: string
-  role?: string | null
 }
 
-export async function MainNav({ currentPath, role: roleProp }: MainNavProps) {
-  const role = roleProp !== undefined ? roleProp : await getCurrentUserRole()
-
-  const isCreator = role === 'CREATOR' || role === 'ADMIN'
-  const isBrand = role === 'BRAND' || role === 'ADMIN'
-
+export function MainNav({ currentPath }: MainNavProps) {
   const navTabClass = (isActive: boolean) =>
     cn(
       'inline-flex items-center justify-center font-medium text-xs sm:text-sm px-3.5 h-9 rounded-lg border transition-all duration-150 cursor-pointer',
@@ -24,35 +17,31 @@ export async function MainNav({ currentPath, role: roleProp }: MainNavProps) {
 
   return (
     <nav className="hidden items-center gap-2 md:flex" aria-label="Main Navigation">
-      {/* Explore Deals: visible to everyone with or without account */}
+      {/* 1. Deals */}
       <Link
-        href="/for-shoppers"
-        className={navTabClass(currentPath === '/for-shoppers')}
+        href="/deals"
+        className={navTabClass(currentPath === '/deals')}
       >
-        Explore Deals
+        Deals
       </Link>
 
-      {/* Campaign Links: visible to Creators, Brands, and Admins */}
-      {(isCreator || isBrand) && (
-        <Link
-          href="/for-creators"
-          className={navTabClass(currentPath === '/for-creators')}
-        >
-          Campaign Links
-        </Link>
-      )}
+      {/* 2. Brand Collabs */}
+      <Link
+        href="/collabs"
+        className={navTabClass(currentPath === '/collabs')}
+      >
+        Brand Collabs
+      </Link>
 
-      {/* Explore Creators: only visible to brand accounts and admins */}
-      {isBrand && (
-        <Link
-          href="/for-brands"
-          className={navTabClass(currentPath === '/for-brands')}
-        >
-          Explore Creators
-        </Link>
-      )}
+      {/* 3. Creators */}
+      <Link
+        href="/creators"
+        className={navTabClass(currentPath === '/creators')}
+      >
+        Creators
+      </Link>
 
-      {/* Plans: visible to everyone */}
+      {/* 4. Plans */}
       <Link
         href="/plans"
         className={navTabClass(currentPath === '/plans')}
@@ -62,4 +51,3 @@ export async function MainNav({ currentPath, role: roleProp }: MainNavProps) {
     </nav>
   )
 }
-

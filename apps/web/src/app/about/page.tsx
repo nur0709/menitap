@@ -65,11 +65,12 @@ export default async function AboutPage() {
               </CardContent>
               <CardFooter className="pt-2 border-t border-border/50">
                 <Link 
-                  href="/for-shoppers" 
+                  href="/deals" 
                   className="text-sm font-semibold text-[#08739C] dark:text-[#38BDF8] hover:underline inline-flex items-center gap-1.5"
                 >
                   Start Shopping <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
+
               </CardFooter>
             </Card>
 

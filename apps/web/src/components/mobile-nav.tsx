@@ -34,8 +34,6 @@ export function MobileNav({ currentPath: initialPath, role }: MobileNavProps) {
     () => false
   )
 
-  const isCreator = role === 'CREATOR' || role === 'ADMIN'
-  const isBrand = role === 'BRAND' || role === 'ADMIN'
 
   // Close automatically on pathname change without cascading renders
   const [prevPathname, setPrevPathname] = useState(pathname)
@@ -67,41 +65,37 @@ export function MobileNav({ currentPath: initialPath, role }: MobileNavProps) {
 
   const navItems = [
     {
-      label: 'Explore Deals',
-      href: '/for-shoppers',
+      label: 'Deals',
+      href: '/deals',
       icon: ShoppingBag,
-      visible: true,
       description: 'Discounts & verified promo codes',
     },
     {
-      label: 'Campaign Links',
-      href: '/for-creators',
+      label: 'Brand Collabs',
+      href: '/collabs',
       icon: Package,
-      visible: isCreator || isBrand,
       description: 'Brand collaborations & UGC reviews',
     },
     {
-      label: 'Explore Creators',
-      href: '/for-brands',
+      label: 'Creators',
+      href: '/creators',
       icon: Users,
-      visible: isBrand,
-      description: 'Standard creator portfolios',
+      description: 'Standard creator portfolios & directory',
     },
     {
-      label: 'Plans & Pricing',
+      label: 'Plans',
       href: '/plans',
       icon: CreditCard,
-      visible: true,
-      description: 'Creator and brand memberships',
+      description: 'Creator memberships & pricing',
     },
     {
-      label: 'About Menitap',
+      label: 'About',
       href: '/about',
       icon: Info,
-      visible: true,
-      description: 'Learn about our platform',
+      description: 'Learn about our ecosystem',
     },
-  ].filter((item) => item.visible)
+  ]
+
 
   return (
     <div className="md:hidden">

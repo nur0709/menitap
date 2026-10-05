@@ -1,25 +1,34 @@
+import Link from "next/link";
 import { getPublicCreators } from "@/features/links/actions";
+import { getEffectiveUserContext } from "@/features/auth/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { UserAvatar } from "@/components/user-avatar";
 import { InstagramIcon, TikTokIcon, YouTubeIcon } from "@/components/social-icons";
-import { Users, Sparkles } from "lucide-react";
+import { Users, Sparkles, ArrowRight, UserCheck } from "lucide-react";
 
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: "Explore Creators | Menitap",
+  title: "Creators | Menitap",
   description: "Discover verified Creator Standard UGC creators, portfolios, and direct social media profiles.",
 };
 
-export default async function ForBrandsPage() {
-  const creators = await getPublicCreators()
+export default async function CreatorsPage() {
+  const [creators, context] = await Promise.all([
+    getPublicCreators(),
+    getEffectiveUserContext(),
+  ])
+
+  const { role, effectivePlan } = context
+
+  const isStandardCreator = (role === 'CREATOR' && effectivePlan === 'STANDARD') || role === 'ADMIN'
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-[#FC801A]/30 selection:text-foreground">
-      <SiteHeader currentPath="/for-brands" />
+      <SiteHeader currentPath="/creators" />
 
       <main className="flex-1 py-10 sm:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
@@ -32,13 +41,54 @@ export default async function ForBrandsPage() {
                 </Badge>
               </div>
               <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-                Explore Creators
+                Creators
               </h1>
               <p className="mt-1 text-sm sm:text-base text-muted-foreground">
                 Discover active UGC creators with verified public portfolios, social channels, and video experience.
               </p>
             </div>
           </div>
+
+          {/* Contextual Action Banner */}
+          {isStandardCreator ? (
+            <div className="mb-8 p-4 sm:p-5 rounded-2xl bg-[#08739C]/5 border border-[#08739C]/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-[#08739C] dark:text-[#38BDF8] font-bold text-sm">
+                  <UserCheck className="h-4 w-4" />
+                  <span>Creator Standard Member</span>
+                </div>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  You can manage your public creator portfolio, social media links, and visibility settings in your account.
+                </p>
+              </div>
+              <Link
+                href="/dashboard"
+                className="shrink-0 inline-flex items-center justify-center gap-1.5 px-4 h-9 rounded-lg bg-[#08739C] hover:bg-[#02547A] text-white text-xs font-semibold shadow-xs transition-colors"
+              >
+                <span>Manage My Portfolio</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          ) : (
+            <div className="mb-8 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#FC801A]/10 via-[#FC801A]/5 to-transparent border border-[#FC801A]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-[#FC801A] font-bold text-sm">
+                  <Sparkles className="h-4 w-4" />
+                  <span>Want to showcase your portfolio here?</span>
+                </div>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Join <strong>Creator Standard ($15/mo)</strong> to publish your creator profile, feature your TikTok, Instagram & YouTube links, and get discovered by brand managers.
+                </p>
+              </div>
+              <Link
+                href="/plans"
+                className="shrink-0 inline-flex items-center justify-center gap-1.5 px-4 h-9 rounded-lg bg-[#FC801A] hover:bg-[#E66F0D] text-white text-xs font-semibold shadow-xs transition-colors"
+              >
+                <span>Unlock Standard Portfolio</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          )}
 
           {/* Creators Directory Grid */}
           {creators.length === 0 ? (

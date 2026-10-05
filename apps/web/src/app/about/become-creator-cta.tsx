@@ -30,8 +30,9 @@ export function BecomeCreatorCta({ isAuthenticated, role }: BecomeCreatorCtaProp
     }
 
     // 3. Already a creator or admin: Navigate directly to creators hub
-    router.push('/for-creators')
+    router.push('/collabs')
   }
+
 
   return (
     <>

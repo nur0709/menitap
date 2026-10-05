@@ -90,7 +90,7 @@ export async function createAffiliateLink(
     return { error: error.message }
   }
 
-  revalidatePath('/for-shoppers')
+  revalidatePath('/deals')
   revalidatePath('/dashboard')
   return { success: 'Your affiliate link was published successfully!' }
 }
@@ -147,7 +147,7 @@ export async function createBrandLink(
     return { error: error.message }
   }
 
-  revalidatePath('/for-creators')
+  revalidatePath('/collabs')
   revalidatePath('/dashboard')
   return { success: 'Campaign link posted successfully!' }
 }
@@ -205,7 +205,7 @@ export async function deleteAffiliateLink(linkId: number): Promise<{ error?: str
     return { error: error.message }
   }
 
-  revalidatePath('/for-shoppers')
+  revalidatePath('/deals')
   revalidatePath('/dashboard')
   return { success: 'Affiliate link removed.' }
 }
@@ -396,7 +396,7 @@ export async function deleteBrandLink(linkId: number): Promise<{ error?: string;
     return { error: error.message }
   }
 
-  revalidatePath('/for-creators')
+  revalidatePath('/collabs')
   revalidatePath('/dashboard')
   return { success: 'Campaign removed.' }
 }

@@ -11,11 +11,11 @@ import { ExternalLink, Tag, Sparkles, ShoppingBag } from "lucide-react";
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: "Explore Deals | Menitap",
+  title: "Deals | Menitap",
   description: "Browse verified creator affiliate deals and promo codes.",
 };
 
-export default async function ForShoppersPage({
+export default async function DealsPage({
   searchParams,
 }: {
   searchParams: Promise<{ category?: string }>
@@ -37,7 +37,7 @@ export default async function ForShoppersPage({
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-[#FC801A]/30 selection:text-foreground">
-      <SiteHeader currentPath="/for-shoppers" />
+      <SiteHeader currentPath="/deals" />
 
       <main className="flex-1 py-10 sm:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
@@ -50,7 +50,7 @@ export default async function ForShoppersPage({
                 </Badge>
               </div>
               <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-                Explore Deals
+                Deals
               </h1>
               <p className="mt-1 text-sm sm:text-base text-muted-foreground">
                 Find discounts, verified promo codes, and honest creator recommendations.
@@ -68,7 +68,7 @@ export default async function ForShoppersPage({
           {/* Categories Pill Bar */}
           <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 scrollbar-none">
             <Link
-              href="/for-shoppers"
+              href="/deals"
               className={`text-xs px-3.5 py-1.5 rounded-full font-medium transition-colors whitespace-nowrap ${
                 !selectedCategorySlug
                   ? 'bg-[#08739C] text-white shadow-xs'
@@ -82,7 +82,7 @@ export default async function ForShoppersPage({
               return (
                 <Link
                   key={cat.id}
-                  href={`/for-shoppers?category=${cat.slug}`}
+                  href={`/deals?category=${cat.slug}`}
                   className={`text-xs px-3.5 py-1.5 rounded-full font-medium transition-colors whitespace-nowrap ${
                     isSelected
                       ? 'bg-[#08739C] text-white shadow-xs'

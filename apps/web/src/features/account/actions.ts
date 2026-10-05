@@ -57,7 +57,7 @@ export async function upgradeToCreator(plan: UpgradePlan = 'BASIC'): Promise<Upg
     }
 
     revalidatePath('/dashboard')
-    revalidatePath('/for-brands')
+    revalidatePath('/creators')
     revalidatePath('/', 'layout')
     return {
       success:
@@ -154,8 +154,9 @@ export async function downgradeToConsumer(): Promise<UpgradeState> {
     }, { onConflict: 'user_id' })
 
   revalidatePath('/dashboard')
-  revalidatePath('/for-brands')
+  revalidatePath('/creators')
   revalidatePath('/', 'layout')
+
 
   return { success: 'Your Creator subscription has been canceled and switched to a Free Consumer account.' }
 }
@@ -248,7 +249,7 @@ export async function setPublicProfileVisibility(enabled: boolean): Promise<{ er
   }
 
   revalidatePath('/dashboard')
-  revalidatePath('/for-brands')
+  revalidatePath('/creators')
   return { success: enabled ? 'Public profile is now active!' : 'Public profile is now hidden.' }
 }
 
@@ -307,8 +308,9 @@ export async function updateCreatorLinks(formData: FormData): Promise<{ error?: 
   }
 
   revalidatePath('/dashboard')
-  revalidatePath('/for-brands')
+  revalidatePath('/creators')
   return { success: 'Links & portfolio saved successfully!' }
 }
+
 
 

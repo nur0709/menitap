@@ -25,7 +25,8 @@ export async function SiteHeader({ currentPath }: SiteHeaderProps) {
             <MobileNav currentPath={currentPath} role={role} />
             <BrandLogo size="md" />
           </div>
-          <MainNav currentPath={currentPath} role={role} />
+          <MainNav currentPath={currentPath} />
+
           <div className="flex items-center gap-2 sm:gap-3">
             <AuthNav />
           </div>

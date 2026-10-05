@@ -103,7 +103,8 @@ export default async function DashboardPage() {
             <MobileNav currentPath="/dashboard" role={role} />
             <BrandLogo size="md" />
           </div>
-          <MainNav currentPath="/dashboard" role={role} />
+          <MainNav currentPath="/dashboard" />
+
 
           <div className="flex items-center gap-2 sm:gap-3">
             <UserAvatar user={{ email, fullName, avatarUrl }} size="sm" />
