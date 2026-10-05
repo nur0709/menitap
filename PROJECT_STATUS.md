@@ -97,6 +97,15 @@ Read `AGENTS.md` for coding standards and conventions.
 - [x] **Explore Creators** directory (`/for-brands`) showcasing Creator Standard public portfolios with social media links
 - [x] Independent Public Profile visibility switch & validated social links manager for Creator Standard
 - [x] Automatic public profile deactivation on plan downgrade or cancellation
+- [x] **Codebase Audit & Security / Performance Optimization (Completed)**:
+  - Fixed RLS: Added missing `DELETE` policy on `affiliate_links` so creators can delete their deals.
+  - Fixed RLS: Updated `affiliate_links` SELECT policy to include `status in ('ACTIVE', 'APPROVED')`, making deals viewable by shoppers.
+  - Added PostgreSQL covering indexes on foreign keys (`affiliate_links`, `brand_links`, `point_transactions`, `profiles.is_public_profile`).
+  - Added server-side role authorization check on `createAffiliateLink` (`CREATOR` or `ADMIN`).
+  - Added PostgreSQL security trigger on `profiles.role` to block client-side self-elevation to `ADMIN`.
+  - Wrapped `getEffectiveUserContext` in `React.cache()` for zero-redundancy per-request auth deduplication.
+  - Replaced `window.location.reload()` with Next.js `router.refresh()` across all modals and account action components.
+  - Extracted shared `SocialIcons` component, deleted dead `/dashboard/submit` route, and pruned unused queries.
 
 ### ⬜ Phase 4 — Stripe Subscriptions (Upcoming) — [#3](https://github.com/nur0709/menitap/issues/3)
 - [ ] Stripe product/price creation (Explorer $0, Creator Basic $10, Creator Standard $15)

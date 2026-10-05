@@ -350,8 +350,4 @@ export async function updateCreatorLinks(formData: FormData): Promise<{ error?: 
   return { success: 'Links & portfolio saved successfully!' }
 }
 
-// Keep updatePublicProfile for backwards compatibility
-export async function updatePublicProfile(formData: FormData) {
-  return updateCreatorLinks(formData)
-}
 

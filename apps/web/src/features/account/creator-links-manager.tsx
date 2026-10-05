@@ -1,6 +1,7 @@
 'use client'
 
 import { useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { deleteAffiliateLink } from '@/features/links/actions'
 import { Button } from '@/components/ui/button'
 import { ExternalLink, Trash2, Tag, Loader2 } from 'lucide-react'
@@ -16,11 +17,12 @@ export interface AffiliateLinkItem {
 
 export function CreatorLinksManager({ links }: { links: AffiliateLinkItem[] }) {
   const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   const handleDelete = (id: number) => {
     startTransition(async () => {
       await deleteAffiliateLink(id)
-      window.location.reload()
+      router.refresh()
     })
   }
 

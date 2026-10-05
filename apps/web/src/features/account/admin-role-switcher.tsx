@@ -1,6 +1,7 @@
 'use client'
 
 import { useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { adminSwitchMode } from './actions'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -20,13 +21,14 @@ const MODES = [
 
 export function AdminRoleSwitcher({ currentMode }: AdminRoleSwitcherProps) {
   const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   const activeMode = currentMode || 'ADMIN'
 
   const handleSelectMode = (mode: 'USER' | 'CREATOR_BASIC' | 'CREATOR_STANDARD' | 'BRAND' | 'ADMIN') => {
     startTransition(async () => {
       await adminSwitchMode(mode)
-      window.location.reload()
+      router.refresh()
     })
   }
 

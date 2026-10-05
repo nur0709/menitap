@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { upgradeToCreator, downgradeToConsumer } from './actions'
 import { ShoppingBag, Sparkles, Loader2, AlertCircle } from 'lucide-react'
@@ -9,6 +10,7 @@ export function CreatorSubscriptionActions({ currentPlan }: { currentPlan: strin
   const [showConfirmCancel, setShowConfirmCancel] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const isBasic = currentPlan === 'BASIC' || currentPlan === 'CREATOR_TRIAL'
   const isStandard = currentPlan === 'STANDARD'
@@ -20,7 +22,7 @@ export function CreatorSubscriptionActions({ currentPlan }: { currentPlan: strin
       if (res.error) {
         setError(res.error)
       } else {
-        window.location.reload()
+        router.refresh()
       }
     })
   }
@@ -32,7 +34,7 @@ export function CreatorSubscriptionActions({ currentPlan }: { currentPlan: strin
       if (res.error) {
         setError(res.error)
       } else {
-        window.location.reload()
+        router.refresh()
       }
     })
   }

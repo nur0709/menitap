@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { upgradeToCreator, type UpgradePlan } from './actions'
@@ -12,6 +13,7 @@ export function UpgradeToCreatorButton() {
   const [selectedPlan, setSelectedPlan] = useState<UpgradePlan>('BASIC')
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const handleConfirmUpgrade = () => {
     setError(null)
@@ -20,7 +22,7 @@ export function UpgradeToCreatorButton() {
       if (result.error) {
         setError(result.error)
       } else {
-        window.location.reload()
+        router.refresh()
       }
     })
   }

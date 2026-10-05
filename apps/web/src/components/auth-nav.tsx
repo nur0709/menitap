@@ -1,13 +1,12 @@
 import Link from 'next/link'
-import { getCurrentUser } from '@/features/auth/actions'
-import { createClient } from '@/lib/supabase/server'
+import { getEffectiveUserContext } from '@/features/auth/actions'
 import { buttonVariants } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { UserAvatar } from '@/components/user-avatar'
 import { cn } from '@/lib/utils'
 
 export async function AuthNav() {
-  const user = await getCurrentUser()
+  const { user, fullName, avatarUrl } = await getEffectiveUserContext()
 
   if (!user) {
     return (
@@ -26,16 +25,7 @@ export async function AuthNav() {
     )
   }
 
-  const supabase = await createClient()
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name, avatar_url')
-    .eq('id', user.id)
-    .single()
-
   const email = user.email || ''
-  const fullName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || ''
-  const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || null
 
   return (
     <div className="flex items-center gap-2 sm:gap-3">

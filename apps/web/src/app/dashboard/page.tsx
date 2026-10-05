@@ -38,8 +38,8 @@ export default async function DashboardPage() {
       .select('*')
       .eq('id', user.id)
       .single(),
-    getUserLinks(),
-    getAllCategories(),
+    role === 'CREATOR' ? getUserLinks() : Promise.resolve({ affiliateLinks: [] }),
+    isAdmin ? getAllCategories() : Promise.resolve([]),
   ])
 
   const email = user.email || ''

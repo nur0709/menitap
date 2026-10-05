@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { addCategory, deleteCategory } from '@/features/links/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,6 +20,7 @@ export function AdminCategoryManager({ categories }: { categories: CategoryItem[
   const [newCatName, setNewCatName] = useState('')
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const filteredCategories = categories.filter((c) => (c.type || 'DEALS') === activeTab)
 
@@ -33,7 +35,7 @@ export function AdminCategoryManager({ categories }: { categories: CategoryItem[
         setError(res.error)
       } else {
         setNewCatName('')
-        window.location.reload()
+        router.refresh()
       }
     })
   }
@@ -45,7 +47,7 @@ export function AdminCategoryManager({ categories }: { categories: CategoryItem[
       if (res.error) {
         setError(res.error)
       } else {
-        window.location.reload()
+        router.refresh()
       }
     })
   }

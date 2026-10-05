@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
+import { cache } from 'react'
 import { headers } from 'next/headers'
 
 const AuthSchema = z.object({
@@ -129,22 +130,24 @@ export async function signOut() {
   redirect('/')
 }
 
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   return user
-}
+})
 
-export async function getCurrentUserRole(): Promise<string | null> {
+export const getCurrentUserRole = cache(async (): Promise<string | null> => {
   const context = await getEffectiveUserContext()
   return context.role
-}
+})
 
 export type EffectiveUserContext = {
   user: User | null
+  fullName: string
+  avatarUrl: string | null
   trueRole: string | null
   role: string | null
   effectivePlan: string | null
@@ -152,11 +155,13 @@ export type EffectiveUserContext = {
   adminViewMode: string | null
 }
 
-export async function getEffectiveUserContext(): Promise<EffectiveUserContext> {
+export const getEffectiveUserContext = cache(async (): Promise<EffectiveUserContext> => {
   const user = await getCurrentUser()
   if (!user) {
     return {
       user: null,
+      fullName: '',
+      avatarUrl: null,
       trueRole: null,
       role: null,
       effectivePlan: null,
@@ -178,6 +183,9 @@ export async function getEffectiveUserContext(): Promise<EffectiveUserContext> {
       .eq('user_id', user.id)
       .single(),
   ])
+
+  const fullName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || ''
+  const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || null
 
   const rawRole = (profile?.role || user.user_metadata?.role || 'USER').toUpperCase()
   const trueRole = rawRole === 'DELETED' ? 'USER' : rawRole
@@ -211,11 +219,13 @@ export async function getEffectiveUserContext(): Promise<EffectiveUserContext> {
 
   return {
     user,
+    fullName,
+    avatarUrl,
     trueRole,
     role,
     effectivePlan,
     isAdmin,
     adminViewMode,
   }
-}
+})
 

@@ -37,6 +37,18 @@ export async function createAffiliateLink(
     return { error: 'You must be signed in to submit a link' }
   }
 
+  // Verify user is CREATOR or ADMIN
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const role = (profile?.role || '').toUpperCase()
+  if (role !== 'CREATOR' && role !== 'ADMIN') {
+    return { error: 'Only creator accounts can post affiliate deals.' }
+  }
+
   const rawUrl = (formData.get('product_url') as string)?.trim() || ''
   const formattedUrl = rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
     ? rawUrl
@@ -276,7 +288,9 @@ export async function getExploreDeals(categoryId?: number) {
   let query = supabase
     .from('affiliate_links')
     .select('id, title, product_url, promo_code, click_count, created_at, category_id, categories(name, slug), profiles(full_name)')
+    .in('status', ['ACTIVE', 'APPROVED'])
     .order('created_at', { ascending: false })
+    .limit(100)
 
   if (categoryId) {
     query = query.eq('category_id', categoryId)
@@ -297,24 +311,21 @@ export async function getUserLinks() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) return { affiliateLinks: [], brandLinks: [] }
+  if (!user) return { affiliateLinks: [] }
 
-  const [affiliateRes, brandRes] = await Promise.all([
-    supabase
-      .from('affiliate_links')
-      .select('*, categories(name)')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false }),
-    supabase
-      .from('brand_links')
-      .select('*, categories(name)')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false }),
-  ])
+  const { data, error } = await supabase
+    .from('affiliate_links')
+    .select('*, categories(name)')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching user affiliate links:', error)
+    return { affiliateLinks: [] }
+  }
 
   return {
-    affiliateLinks: affiliateRes.data || [],
-    brandLinks: brandRes.data || [],
+    affiliateLinks: data || [],
   }
 }
 
@@ -326,6 +337,7 @@ export async function getCampaignLinks(categoryId?: number) {
     .select('id, brand_name, application_url, description, products_provided, click_count, created_at, category_id, categories(name, slug), profiles(full_name)')
     .eq('status', 'ACTIVE')
     .order('created_at', { ascending: false })
+    .limit(100)
 
   if (categoryId) {
     query = query.eq('category_id', categoryId)
@@ -368,12 +380,14 @@ export async function deleteBrandLink(linkId: number): Promise<{ error?: string;
 export async function getPublicCreators() {
   const supabase = await createClient()
 
-  // Fetch all profiles with public profile enabled
+  // Fetch all active profiles with public profile enabled
   const { data, error } = await supabase
     .from('profiles')
     .select('id, full_name, avatar_url, bio, instagram_url, tiktok_url, youtube_url, role, is_public_profile, created_at')
     .eq('is_public_profile', true)
+    .neq('role', 'DELETED')
     .order('created_at', { ascending: false })
+    .limit(100)
 
   if (error) {
     console.error('Error fetching public creators:', error)

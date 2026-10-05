@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -18,6 +19,7 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const router = useRouter()
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -33,8 +35,8 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
         setTimeout(() => {
           setIsOpen(false)
           setSuccess(false)
-          window.location.reload()
-        }, 1200)
+          router.refresh()
+        }, 1000)
       }
     })
   }
