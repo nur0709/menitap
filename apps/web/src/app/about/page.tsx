@@ -117,21 +117,6 @@ export default async function AboutPage() {
               </CardFooter>
             </Card>
           </div>
-
-          {/* Minimalist Bottom Callout */}
-          <div className="mt-10 p-4 rounded-xl bg-muted/40 border border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-            <div>
-              <p className="text-xs sm:text-sm font-semibold text-foreground">Ready to choose a tier?</p>
-              <p className="text-xs text-muted-foreground">Compare features, benefits, and pricing.</p>
-            </div>
-            <Link 
-              href="/plans" 
-              className="inline-flex items-center gap-1.5 px-4 h-9 rounded-lg bg-[#FC801A] hover:bg-[#E66F0D] text-white text-xs font-semibold shadow-xs transition-colors shrink-0"
-            >
-              <span>View Plans</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
         </div>
       </main>
 
