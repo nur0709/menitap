@@ -99,7 +99,10 @@ export default async function DashboardPage() {
       {/* Header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between">
-          <BrandLogo size="md" />
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <MobileNav currentPath="/dashboard" role={role} />
+            <BrandLogo size="md" />
+          </div>
           <MainNav currentPath="/dashboard" role={role} />
 
           <div className="flex items-center gap-2 sm:gap-3">
@@ -111,7 +114,6 @@ export default async function DashboardPage() {
               </Button>
             </form>
             <ThemeToggle />
-            <MobileNav currentPath="/dashboard" role={role} />
           </div>
         </div>
       </header>
