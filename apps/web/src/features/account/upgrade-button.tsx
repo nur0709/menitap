@@ -22,6 +22,7 @@ export function UpgradeToCreatorButton() {
       if (result.error) {
         setError(result.error)
       } else {
+        setIsOpen(false)
         router.refresh()
       }
     })

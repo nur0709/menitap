@@ -380,12 +380,12 @@ export async function deleteBrandLink(linkId: number): Promise<{ error?: string;
 export async function getPublicCreators() {
   const supabase = await createClient()
 
-  // Fetch all active profiles with public profile enabled
+  // Fetch all active profiles with public profile enabled (CREATOR and ADMIN only)
   const { data, error } = await supabase
     .from('profiles')
     .select('id, full_name, avatar_url, bio, instagram_url, tiktok_url, youtube_url, role, is_public_profile, created_at')
     .eq('is_public_profile', true)
-    .neq('role', 'DELETED')
+    .in('role', ['CREATOR', 'ADMIN'])
     .order('created_at', { ascending: false })
     .limit(100)
 

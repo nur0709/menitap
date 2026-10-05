@@ -53,23 +53,28 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
     youtube.trim() !== savedLinksBaseline.youtube.trim() ||
     bio.trim() !== savedLinksBaseline.bio.trim()
 
-  const hasAnyLink = Boolean(
-    instagram.trim() ||
-    tiktok.trim() ||
-    youtube.trim() ||
+  const hasSavedLink = Boolean(
     savedLinksBaseline.instagram.trim() ||
     savedLinksBaseline.tiktok.trim() ||
     savedLinksBaseline.youtube.trim()
+  )
+
+  const hasTypedLink = Boolean(
+    instagram.trim() ||
+    tiktok.trim() ||
+    youtube.trim()
   )
 
   // 1. Independent Toggle Handler: immediately toggles public visibility
   const handleToggle = (newCheckedState: boolean) => {
     setToggleFeedback(null)
 
-    if (newCheckedState && !hasAnyLink) {
+    if (newCheckedState && !hasSavedLink) {
       setToggleFeedback({
         type: 'error',
-        message: 'Please provide and save at least one social media link before enabling your public profile.',
+        message: hasTypedLink
+          ? 'Please click "Save Changes" below to save your link before enabling your public profile.'
+          : 'Please provide and save at least one social media link before enabling your public profile.',
       })
       return
     }

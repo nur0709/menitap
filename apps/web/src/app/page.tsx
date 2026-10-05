@@ -1,23 +1,10 @@
-import Link from "next/link";
-import { BrandBorder } from "@/components/brand-border";
-import { BrandLogo } from "@/components/brand-logo";
-import { AuthNav } from "@/components/auth-nav";
-import { MainNav } from "@/components/main-nav";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-[#FC801A]/30 selection:text-foreground">
-      {/* Decorative Top Border Ribbon */}
-      <BrandBorder position="top" height="h-7 sm:h-9" />
-
-      {/* Navigation */}
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md transition-colors">
-        <div className="container mx-auto flex h-18 sm:h-20 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <BrandLogo size="md" />
-          <MainNav currentPath="/" />
-          <AuthNav />
-        </div>
-      </header>
+      <SiteHeader currentPath="/" />
 
       <main className="flex-1">
         {/* Video-First Hero Section */}
@@ -63,23 +50,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {/* Decorative Bottom Border Ribbon */}
-      <BrandBorder position="bottom" height="h-7 sm:h-9" />
-
-      {/* Footer */}
-      <footer className="bg-card border-t border-border py-10 transition-colors">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <BrandLogo size="md" />
-          <p className="text-sm text-muted-foreground">
-            © 2026 Menitap. All rights reserved.
-          </p>
-          <div className="flex gap-6 text-sm text-muted-foreground">
-            <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
-            <Link href="/plans" className="hover:text-foreground transition-colors">Plans</Link>
-            <Link href="#" className="hover:text-foreground transition-colors">Privacy</Link>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

@@ -104,8 +104,9 @@ Read `AGENTS.md` for coding standards and conventions.
   - Added server-side role authorization check on `createAffiliateLink` (`CREATOR` or `ADMIN`).
   - Added PostgreSQL security trigger on `profiles.role` to block client-side self-elevation to `ADMIN`.
   - Wrapped `getEffectiveUserContext` in `React.cache()` for zero-redundancy per-request auth deduplication.
-  - Replaced `window.location.reload()` with Next.js `router.refresh()` across all modals and account action components.
-  - Extracted shared `SocialIcons` component, deleted dead `/dashboard/submit` route, and pruned unused queries.
+  - Extracted shared `SocialIcons`, `SiteHeader`, and `SiteFooter` layout components across all pages.
+  - Deleted dead `/dashboard/submit` route, and pruned unused queries.
+  - Refined modal dismissal and public creator role filtering.
 
 ### ⬜ Phase 4 — Stripe Subscriptions (Upcoming) — [#3](https://github.com/nur0709/menitap/issues/3)
 - [ ] Stripe product/price creation (Explorer $0, Creator Basic $10, Creator Standard $15)

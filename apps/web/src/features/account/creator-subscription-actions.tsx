@@ -34,6 +34,7 @@ export function CreatorSubscriptionActions({ currentPlan }: { currentPlan: strin
       if (res.error) {
         setError(res.error)
       } else {
+        setShowConfirmCancel(false)
         router.refresh()
       }
     })
