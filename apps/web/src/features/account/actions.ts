@@ -35,6 +35,14 @@ export async function upgradeToCreator(plan: UpgradePlan = 'BASIC'): Promise<Upg
   }
 
   if (currentRole === 'CREATOR' || currentRole === 'ADMIN') {
+    // If downgrading from STANDARD to BASIC, disable public profile
+    if (plan === 'BASIC') {
+      await supabase
+        .from('profiles')
+        .update({ is_public_profile: false, updated_at: new Date().toISOString() })
+        .eq('id', user.id)
+    }
+
     // If already CREATOR or ADMIN, upgrade or switch subscription plan without losing admin privileges
     const { error: subError } = await supabase
       .from('subscriptions')
@@ -49,12 +57,13 @@ export async function upgradeToCreator(plan: UpgradePlan = 'BASIC'): Promise<Upg
     }
 
     revalidatePath('/dashboard')
+    revalidatePath('/for-brands')
     revalidatePath('/', 'layout')
     return {
       success:
         plan === 'STANDARD'
           ? 'Switched to Creator Standard ($15/mo)!'
-          : 'Switched to Creator Basic ($10/mo)!',
+          : 'Switched to Creator Basic ($10/mo)! Public profile disabled.',
     }
   }
 
@@ -112,11 +121,11 @@ export async function downgradeToConsumer(): Promise<UpgradeState> {
     return { error: 'Only Creator accounts can be switched back to Consumer.' }
   }
 
-  // If normal Creator, revert profile role to USER. If ADMIN, preserve ADMIN role.
+  // Disable public profile and revert role for normal Creator
   if (currentRole !== 'ADMIN') {
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({ role: 'USER' })
+      .update({ role: 'USER', is_public_profile: false, updated_at: new Date().toISOString() })
       .eq('id', user.id)
 
     if (profileError) {
@@ -127,6 +136,12 @@ export async function downgradeToConsumer(): Promise<UpgradeState> {
     await supabase.auth.updateUser({
       data: { role: 'USER' },
     })
+  } else {
+    // If admin is canceling simulation / creator subscription, also ensure public profile is turned off
+    await supabase
+      .from('profiles')
+      .update({ is_public_profile: false, updated_at: new Date().toISOString() })
+      .eq('id', user.id)
   }
 
   // Revert subscription plan to FREE (canceled creator subscription)
@@ -139,6 +154,7 @@ export async function downgradeToConsumer(): Promise<UpgradeState> {
     }, { onConflict: 'user_id' })
 
   revalidatePath('/dashboard')
+  revalidatePath('/for-brands')
   revalidatePath('/', 'layout')
 
   return { success: 'Your Creator subscription has been canceled and switched to a Free Consumer account.' }

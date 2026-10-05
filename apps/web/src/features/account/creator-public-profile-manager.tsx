@@ -17,14 +17,38 @@ interface CreatorProfileData {
 }
 
 export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfileData }) {
-  const [isPublic, setIsPublic] = useState(Boolean(profile.is_public_profile))
-  const [instagram, setInstagram] = useState(profile.instagram_url || '')
-  const [tiktok, setTiktok] = useState(profile.tiktok_url || '')
-  const [youtube, setYoutube] = useState(profile.youtube_url || '')
-  const [bio, setBio] = useState(profile.bio || '')
+  const initialPublic = Boolean(profile.is_public_profile)
+  const initialInstagram = profile.instagram_url || ''
+  const initialTiktok = profile.tiktok_url || ''
+  const initialYoutube = profile.youtube_url || ''
+  const initialBio = profile.bio || ''
+
+  const [isPublic, setIsPublic] = useState(initialPublic)
+  const [instagram, setInstagram] = useState(initialInstagram)
+  const [tiktok, setTiktok] = useState(initialTiktok)
+  const [youtube, setYoutube] = useState(initialYoutube)
+  const [bio, setBio] = useState(initialBio)
+
+  // Track saved baseline
+  const [savedBaseline, setSavedBaseline] = useState({
+    isPublic: initialPublic,
+    instagram: initialInstagram,
+    tiktok: initialTiktok,
+    youtube: initialYoutube,
+    bio: initialBio,
+  })
 
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null)
+  const [justSaved, setJustSaved] = useState(false)
+
+  // Check if form has unsaved modifications
+  const isDirty =
+    isPublic !== savedBaseline.isPublic ||
+    instagram.trim() !== savedBaseline.instagram.trim() ||
+    tiktok.trim() !== savedBaseline.tiktok.trim() ||
+    youtube.trim() !== savedBaseline.youtube.trim() ||
+    bio.trim() !== savedBaseline.bio.trim()
 
   const hasAnyLink = Boolean(instagram.trim() || tiktok.trim() || youtube.trim())
 
@@ -39,6 +63,7 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
     }
     setIsPublic(newCheckedState)
     setFeedback(null)
+    setJustSaved(false)
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -66,10 +91,19 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
       if (res.error) {
         setFeedback({ type: 'error', message: res.error })
       } else {
+        setSavedBaseline({
+          isPublic,
+          instagram,
+          tiktok,
+          youtube,
+          bio,
+        })
+        setJustSaved(true)
         setFeedback({
           type: 'success',
           message: res.success || 'Settings saved successfully!',
         })
+        setTimeout(() => setJustSaved(false), 3000)
       }
     })
   }
@@ -216,22 +250,48 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
           </div>
 
           {/* Save Button */}
-          <div className="pt-2 flex justify-end">
+          <div className="pt-2 flex items-center justify-between gap-3">
+            <div>
+              {isDirty && !justSaved && (
+                <span className="text-[11px] text-[#FC801A] font-medium flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FC801A] animate-ping" />
+                  You have unsaved changes
+                </span>
+              )}
+              {justSaved && (
+                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1.5">
+                  <Check className="h-3 w-3" />
+                  All changes saved
+                </span>
+              )}
+            </div>
+
             <Button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || (!isDirty && !feedback)}
               size="sm"
-              className="bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 font-medium text-xs px-5 h-9 cursor-pointer shadow-xs"
+              className={
+                justSaved
+                  ? "bg-emerald-600 hover:bg-emerald-700 text-white border-0 font-medium text-xs px-5 h-9 transition-all cursor-default"
+                  : isDirty
+                  ? "bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 font-medium text-xs px-5 h-9 cursor-pointer shadow-sm transition-all"
+                  : "bg-muted text-muted-foreground border-border hover:bg-muted font-medium text-xs px-5 h-9 cursor-not-allowed opacity-60 transition-all"
+              }
             >
               {isPending ? (
                 <>
                   <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
                   Saving...
                 </>
+              ) : justSaved ? (
+                <>
+                  <Check className="h-3.5 w-3.5 mr-1.5" />
+                  Saved!
+                </>
               ) : (
                 <>
                   <Check className="h-3.5 w-3.5 mr-1.5" />
-                  Save Portfolio Settings
+                  {isDirty ? 'Save Changes' : 'Saved'}
                 </>
               )}
             </Button>

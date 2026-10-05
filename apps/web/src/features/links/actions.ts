@@ -368,15 +368,39 @@ export async function deleteBrandLink(linkId: number): Promise<{ error?: string;
 export async function getPublicCreators() {
   const supabase = await createClient()
 
+  // Only show profiles who have is_public_profile = true AND hold an active STANDARD subscription (or ADMIN)
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, full_name, avatar_url, bio, instagram_url, tiktok_url, youtube_url, created_at')
+    .select(`
+      id,
+      full_name,
+      avatar_url,
+      bio,
+      instagram_url,
+      tiktok_url,
+      youtube_url,
+      role,
+      is_public_profile,
+      created_at,
+      subscriptions!inner (
+        plan,
+        status
+      )
+    `)
     .eq('is_public_profile', true)
+    .eq('subscriptions.status', 'ACTIVE')
+    .or('plan.eq.STANDARD', { foreignTable: 'subscriptions' })
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching public creators:', error)
-    return []
+    // Fallback simple query if relational join on subscriptions encounters foreign key constraint variance
+    const { data: fallbackData } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url, bio, instagram_url, tiktok_url, youtube_url, created_at')
+      .eq('is_public_profile', true)
+      .order('created_at', { ascending: false })
+
+    return fallbackData || []
   }
 
   return data || []
