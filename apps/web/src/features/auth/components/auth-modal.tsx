@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useActionState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { BrandLogo } from '@/components/brand-logo'
 import { Button } from '@/components/ui/button'
@@ -56,6 +57,11 @@ const ACCOUNT_TYPES = [
 ]
 
 export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalProps) {
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
   const [view, setView] = useState<'options' | 'email'>('options')
   const [mode, setMode] = useState<AuthMode>(initialMode)
   const [selectedRole, setSelectedRole] = useState<AccountType>('USER')
@@ -93,25 +99,29 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
     {}
   )
 
-  if (!isOpen) return null
+  if (!isOpen || !mounted) return null
 
-  return (
+  return createPortal(
     <div
+      role="dialog"
+      aria-modal="true"
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-[9999] overflow-y-auto bg-black/60 backdrop-blur-sm p-4 sm:p-6 animate-in fade-in duration-200"
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-md rounded-2xl bg-card border border-border p-6 sm:p-7 shadow-2xl text-center overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
-      >
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer z-10"
-          aria-label="Close"
+      <div className="flex min-h-full items-center justify-center">
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="relative my-auto w-full max-w-md rounded-2xl bg-card border border-border p-6 sm:p-7 shadow-2xl text-center animate-in zoom-in-95 duration-200"
         >
-          <X className="h-4 w-4" />
-        </button>
+          {/* Close Button */}
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute right-3.5 top-3.5 sm:right-4 sm:top-4 rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer z-20 flex items-center justify-center"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
 
         {/* Back Button (when in email form view) */}
         {view === 'email' && (
@@ -408,5 +418,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
         )}
       </div>
     </div>
+  </div>,
+  document.body
   )
 }
