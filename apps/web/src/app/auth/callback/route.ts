@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
       const roleParam = searchParams.get('role')
-      if (roleParam && ['USER', 'CREATOR', 'BRAND'].includes(roleParam) && data.user) {
+      if (roleParam && ['USER', 'CREATOR'].includes(roleParam) && data.user) {
         // If user already has a specific role set in profiles, don't overwrite it unless they are still default USER
         const { data: existingProfile } = await supabase
           .from('profiles')

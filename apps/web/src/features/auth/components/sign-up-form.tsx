@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { signUpWithEmail, signInWithGoogle, type AuthState } from '../actions'
-import { ShoppingBag, Video, Building2, Check } from 'lucide-react'
+import { ShoppingBag, Video, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export type AccountType = 'USER' | 'CREATOR' | 'BRAND'
+export type AccountType = 'USER' | 'CREATOR'
 
 const ACCOUNT_TYPES = [
   {
@@ -26,13 +26,6 @@ const ACCOUNT_TYPES = [
     icon: Video,
     color: '#FC801A',
   },
-  {
-    id: 'BRAND' as AccountType,
-    label: 'Brand',
-    description: 'Post review campaigns & collaborate with creators',
-    icon: Building2,
-    color: '#08739C',
-  },
 ]
 
 export function SignUpForm({ defaultRole = 'USER' }: { defaultRole?: AccountType }) {
@@ -42,8 +35,7 @@ export function SignUpForm({ defaultRole = 'USER' }: { defaultRole?: AccountType
     {}
   )
 
-  const roleLabel =
-    selectedRole === 'CREATOR' ? 'Creator' : selectedRole === 'BRAND' ? 'Brand' : 'Consumer'
+  const roleLabel = selectedRole === 'CREATOR' ? 'Creator' : 'Consumer'
 
   return (
     <div className="space-y-5">

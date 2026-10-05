@@ -57,7 +57,7 @@ export async function signUpWithEmail(prevState: AuthState | null, formData: For
   const password = formData.get('password') as string
   const fullName = formData.get('fullName') as string
   const rawRole = (formData.get('role') as string) || 'USER'
-  const role = ['USER', 'CREATOR', 'BRAND'].includes(rawRole) ? rawRole : 'USER'
+  const role = ['USER', 'CREATOR'].includes(rawRole) ? rawRole : 'USER'
 
   const validation = AuthSchema.safeParse({ email, password, role })
   if (!validation.success) {
@@ -103,7 +103,7 @@ export async function signInWithGoogle(formData?: FormData) {
   }
 
   const callbackUrl = new URL(`${origin}/auth/callback`)
-  if (requestedRole && ['USER', 'CREATOR', 'BRAND'].includes(requestedRole)) {
+  if (requestedRole && ['USER', 'CREATOR'].includes(requestedRole)) {
     callbackUrl.searchParams.set('role', requestedRole)
   }
 

@@ -9,7 +9,7 @@ export default async function SignUpPage({
 }) {
   const { role: rawRole } = await searchParams
   const defaultRole = (
-    rawRole && ['USER', 'CREATOR', 'BRAND'].includes(rawRole.toUpperCase())
+    rawRole && ['USER', 'CREATOR'].includes(rawRole.toUpperCase())
       ? rawRole.toUpperCase()
       : 'USER'
   ) as AccountType

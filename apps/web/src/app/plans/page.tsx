@@ -4,12 +4,12 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { Check, Sparkles, Building2 } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const metadata = {
   title: "Plans & Pricing | Menitap",
-  description: "Transparent pricing for shoppers, UGC creators, and company brand managers.",
+  description: "Transparent pricing for shoppers and UGC creators.",
 };
 
 export default function PlansPage() {
@@ -24,11 +24,11 @@ export default function PlansPage() {
               Simple, Transparent Plans
             </h1>
             <p className="mt-4 text-base sm:text-lg text-muted-foreground">
-              Options tailored for shoppers, aspiring creators, professional creators, and brand managers.
+              Options tailored for shoppers, aspiring creators, and professional UGC creators.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch max-w-5xl mx-auto">
             {/* Free Tier */}
             <Card className="bg-card border-border flex flex-col h-full shadow-sm hover:border-[#08739C]/40 transition-colors">
               <CardHeader>
@@ -155,55 +155,6 @@ export default function PlansPage() {
                   )}
                 >
                   Join Standard
-                </Link>
-              </CardFooter>
-            </Card>
-
-            {/* Brand or Agency Tier */}
-            <Card className="bg-card border-[#08739C]/40 flex flex-col h-full shadow-sm hover:border-[#08739C] transition-colors ring-1 ring-[#08739C]/20">
-              <CardHeader>
-                <Badge className="w-fit text-xs font-semibold bg-[#08739C] text-white border-0 mb-2">
-                  Brand
-                </Badge>
-                <CardTitle className="text-lg text-foreground">Brand Manager</CardTitle>
-                <div className="mt-2 flex items-baseline text-3xl font-extrabold text-[#08739C] dark:text-[#38BDF8]">
-                  Free
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">For brands, agencies & e-commerce</p>
-              </CardHeader>
-              <CardContent className="flex-1">
-                <ul className="space-y-3 text-xs sm:text-sm text-muted-foreground">
-                  <li className="flex gap-2 font-medium text-foreground">
-                    <Building2 className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Direct brand collaboration tools</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Post product-for-review campaigns</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Search & discover creators by category</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Receive direct creator applications</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Zero agency commissions or hidden fees</span>
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter>
-                <Link 
-                  href="/sign-up?role=BRAND" 
-                  className={cn(
-                    buttonVariants(), 
-                    "w-full bg-[#08739C] hover:bg-[#02547A] text-white font-medium border-0"
-                  )}
-                >
-                  Join as Brand
                 </Link>
               </CardFooter>
             </Card>

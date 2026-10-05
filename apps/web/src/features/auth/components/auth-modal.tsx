@@ -20,7 +20,6 @@ import {
   Loader2,
   ShoppingBag,
   Video,
-  Building2,
   AlertCircle,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -33,7 +32,7 @@ interface AuthModalProps {
   initialMode?: AuthMode
 }
 
-type AccountType = 'USER' | 'CREATOR' | 'BRAND'
+type AccountType = 'USER' | 'CREATOR'
 
 const ACCOUNT_TYPES = [
   {
@@ -47,12 +46,6 @@ const ACCOUNT_TYPES = [
     label: 'Creator',
     description: 'Get free products to review & share affiliate deals',
     icon: Video,
-  },
-  {
-    id: 'BRAND' as AccountType,
-    label: 'Brand',
-    description: 'Post review campaigns & recruit creators',
-    icon: Building2,
   },
 ]
 
@@ -317,7 +310,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
                 {/* Account Type Selector */}
                 <div className="space-y-1">
                   <Label className="text-xs font-semibold text-foreground">Account Type</Label>
-                  <div className="grid grid-cols-3 gap-1.5">
+                  <div className="grid grid-cols-2 gap-2">
                     {ACCOUNT_TYPES.map((type) => {
                       const isSelected = selectedRole === type.id
                       const Icon = type.icon
@@ -398,7 +391,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
                       Creating Account...
                     </>
                   ) : (
-                    `Create ${selectedRole === 'CREATOR' ? 'Creator' : selectedRole === 'BRAND' ? 'Brand' : 'Consumer'} Account`
+                    `Create ${selectedRole === 'CREATOR' ? 'Creator' : 'Consumer'} Account`
                   )}
                 </Button>
 
