@@ -4,10 +4,17 @@ Menitap is an all-in-one platform tailored for user-generated content (UGC) crea
 
 ## 🎯 Features
 
-### Membership Tiers
-- **Buyer-User (Free)**: Access free educational videos and use affiliate links to purchase products with discounts.
-- **Basic Plan ($5/month)**: Publish and manage your own affiliate links. Contribute brand links to earn points redeemable for subscription discounts.
-- **Standard Plan ($10/month)**: Access brand application links to produce UGC videos and receive products. Contribute brand links and earn points.
+### Account Types
+- **Shopper / Explorer (`USER`)**: Explore discounted product deals, save affiliate promotions, and watch beginner UGC educational tutorials.
+- **UGC Creator (`CREATOR`)**: Post and manage affiliate deals with promo codes, access brand collaboration campaigns, and showcase UGC portfolios.
+- **Brand Manager (`BRAND`)**: Publish review campaigns, connect directly with creators by category, and discover creator talent.
+- **Admin (`ADMIN`)**: Full platform controls, taxonomy/category management across tabs, and preview switching capabilities.
+
+### Membership Plans
+- **Explorer ($0 / Free)**: Browse creator affiliate deals, watch free beginner UGC tutorials, and bookmark items.
+- **Creator Basic ($10/month)**: Access direct brand collaboration links, receive products to test and keep, and publish affiliate links to shoppers.
+- **Creator Standard ($15/month)**: Featured placement, Public Creator Profile & Portfolio showcase, and category-filtered brand visibility.
+- **Brand Manager (Free MVP)**: Direct creator collaboration, post product-for-review campaigns, and search creators by niche category.
 
 ## 🛠 Tech Stack
 

@@ -64,12 +64,21 @@ Menitap is an all-in-one platform tailored for user-generated content (UGC) crea
 - Branch naming: `feat/<name>`, `fix/<name>`, `chore/<name>`
 - PRs must pass CI (lint + typecheck + tests) before merge
 
-## Membership Tiers
-| Tier | Price | Key Features |
-|------|-------|--------------|
-| Buyer-User | Free | Watch educational videos, browse affiliate links |
-| Basic Plan | $5/month | Publish affiliate links, contribute brand links, earn points |
-| Standard Plan | $10/month | Access brand application links, contribute brand links, earn points |
+## Account Types & Roles
+| Role | User Type | Description & Access |
+|------|-----------|----------------------|
+| `USER` | Shopper / Consumer / Explorer | Default account type. Browses deals on Explore Deals, views free tutorials. |
+| `CREATOR` | UGC Creator | Posts affiliate links/deals with promo codes (`+ Post a Deal`), accesses direct brand application links, manages active deals in My Account. |
+| `BRAND` | Brand Manager | Accesses the For Brands section, creates product-for-review campaigns, discovers UGC creators. |
+| `ADMIN` | Platform Administrator | Has full access to all sections. Can switch preview modes safely via admin switcher cookie, manage categories per tab (`DEALS`, `CREATORS`, `BRANDS`), and administer the platform. |
+
+## Membership Tiers & Plans (`/plans`)
+| Tier | Price | Audience & Key Features |
+|------|-------|--------------------------|
+| **Explorer** | Free ($0) | Shoppers & beginner creators. Browse all affiliate deals, watch free beginner UGC tutorials, save deals. |
+| **Creator Basic** | $10/month | Active UGC creators. Everything in Explorer + access direct brand application links, receive products to test & review, publish affiliate links. |
+| **Creator Standard** | $15/month | Professional UGC creators. Everything in Basic + Public Creator Profile & Portfolio showcase, category-filtered brand visibility. |
+| **Brand Manager** | Free (MVP) | Companies & agencies. Direct collaboration tools, post product-for-review campaigns, discover creators by category. |
 
 ## Common Commands
 ```bash

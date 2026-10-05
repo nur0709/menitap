@@ -9,9 +9,9 @@
 
 ---
 
-## Current Phase: Phase 3 ✅ → Phase 4 (Next)
+## Current Phase: Phase 5 in progress (Browse, Links & Account Roles)
 
-## Last Updated: 2026-10-02
+## Last Updated: 2026-10-04
 ## Last Agent: Gemini (Antigravity)
 ## GitHub Repo: https://github.com/nur0709/menitap
 ## Live Production URL: https://menitap.vercel.app
@@ -20,13 +20,25 @@
 
 ## Quick Context for New Agents
 
-Menitap is a subscription SaaS platform for UGC (User-Generated Content) creators and
-shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
+Menitap is an all-in-one platform tailored for user-generated content (UGC) creators, shoppers, and brand managers.
+Read `AGENTS.md` for coding standards and conventions.
 
 **Key architectural decisions already made:**
-- Next.js 15 (App Router) hosted on **Vercel** (`https://menitap.vercel.app`) with automatic CI/CD from `main`.
+- Next.js 15/16 (App Router) hosted on **Vercel** (`https://menitap.vercel.app`) with automatic CI/CD from `main`.
 - **Supabase** for PostgreSQL database + Auth (Google OAuth + email/password), project ID `fkexbdyptynweurzgtqd`.
-- **Stripe** for subscriptions with local DB mirror via webhooks (Phase 4).
+- **Account Types / Roles (`role` column in `profiles` and auth metadata)**:
+  - `USER` (Shopper / Consumer / Explorer): Can browse deals, save items, view free tutorials.
+  - `CREATOR` (UGC Creator): Can post affiliate deals (`+ Post a Deal`), access direct brand collaboration campaigns, manage shared links.
+  - `BRAND` (Brand Manager): Can post brand collaboration campaigns, search and discover UGC creators.
+  - `ADMIN`: Has full privileges, category management per tab, and an account switcher cookie toggle to preview experience as any account type without losing admin status.
+- **Plans & Pricing Structure** (`/plans`):
+  - **Explorer ($0 / Free)**: For deal hunters & beginner creators (browse affiliate deals, tutorials).
+  - **Creator Basic ($10/mo)**: Post affiliate links, direct brand application access, receive products to test.
+  - **Creator Standard ($15/mo - Recommended)**: Public Creator Profile & Portfolio, category-filtered brand visibility.
+  - **Brand Manager (Free for MVP)**: Post product-for-review campaigns, browse creators by category, zero commission.
+- **Category System**:
+  - `categories` table with `type` column: `'DEALS'`, `'CREATORS'`, `'BRANDS'`.
+  - Admin accounts can add/delete categories per tab directly in My Account (`/dashboard`).
 - **MVP Media Scope**: No binary file/blob storage needed for MVP; product/brand external URLs and text metadata are stored directly in PostgreSQL.
 - **shadcn/ui** for components (uses `@base-ui/react`, NOT Radix — `asChild` prop does NOT exist, use `buttonVariants()` with `Link`).
 - All infrastructure on free tiers — $0/month target.
@@ -73,25 +85,28 @@ shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 - [x] User dashboard display with status badges (`PENDING`, `APPROVED`, `REJECTED`)
 - [x] Vercel production deployment verified live
 
-### ⬜ Phase 4 — Stripe Subscriptions (NEXT) — [#3](https://github.com/nur0709/menitap/issues/3)
-- [ ] Stripe product/price creation (Free, Basic $5, Standard $10)
+### 🔄 Phase 5 — Browse, Categories & Creator Link Management (In Progress)
+- [x] Public browsable directory page for **Explore Deals** (`/for-shoppers`)
+- [x] `categories` table upgraded with `type` column (`DEALS`, `CREATORS`, `BRANDS`)
+- [x] Admin Category Manager in `/dashboard` (Add/Delete category tags per tab)
+- [x] `+ Post a Deal` modal for Creator and Admin accounts on Explore Deals
+- [x] My Account Shared Deals manager for Creators to track clicks & delete links
+- [x] Dynamic tab visibility based on Account Type (`USER`, `CREATOR`, `BRAND`, `ADMIN`)
+- [x] Safe Admin Mode toggle (allows admin to test any account experience without role loss)
+- [ ] For Creators directory & tab content
+- [ ] For Brands directory & tab content
+
+### ⬜ Phase 4 — Stripe Subscriptions (Upcoming) — [#3](https://github.com/nur0709/menitap/issues/3)
+- [ ] Stripe product/price creation (Explorer $0, Creator Basic $10, Creator Standard $15)
 - [ ] Checkout session flow
 - [ ] Webhook handler at `/api/webhooks/stripe`
 - [ ] Local subscription state mirroring
 - [ ] Stripe Customer Portal for self-service
 - [ ] Feature gating based on user's active plan
 
-### ⬜ Phase 5 — Browse + Filter Links — [#4](https://github.com/nur0709/menitap/issues/4)
-- [ ] Public browsable directory pages
-- [ ] Category management
-- [ ] Filter by category, search
-- [ ] ISR for category pages
-- [ ] Click tracking
-- [ ] Pagination
-
 ### ⬜ Phase 6 — Admin Panel — [#5](https://github.com/nur0709/menitap/issues/5)
 - [ ] Admin dashboard at `/admin/*`
-- [ ] Category CRUD
+- [ ] Category CRUD per tab (currently accessible via `/dashboard` for Admin)
 - [ ] Link moderation (approve/reject with preview)
 - [ ] User management
 - [ ] Basic support/messaging
@@ -115,10 +130,10 @@ shoppers. Read `AGENTS.md` for the full tech stack and coding standards.
 ## Database Schema Reference
 
 ```
-User: id, email, full_name, avatar_url, role (USER|ADMIN), created_at, updated_at
+User: id, email, full_name, avatar_url, role (USER|CREATOR|BRAND|ADMIN), created_at, updated_at
 Subscription: id, user_id, stripe_customer_id, stripe_subscription_id, plan (FREE|BASIC|STANDARD), status (ACTIVE|PAST_DUE|CANCELED|TRIALING), current_period_end
-Category: id, name, slug, description, sort_order, is_active
-AffiliateLink: id, user_id, category_id, title, url, description, product_image_url, discount_percentage, status (PENDING|APPROVED|REJECTED), click_count
+Category: id, name, slug, description, sort_order, is_active, type ('DEALS'|'CREATORS'|'BRANDS')
+AffiliateLink: id, user_id, category_id, title, url, promo_code, description, product_image_url, discount_percentage, status (ACTIVE|PENDING|APPROVED|REJECTED), click_count
 BrandLink: id, user_id, category_id, brand_name, application_url, description, brand_logo_url, status (PENDING|APPROVED|REJECTED), products_provided
 PointTransaction: id, user_id, points, reason, type (EARNED|REDEEMED)
 ```
@@ -129,7 +144,7 @@ PointTransaction: id, user_id, points, reason, type (EARNED|REDEEMED)
 
 1. **YouTube video is placeholder** — Replace `dQw4w9WgXcQ` in `apps/web/src/app/page.tsx` with the real explainer video ID.
 2. **shadcn/ui Button has NO `asChild` prop** — This version uses `@base-ui/react`. Use `Link` with `buttonVariants()` utility + `cn()` for link-styled buttons.
-3. **Supabase project not yet created** — User needs to create one at https://supabase.com and add credentials to `.env.local`.
+3. **Supabase project connected** — Project `fkexbdyptynweurzgtqd` is fully active and migrated.
 4. **Stripe not yet configured** — Phase 4 dependency.
 5. **Footer copyright says 2024** — Update to current year.
 6. **No favicon yet** — Default Next.js favicon in place.
