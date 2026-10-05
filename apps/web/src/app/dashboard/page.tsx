@@ -12,6 +12,9 @@ import { UpgradeToCreatorButton } from '@/features/account/upgrade-button'
 import { CreatorSubscriptionActions } from '@/features/account/creator-subscription-actions'
 import { DeleteAccountSection } from '@/features/account/delete-account-section'
 import { AdminRoleSwitcher } from '@/features/account/admin-role-switcher'
+import { CreatorLinksManager } from '@/features/account/creator-links-manager'
+import { AdminCategoryManager } from '@/features/account/admin-category-manager'
+import { getUserLinks, getAllCategories } from '@/features/links/actions'
 import { LogOut, ShoppingBag, Video, Building2, ShieldCheck } from 'lucide-react'
 
 export const metadata = {
@@ -28,11 +31,15 @@ export default async function DashboardPage() {
   }
 
   const supabase = await createClient()
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  const [{ data: profile }, { affiliateLinks }, allCategories] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single(),
+    getUserLinks(),
+    getAllCategories(),
+  ])
 
   const email = user.email || ''
   const fullName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || ''
@@ -138,11 +145,19 @@ export default async function DashboardPage() {
               <CreatorSubscriptionActions currentPlan={currentPlan} />
             )}
 
+            {/* Creator Links Manager: manage shared affiliate deals */}
+            {(role === 'CREATOR' || isAdmin) && (
+              <CreatorLinksManager links={affiliateLinks} />
+            )}
+
             {/* Danger Zone: Delete Account (Regular accounts only) */}
             {!isAdmin && <DeleteAccountSection />}
 
             {/* Admin Role / View Mode Switcher */}
             {isAdmin && <AdminRoleSwitcher currentMode={adminViewMode} />}
+
+            {/* Admin Category Manager: add/remove categories across tabs */}
+            {isAdmin && <AdminCategoryManager categories={allCategories} />}
           </CardContent>
         </Card>
       </main>

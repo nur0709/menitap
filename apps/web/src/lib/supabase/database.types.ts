@@ -141,6 +141,7 @@ export type Database = {
           name: string
           slug: string
           sort_order: number
+          type: "DEALS" | "CREATORS" | "BRANDS"
         }
         Insert: {
           created_at?: string
@@ -151,6 +152,7 @@ export type Database = {
           name: string
           slug: string
           sort_order?: number
+          type?: "DEALS" | "CREATORS" | "BRANDS"
         }
         Update: {
           created_at?: string
@@ -161,6 +163,7 @@ export type Database = {
           name?: string
           slug?: string
           sort_order?: number
+          type?: "DEALS" | "CREATORS" | "BRANDS"
         }
         Relationships: []
       }
