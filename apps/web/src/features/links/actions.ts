@@ -15,7 +15,7 @@ const BrandLinkSchema = z.object({
   brand_name: z.string().min(2, 'Brand name must be at least 2 characters'),
   application_url: z.string().url('Please enter a valid brand application or collab URL (including https://)'),
   category_id: z.coerce.number().positive('Please select a valid category'),
-  description: z.string().optional(),
+  description: z.string().nullable().optional(),
   products_provided: z.preprocess((val) => val === 'on' || val === true || val === 'true', z.boolean()),
 })
 
@@ -157,8 +157,8 @@ const PublicCampaignSchema = z.object({
   contact_email: z.string().email('Please enter a valid work or brand email'),
   application_url: z.string().url('Please enter a valid brand application or collab URL (including https://)'),
   category_id: z.coerce.number().positive('Please select a category'),
-  compensation_details: z.string().optional(),
-  description: z.string().optional(),
+  compensation_details: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
   products_provided: z.preprocess((val) => val === 'on' || val === true || val === 'true', z.boolean()),
 })
 
@@ -167,17 +167,26 @@ export async function submitPublicBrandCampaign(
   formData: FormData
 ): Promise<LinkActionState> {
   const rawUrl = (formData.get('application_url') as string)?.trim() || ''
+  if (!rawUrl) {
+    return { error: 'Please enter a valid brand application or collab URL' }
+  }
+
   const formattedUrl = rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
     ? rawUrl
     : `https://${rawUrl}`
 
+  const comp = (formData.get('compensation_details') as string)?.trim()
+  const desc = (formData.get('description') as string)?.trim()
+  const brandName = ((formData.get('brand_name') as string) || '').trim()
+  const contactEmail = ((formData.get('contact_email') as string) || '').trim()
+
   const rawData = {
-    brand_name: formData.get('brand_name'),
-    contact_email: formData.get('contact_email'),
+    brand_name: brandName,
+    contact_email: contactEmail,
     application_url: formattedUrl,
     category_id: formData.get('category_id'),
-    compensation_details: (formData.get('compensation_details') as string)?.trim() || null,
-    description: formData.get('description') || '',
+    compensation_details: comp ? comp : null,
+    description: desc ? desc : null,
     products_provided: formData.get('products_provided'),
   }
 
@@ -199,7 +208,7 @@ export async function submitPublicBrandCampaign(
     contact_email: validation.data.contact_email,
     application_url: validation.data.application_url,
     description: validation.data.description || null,
-    compensation_details: validation.data.compensation_details,
+    compensation_details: validation.data.compensation_details || null,
     products_provided: validation.data.products_provided,
     status,
   })
