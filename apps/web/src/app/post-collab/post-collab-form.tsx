@@ -25,7 +25,7 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
   const [brandName, setBrandName] = useState('')
   const [contactEmail, setContactEmail] = useState('')
   const [description, setDescription] = useState('')
-  const [compensationDetails, setCompensationDetails] = useState('Free Product')
+  const [compensationDetails, setCompensationDetails] = useState('')
   const [productsProvided, setProductsProvided] = useState(true)
 
   const defaultCat = categories.find((c) => c.slug === defaultCategorySlug)

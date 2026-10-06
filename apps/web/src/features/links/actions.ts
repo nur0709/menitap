@@ -157,7 +157,7 @@ const PublicCampaignSchema = z.object({
   contact_email: z.string().email('Please enter a valid work or brand email'),
   application_url: z.string().url('Please enter a valid brand application or collab URL (including https://)'),
   category_id: z.coerce.number().positive('Please select a category'),
-  compensation_details: z.string().optional().default('Free Product'),
+  compensation_details: z.string().optional(),
   description: z.string().optional(),
   products_provided: z.preprocess((val) => val === 'on' || val === true || val === 'true', z.boolean()),
 })
@@ -176,7 +176,7 @@ export async function submitPublicBrandCampaign(
     contact_email: formData.get('contact_email'),
     application_url: formattedUrl,
     category_id: formData.get('category_id'),
-    compensation_details: formData.get('compensation_details') || 'Free Product',
+    compensation_details: (formData.get('compensation_details') as string)?.trim() || null,
     description: formData.get('description') || '',
     products_provided: formData.get('products_provided'),
   }
