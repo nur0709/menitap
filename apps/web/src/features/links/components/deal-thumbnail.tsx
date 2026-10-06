@@ -11,9 +11,10 @@ interface DealThumbnailProps {
 }
 
 export function DealThumbnail({ imageUrl, title, className }: DealThumbnailProps) {
-  const [error, setError] = useState(false)
+  const [failedUrl, setFailedUrl] = useState<string | null>(null)
+  const isError = Boolean(imageUrl && failedUrl === imageUrl)
 
-  if (!imageUrl || error) {
+  if (!imageUrl || isError) {
     return (
       <div
         className={cn(
@@ -41,7 +42,7 @@ export function DealThumbnail({ imageUrl, title, className }: DealThumbnailProps
         alt={title}
         loading="lazy"
         referrerPolicy="no-referrer"
-        onError={() => setError(true)}
+        onError={() => setFailedUrl(imageUrl)}
         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
       />
     </div>

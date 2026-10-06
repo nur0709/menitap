@@ -57,13 +57,15 @@ export function BrandLogoBadge({
   imageUrl,
   className,
 }: BrandLogoBadgeProps) {
-  const [error, setError] = useState(false)
+  const [failedUrl, setFailedUrl] = useState<string | null>(null)
   const initials = getBrandInitials(brandName)
 
   // Prioritize explicit imageUrl, then high-res domain favicon
-  const logoSrc = !error ? imageUrl || getDerivedFaviconUrl(brandName, applicationUrl) : null
+  const potentialSrc = imageUrl || getDerivedFaviconUrl(brandName, applicationUrl)
+  const isError = Boolean(potentialSrc && failedUrl === potentialSrc)
+  const logoSrc = !isError ? potentialSrc : null
 
-  if (!logoSrc || error) {
+  if (!logoSrc) {
     return (
       <div
         className={cn(
@@ -91,7 +93,7 @@ export function BrandLogoBadge({
         alt={`${brandName} logo`}
         loading="lazy"
         referrerPolicy="no-referrer"
-        onError={() => setError(true)}
+        onError={() => setFailedUrl(logoSrc)}
         className="w-full h-full object-contain rounded-lg"
       />
     </div>

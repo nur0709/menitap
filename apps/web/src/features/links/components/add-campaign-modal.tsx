@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createBrandLink } from '../actions'
 import { Plus, X, Loader2, Link as LinkIcon, Building2, Package } from 'lucide-react'
-import { matchCategory } from '@/lib/category-matcher'
+import { useLinkAutofill } from '../hooks/use-link-autofill'
+import { AutofillOriginBadge } from './autofill-origin-badge'
 
 export type Category = {
   id: number
@@ -20,7 +21,6 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  const [isParsing, setIsParsing] = useState(false)
 
   // Form field state for smart autofill
   const [applicationUrl, setApplicationUrl] = useState('')
@@ -29,9 +29,31 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
   const [categoryId, setCategoryId] = useState('')
   const [productsProvided, setProductsProvided] = useState(true)
   const [imageUrl, setImageUrl] = useState('')
-  const [parseSource, setParseSource] = useState<'ai_gemini' | 'ai_groq' | 'opengraph' | null>(null)
 
   const router = useRouter()
+
+  const { isParsing, parseSource, handleAutoFill, resetAutofill } = useLinkAutofill({
+    categories,
+    onExtracted: (data, matchedCategory) => {
+      if (data.brandName) {
+        setBrandName(data.brandName)
+      }
+      if (data.description) {
+        setDescription(data.description)
+      } else if (data.title) {
+        setDescription(data.title)
+      }
+
+      const resolvedImg = data.logoUrl || data.imageUrl
+      if (resolvedImg) {
+        setImageUrl(resolvedImg)
+      }
+
+      if (matchedCategory) {
+        setCategoryId(String(matchedCategory.id))
+      }
+    },
+  })
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -44,53 +66,6 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
     }
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, isPending, isParsing])
-
-  // Smart Autofill when URL changes
-  const handleAutoFill = async (urlToParse: string) => {
-    if (!urlToParse || urlToParse.trim().length < 8) return
-
-    setIsParsing(true)
-    try {
-      const res = await fetch('/api/extract-metadata', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: urlToParse.trim() }),
-      })
-
-      if (res.ok) {
-        const json = await res.json()
-        if (json.data) {
-          const data = json.data
-          setParseSource(data.source || 'opengraph')
-          if (data.brandName) {
-            setBrandName(data.brandName)
-          }
-          if (data.description) {
-            setDescription(data.description)
-          } else if (data.title) {
-            setDescription(data.title)
-          }
-
-          if (data.logoUrl || data.imageUrl) {
-            setImageUrl(data.logoUrl || data.imageUrl)
-          }
-
-          // Match category using robust fuzzy heuristic
-          const matched = matchCategory(
-            data.suggestedCategory || data.brandName || data.title,
-            categories
-          )
-          if (matched) {
-            setCategoryId(String(matched.id))
-          }
-        }
-      }
-    } catch (err) {
-      console.warn('Autofill error:', err)
-    } finally {
-      setIsParsing(false)
-    }
-  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -121,6 +96,7 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
           setDescription('')
           setCategoryId('')
           setImageUrl('')
+          resetAutofill()
           router.refresh()
         }, 1000)
       }
@@ -200,19 +176,7 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
                       className="pl-8 bg-background border-border text-xs h-9"
                     />
                   </div>
-                  {parseSource && (
-                    <div className="flex items-center gap-1.5 pt-0.5">
-                      {parseSource.startsWith('ai') ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
-                          ✨ AI Extracted ({parseSource === 'ai_gemini' ? 'Gemini' : 'Groq'})
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full border border-border">
-                          🌐 Page Metadata Extracted
-                        </span>
-                      )}
-                    </div>
-                  )}
+                  <AutofillOriginBadge source={parseSource} />
                   {imageUrl && (
                     <div className="flex items-center gap-2.5 p-2 rounded-xl bg-muted/40 border border-border mt-1">
                       {/* eslint-disable-next-line @next/next/no-img-element */}

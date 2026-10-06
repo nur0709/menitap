@@ -133,7 +133,7 @@ export default async function CollabsPage({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {campaigns.map((camp) => {
                 const categoryName = (camp.categories as unknown as { name?: string })?.name || 'General'
-                const canDelete = isAdmin || (Boolean(currentUserId) && (camp as unknown as { user_id?: string | null }).user_id === currentUserId)
+                const canDelete = isAdmin || (Boolean(currentUserId) && camp.user_id === currentUserId)
 
                 return (
                   <Card
@@ -158,7 +158,7 @@ export default async function CollabsPage({
                         <BrandLogoBadge
                           brandName={camp.brand_name}
                           applicationUrl={camp.application_url}
-                          imageUrl={(camp as unknown as { image_url?: string | null }).image_url}
+                          imageUrl={camp.image_url}
                         />
                         <div className="flex-1 min-w-0">
                           <CardTitle className="text-base text-foreground font-semibold line-clamp-1 leading-snug">

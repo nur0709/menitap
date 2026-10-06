@@ -110,7 +110,7 @@ export default async function DealsPage({
               {deals.map((deal) => {
                 const categoryName = (deal.categories as unknown as { name?: string })?.name || 'General'
                 const creatorName = (deal.profiles as unknown as { full_name?: string })?.full_name
-                const canDelete = isAdmin || (Boolean(currentUserId) && (deal as unknown as { user_id?: string | null }).user_id === currentUserId)
+                const canDelete = isAdmin || (Boolean(currentUserId) && deal.user_id === currentUserId)
 
                 return (
                   <Card
@@ -130,7 +130,7 @@ export default async function DealsPage({
                       {/* Compact Thumbnail + Title & Creator Layout */}
                       <div className="flex items-start gap-3">
                         <DealThumbnail
-                          imageUrl={(deal as unknown as { image_url?: string | null }).image_url}
+                          imageUrl={deal.image_url}
                           title={deal.title || 'Deal'}
                         />
                         <div className="flex-1 min-w-0">
