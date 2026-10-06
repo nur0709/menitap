@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { submitPublicBrandCampaign } from '@/features/links/actions'
 import { type Category } from '@/features/links/components/add-campaign-modal'
-import { Loader2, Link as LinkIcon, Building2, Package, CheckCircle2, ArrowRight } from 'lucide-react'
+import { Loader2, Link as LinkIcon, Package, CheckCircle2, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 interface PostCollabFormProps {
@@ -25,10 +25,9 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
   const [brandName, setBrandName] = useState('')
   const [contactEmail, setContactEmail] = useState('')
   const [description, setDescription] = useState('')
-  const [compensationDetails, setCompensationDetails] = useState('Free Product to test & keep')
+  const [compensationDetails, setCompensationDetails] = useState('Free Product')
   const [productsProvided, setProductsProvided] = useState(true)
 
-  // Initial category selection
   const defaultCat = categories.find((c) => c.slug === defaultCategorySlug)
   const [categoryId, setCategoryId] = useState(defaultCat ? String(defaultCat.id) : '')
 
@@ -57,9 +56,9 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
           }
 
           if (data.compensationType === 'PAID') {
-            setCompensationDetails('Paid UGC Sponsorship')
+            setCompensationDetails('Paid Sponsorship')
           } else if (data.compensationType === 'COMMISSION') {
-            setCompensationDetails('Affiliate Commission + Samples')
+            setCompensationDetails('Commission + Samples')
           }
 
           if (data.suggestedCategory && !categoryId) {
@@ -110,15 +109,15 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
           <CheckCircle2 className="h-6 w-6" />
         </div>
         <h3 className="text-xl font-bold text-foreground">Campaign Submitted!</h3>
-        <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-          Thank you for sharing your collaboration. Our team verifies submissions to ensure genuine brand opportunities before publishing to all creators on Menitap.
+        <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+          Thanks for sharing your collab. It will be verified and published to creators within 24 hours.
         </p>
-        <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             href="/collabs"
             className="inline-flex items-center gap-1.5 px-4 h-9 rounded-lg bg-[#FC801A] hover:bg-[#E66F0D] text-white text-xs font-semibold shadow-xs transition-colors"
           >
-            <span>View Collabs Feed</span>
+            <span>View Collabs</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
           <button
@@ -131,7 +130,7 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
             }}
             className="text-xs font-medium text-muted-foreground hover:text-foreground hover:underline cursor-pointer"
           >
-            Submit Another Campaign
+            Submit Another
           </button>
         </div>
       </div>
@@ -140,34 +139,23 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
 
   return (
     <div className="p-6 sm:p-8 rounded-2xl bg-card border border-border shadow-xs text-left">
-      <div className="mb-6">
-        <div className="flex items-center gap-2 text-[#08739C] dark:text-[#38BDF8] mb-1">
-          <Building2 className="h-4 w-4" />
-          <span className="text-xs font-bold uppercase tracking-wider">Free Campaign Placement</span>
-        </div>
-        <h2 className="text-xl font-bold text-foreground">Brand Details & Brief</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Fill out the brief below or paste your application link to autofill information.
-        </p>
-      </div>
-
       {error && (
-        <div className="mb-5 p-3 rounded-xl text-xs font-medium bg-destructive/10 text-destructive border border-destructive/20">
+        <div className="mb-4 p-3 rounded-xl text-xs font-medium bg-destructive/10 text-destructive border border-destructive/20">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Collab / Application Link */}
+        {/* Campaign URL */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <Label htmlFor="application_url" className="text-xs font-medium text-foreground">
-              Collab Link / Application URL *
+              Campaign or Application Link *
             </Label>
             {isParsing && (
               <span className="text-[11px] font-medium text-[#FC801A] flex items-center gap-1">
                 <Loader2 className="h-3 w-3 animate-spin" />
-                Autofilling details...
+                Autofilling...
               </span>
             )}
           </div>
@@ -184,16 +172,13 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
               className="pl-8 bg-background border-border text-xs h-9"
             />
           </div>
-          <p className="text-[11px] text-muted-foreground">
-            Paste your Google Form, Typeform, Shopify Collabs, or website intake form.
-          </p>
         </div>
 
-        {/* 2-Column Brand Name + Work Email */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* 2-Column: Brand Name + Work Email */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div className="space-y-1.5">
             <Label htmlFor="brand_name" className="text-xs font-medium text-foreground">
-              Brand / Company Name *
+              Brand Name *
             </Label>
             <Input
               id="brand_name"
@@ -201,14 +186,14 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
               required
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
-              placeholder="e.g. Glossier, Anker, Gymshark"
+              placeholder="e.g. Glossier, Anker"
               className="bg-background border-border text-xs h-9"
             />
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="contact_email" className="text-xs font-medium text-foreground">
-              Brand Contact / Work Email *
+              Work Email *
             </Label>
             <Input
               id="contact_email"
@@ -217,17 +202,17 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
               required
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
-              placeholder="collabs@yourbrand.com"
+              placeholder="collabs@brand.com"
               className="bg-background border-border text-xs h-9"
             />
           </div>
         </div>
 
-        {/* 2-Column Category + Compensation */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* 2-Column: Category + Compensation */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div className="space-y-1.5">
             <Label htmlFor="category_id" className="text-xs font-medium text-foreground">
-              Category / Niche *
+              Category *
             </Label>
             <select
               id="category_id"
@@ -237,7 +222,7 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
               onChange={(e) => setCategoryId(e.target.value)}
               className="w-full h-9 rounded-md bg-background border border-border px-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-[#08739C]"
             >
-              <option value="" disabled>Select niche category</option>
+              <option value="" disabled>Select category</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id} className="bg-background text-foreground">
                   {cat.name}
@@ -248,36 +233,36 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
 
           <div className="space-y-1.5">
             <Label htmlFor="compensation_details" className="text-xs font-medium text-foreground">
-              Compensation / Creator Perks
+              Perks / Compensation
             </Label>
             <Input
               id="compensation_details"
               name="compensation_details"
               value={compensationDetails}
               onChange={(e) => setCompensationDetails(e.target.value)}
-              placeholder="e.g. Free Product + $100 / video, Gifting only"
+              placeholder="e.g. Free Product, $100 / video"
               className="bg-background border-border text-xs h-9"
             />
           </div>
         </div>
 
-        {/* Campaign Description */}
+        {/* Description */}
         <div className="space-y-1.5">
           <Label htmlFor="description" className="text-xs font-medium text-foreground">
-            Campaign Brief / What kind of content are you looking for? (Optional)
+            What content are you looking for? (Optional)
           </Label>
           <Input
             id="description"
             name="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="e.g. Looking for authentic 30s TikTok reviews and unboxing videos"
+            placeholder="e.g. 30s TikTok video reviewing our skincare serum"
             className="bg-background border-border text-xs h-9"
           />
         </div>
 
-        {/* Free Products Provided Checkbox */}
-        <div className="flex items-center gap-2.5 p-3 rounded-lg bg-muted/30 border border-border">
+        {/* Products Provided Checkbox */}
+        <div className="flex items-center gap-2 p-2.5 rounded-lg bg-muted/30 border border-border">
           <input
             type="checkbox"
             id="products_provided"
@@ -288,11 +273,11 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
           />
           <Label htmlFor="products_provided" className="text-xs text-foreground font-medium cursor-pointer flex items-center gap-1.5">
             <Package className="h-3.5 w-3.5 text-[#08739C]" />
-            <span>Free products or PR samples provided to creators to keep</span>
+            <span>Free products provided for creator reviews</span>
           </Label>
         </div>
 
-        <div className="pt-3">
+        <div className="pt-2">
           <Button
             type="submit"
             disabled={isPending || isParsing}
@@ -301,15 +286,12 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
             {isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-                Submitting Campaign...
+                Publishing...
               </>
             ) : (
-              'Submit Campaign for Free'
+              'Publish Collab'
             )}
           </Button>
-          <p className="text-[11px] text-center text-muted-foreground mt-2">
-            No upfront fees or credit card required. Reviewed and published within 24 hours.
-          </p>
         </div>
       </form>
     </div>

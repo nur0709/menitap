@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
-const inter = Inter({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-sans",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://menitap.vercel.app'
@@ -45,7 +46,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased bg-background text-foreground min-h-screen flex flex-col`}>
+      <body className={`${plusJakartaSans.variable} font-sans antialiased bg-background text-foreground min-h-screen flex flex-col`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
