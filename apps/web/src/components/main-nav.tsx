@@ -8,11 +8,10 @@ interface MainNavProps {
 export function MainNav({ currentPath }: MainNavProps) {
   const navTabClass = (isActive: boolean) =>
     cn(
-      'inline-flex items-center justify-center font-medium text-xs sm:text-sm px-3.5 h-9 rounded-lg border transition-all duration-150 cursor-pointer',
-      'border-[#08739C] text-[#08739C] dark:border-[#38BDF8] dark:text-[#38BDF8]',
+      'inline-flex items-center justify-center text-xs sm:text-sm px-3.5 h-9 rounded-lg transition-all duration-150 cursor-pointer',
       isActive
-        ? 'bg-[#08739C]/15 dark:bg-[#38BDF8]/20 font-bold shadow-xs'
-        : 'bg-transparent hover:bg-[#08739C]/10 dark:hover:bg-[#38BDF8]/10'
+        ? 'ring-2 ring-[#FC801A] text-[#FC801A] bg-[#FC801A]/10 font-bold shadow-xs'
+        : 'text-muted-foreground hover:text-foreground hover:ring-1 hover:ring-[#FC801A]/50 hover:bg-[#FC801A]/5 font-medium'
     )
 
   return (

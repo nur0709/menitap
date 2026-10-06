@@ -155,15 +155,15 @@ export function MobileNav({ currentPath: initialPath, role }: MobileNavProps) {
                     className={cn(
                       'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm font-medium',
                       isActive
-                        ? 'border border-[#08739C] text-[#08739C] dark:border-[#38BDF8] dark:text-[#38BDF8] bg-[#08739C]/10 dark:bg-[#38BDF8]/10 font-bold shadow-xs'
-                        : 'text-foreground hover:bg-muted/70 border border-transparent'
+                        ? 'ring-2 ring-[#FC801A] text-[#FC801A] bg-[#FC801A]/10 font-bold shadow-xs'
+                        : 'text-foreground hover:bg-muted/70 hover:ring-1 hover:ring-[#FC801A]/30'
                     )}
                   >
                     <div
                       className={cn(
                         'h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
                         isActive
-                          ? 'border border-[#08739C] text-[#08739C] dark:border-[#38BDF8] dark:text-[#38BDF8] bg-[#08739C]/15'
+                          ? 'bg-[#FC801A]/20 text-[#FC801A]'
                           : 'bg-muted text-muted-foreground'
                       )}
                     >
