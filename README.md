@@ -16,7 +16,7 @@ Menitap is an all-in-one platform tailored for user-generated content (UGC) crea
 - **Shopper / Explorer (`USER`)**: Explore deals, copy verified discount codes, and save favorites.
 - **UGC Creator (`CREATOR`)**: Post and manage affiliate deals, apply directly to brand campaigns, and showcase a public portfolio.
 - **Brand Manager (`BRAND`)**: Publish product review campaigns, connect directly with creators by category.
-- **Admin (`ADMIN`)**: Full platform controls, taxonomy/category management across tabs, and preview switching capabilities.
+- **Admin (`ADMIN`)**: Dedicated Admin Command Center on `/dashboard` with segmented tabs for the collab moderation queue, category taxonomies management (`Deals`, `Brand Collabs`, `Creators`), live content moderation, and real-time platform health KPI metrics.
 
 ## 💳 Membership Plans
 

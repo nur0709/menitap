@@ -583,4 +583,78 @@ export async function getPublicCreators() {
   return data || []
 }
 
+export interface AdminPlatformStats {
+  pendingCollabsCount: number
+  activeCollabsCount: number
+  activeDealsCount: number
+  activeCreatorsCount: number
+}
+
+export async function getAdminPlatformStats(): Promise<AdminPlatformStats | null> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role !== 'ADMIN') return null
+
+  const [
+    { count: pendingCollabsCount },
+    { count: activeCollabsCount },
+    { count: activeDealsCount },
+    { count: activeCreatorsCount },
+  ] = await Promise.all([
+    supabase.from('brand_links').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
+    supabase.from('brand_links').select('*', { count: 'exact', head: true }).eq('status', 'ACTIVE'),
+    supabase.from('affiliate_links').select('*', { count: 'exact', head: true }).in('status', ['ACTIVE', 'APPROVED']),
+    supabase.from('profiles').select('*', { count: 'exact', head: true }).in('role', ['CREATOR', 'ADMIN']).eq('is_public_profile', true),
+  ])
+
+  return {
+    pendingCollabsCount: pendingCollabsCount ?? 0,
+    activeCollabsCount: activeCollabsCount ?? 0,
+    activeDealsCount: activeDealsCount ?? 0,
+    activeCreatorsCount: activeCreatorsCount ?? 0,
+  }
+}
+
+export async function adminDeleteAffiliateLink(linkId: number): Promise<{ error?: string; success?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role !== 'ADMIN') {
+    return { error: 'Only admins can remove affiliate links.' }
+  }
+
+  const { error } = await supabase
+    .from('affiliate_links')
+    .delete()
+    .eq('id', linkId)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/deals')
+  revalidatePath('/dashboard')
+  return { success: 'Deal removed by admin.' }
+}
+
 

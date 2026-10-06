@@ -87,22 +87,27 @@ Read `AGENTS.md` for coding standards and conventions.
 - [x] Unified brand orange active ring highlight on navbar and mobile drawer
 - [x] Pruned all dead code, legacy modals, and redundant callout banners
 
-### 🔄 Phase 5.5 — Brand Campaign Ingestion & AI Smart Link Engine (IN PROGRESS)
-- [ ] Multi-tier AI URL scraper API (OpenGraph + Gemini / Groq free fallback)
-- [ ] Public `/post-collab` page for frictionless self-serve brand submissions
-- [ ] Enhanced campaign card schema (product image, brand logo, compensation badges)
-- [ ] Admin / Brand Review and Approval queue for incoming campaigns
+### ✅ Phase 5.5 — Brand Campaign Ingestion & Smart Metadata Engine (COMPLETED)
+- [x] High-performance metadata scraper API (`/api/extract-metadata` via `cheerio` + fallback)
+- [x] Public frictionless `/post-collab` page for self-serve brand submissions (user_id nullable)
+- [x] Dynamic auto-population of brand name, product title, and description on URL input
+- [x] Admin approval queue (`AdminCampaignReview`) for pending brand collab submissions
+- [x] Aligned category taxonomies between `/post-collab` and `/collabs`
+
+### ✅ Phase 6 — Admin Workspace & Platform Control Hub (COMPLETED) — [#5](https://github.com/nur0709/menitap/issues/5)
+- [x] Decoupled Admin Command Center on `/dashboard` (replacing stacked single-card layout)
+- [x] Segmented tab navigation (`Moderation Queue`, `Category Taxonomies`, `Live Collabs`, `Admin Account`)
+- [x] Real-time platform KPI summary cards (Pending Collabs, Active Collabs, Active Deals, Verified Creators)
+- [x] Upgraded Category Manager with live tab labels (`Deals`, `Brand Collabs`, `Creators`)
+- [x] Live Brand Collabs content moderation with 1-click admin removal
+- [x] Header and mobile nav quick-access badges for administrator role
+- [x] Removed irrelevant consumer upsells ("Switch Plan") for Admin accounts
 
 ### ⬜ Phase 4 — Stripe Subscriptions (Upcoming) — [#3](https://github.com/nur0709/menitap/issues/3)
 - [ ] Stripe product/price creation (Explorer $0, Creator Basic $10, Creator Standard $15)
 - [ ] Checkout session flow
 - [ ] Webhook handler at `/api/webhooks/stripe`
 - [ ] Feature gating based on user's active plan
-
-### ⬜ Phase 6 — Admin Panel — [#5](https://github.com/nur0709/menitap/issues/5)
-- [ ] Admin dashboard at `/admin/*`
-- [ ] Moderation queue for pending brand campaigns and deals
-- [ ] Platform statistics & user management
 
 ### ⬜ Phase 7 — Points System — [#6](https://github.com/nur0709/menitap/issues/6)
 - [ ] Point transaction logic & dashboard

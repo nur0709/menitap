@@ -14,7 +14,7 @@ interface PostCollabPageProps {
 
 export default async function PostCollabPage({ searchParams }: PostCollabPageProps) {
   const { category } = await searchParams
-  const categories = await getCategories('BRANDS')
+  const categories = await getCategories('CREATORS')
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-[#FC801A]/30 selection:text-foreground">

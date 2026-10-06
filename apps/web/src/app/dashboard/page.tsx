@@ -11,13 +11,17 @@ import { DeleteAccountSection } from '@/features/account/delete-account-section'
 import { CreatorLinksManager } from '@/features/account/creator-links-manager'
 import { BrandCampaignsManager } from '@/features/account/brand-campaigns-manager'
 import { CreatorPublicProfileManager } from '@/features/account/creator-public-profile-manager'
-import { AdminCategoryManager } from '@/features/account/admin-category-manager'
-import { getUserLinks, getUserBrandLinks, getAllCategories, getPendingBrandLinks } from '@/features/links/actions'
-import { AdminCampaignReview } from '@/features/account/admin-campaign-review'
+import { AdminWorkspace } from '@/features/account/admin-workspace'
+import {
+  getUserLinks,
+  getUserBrandLinks,
+  getAllCategories,
+  getPendingBrandLinks,
+  getCampaignLinks,
+  getAdminPlatformStats,
+} from '@/features/links/actions'
 import { SignOutButton } from '@/features/auth/components/sign-out-button'
-import { ShoppingBag, Video, Building2, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react'
-
-
+import { ShoppingBag, Video, Building2, ArrowRight, Sparkles } from 'lucide-react'
 
 export const metadata = {
   title: 'My Account | Menitap',
@@ -33,7 +37,48 @@ export default async function DashboardPage() {
   }
 
   const supabase = await createClient()
-  const [{ data: profile }, { affiliateLinks }, { brandLinks }, allCategories, pendingCampaigns] = await Promise.all([
+
+  // If Admin: render dedicated, decoupled Admin Command Center
+  if (isAdmin) {
+    const [
+      { data: profile },
+      allCategories,
+      pendingCampaigns,
+      activeCampaigns,
+      stats,
+    ] = await Promise.all([
+      supabase.from('profiles').select('*').eq('id', user.id).single(),
+      getAllCategories(),
+      getPendingBrandLinks(),
+      getCampaignLinks(),
+      getAdminPlatformStats(),
+    ])
+
+    const email = user.email || ''
+    const fullName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || ''
+    const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || null
+
+    return (
+      <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors selection:bg-[#FC801A]/30">
+        <SiteHeader currentPath="/dashboard" />
+
+        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-5xl flex-1">
+          <AdminWorkspace
+            user={{ email, fullName, avatarUrl }}
+            categories={allCategories}
+            pendingCampaigns={pendingCampaigns}
+            activeCampaigns={activeCampaigns}
+            stats={stats}
+          />
+        </main>
+
+        <BrandBorder position="bottom" height="h-7 sm:h-9" />
+      </div>
+    )
+  }
+
+  // Standard user, creator, or brand account
+  const [{ data: profile }, { affiliateLinks }, { brandLinks }] = await Promise.all([
     supabase
       .from('profiles')
       .select('*')
@@ -41,8 +86,6 @@ export default async function DashboardPage() {
       .single(),
     role === 'CREATOR' ? getUserLinks() : Promise.resolve({ affiliateLinks: [] }),
     role === 'BRAND' ? getUserBrandLinks() : Promise.resolve({ brandLinks: [] }),
-    isAdmin ? getAllCategories() : Promise.resolve([]),
-    isAdmin ? getPendingBrandLinks() : Promise.resolve([]),
   ])
 
   const email = user.email || ''
@@ -81,13 +124,6 @@ export default async function DashboardPage() {
       badgeBg: 'bg-[#08739C] text-white border-0',
       icon: Building2,
     }
-  } else if (role === 'ADMIN') {
-    accountTag = {
-      name: 'Admin',
-      description: 'System administrator.',
-      badgeBg: 'bg-destructive/10 text-destructive border-destructive/30',
-      icon: ShieldCheck,
-    }
   }
 
   const RoleIcon = accountTag.icon
@@ -97,7 +133,6 @@ export default async function DashboardPage() {
       <SiteHeader currentPath="/dashboard" />
 
       {/* Main My Account page */}
-
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-14 max-w-2xl flex-1 flex flex-col justify-center">
         <Card className="bg-card border-border shadow-sm text-center py-8 px-6 sm:px-8">
           <CardHeader className="flex flex-col items-center gap-4 pb-4">
@@ -150,17 +185,8 @@ export default async function DashboardPage() {
               <SignOutButton variant="account" />
             </div>
 
-
-
-
             {/* Danger Zone: Delete Account (Regular accounts only) */}
-            {!isAdmin && <DeleteAccountSection />}
-
-            {/* Admin Campaign Review: review and approve pending brand collab submissions */}
-            {isAdmin && <AdminCampaignReview campaigns={pendingCampaigns} />}
-
-            {/* Admin Category Manager: add/remove categories across tabs */}
-            {isAdmin && <AdminCategoryManager categories={allCategories} />}
+            <DeleteAccountSection />
           </CardContent>
         </Card>
       </main>

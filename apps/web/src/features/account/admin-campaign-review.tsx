@@ -27,21 +27,18 @@ export function AdminCampaignReview({ campaigns }: { campaigns: PendingCampaignI
 
   if (campaigns.length === 0) {
     return (
-      <div className="w-full pt-6 border-t border-border mt-6 text-left">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-[#FC801A]" />
-            <h3 className="text-sm font-bold text-foreground">
-              Pending Collab Submissions (0)
-            </h3>
+      <div className="w-full text-left">
+        <div className="p-8 sm:p-12 text-center rounded-2xl border border-dashed border-border bg-card/40 space-y-2.5">
+          <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mx-auto">
+            <Check className="h-5 w-5" />
           </div>
-          <Badge variant="outline" className="text-[10px] text-muted-foreground border-border">
-            Queue Clean
-          </Badge>
+          <h3 className="text-sm font-bold text-foreground">
+            Moderation Queue Clean (0)
+          </h3>
+          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+            No pending brand campaigns waiting for review. New public submissions from /post-collab will appear here instantly.
+          </p>
         </div>
-        <p className="text-xs text-muted-foreground">
-          No pending brand campaigns waiting for review. New public submissions will appear here.
-        </p>
       </div>
     )
   }
@@ -75,16 +72,16 @@ export function AdminCampaignReview({ campaigns }: { campaigns: PendingCampaignI
   }
 
   return (
-    <div className="w-full pt-6 border-t border-border mt-6 text-left">
-      <div className="flex items-center justify-between mb-4">
+    <div className="w-full text-left space-y-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-[#FC801A]" />
           <h3 className="text-sm font-bold text-foreground">
             Pending Collab Submissions ({campaigns.length})
           </h3>
         </div>
-        <Badge variant="outline" className="text-[10px] text-[#FC801A] border-[#FC801A]/30 bg-[#FC801A]/10">
-          Admin Review
+        <Badge variant="outline" className="text-[10px] text-[#FC801A] border-[#FC801A]/30 bg-[#FC801A]/10 font-semibold">
+          Action Needed
         </Badge>
       </div>
 
