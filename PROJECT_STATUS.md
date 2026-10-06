@@ -94,13 +94,10 @@ Read `AGENTS.md` for coding standards and conventions.
 - [x] Admin approval queue (`AdminCampaignReview`) for pending brand collab submissions
 - [x] Aligned category taxonomies between `/post-collab` and `/collabs`
 
-### ✅ Phase 6 — Admin Workspace & Platform Control Hub (COMPLETED) — [#5](https://github.com/nur0709/menitap/issues/5)
-- [x] Decoupled Admin Command Center on `/dashboard` (replacing stacked single-card layout)
-- [x] Segmented tab navigation (`Moderation Queue`, `Category Taxonomies`, `Live Collabs`, `Admin Account`)
-- [x] Real-time platform KPI summary cards (Pending Collabs, Active Collabs, Active Deals, Verified Creators)
+### ✅ Phase 6 — Admin Workspace & Category Management (COMPLETED) — [#5](https://github.com/nur0709/menitap/issues/5)
+- [x] Decoupled Admin view on `/dashboard` into 2 clean tabs (`Pending Collabs` & `Categories`)
+- [x] Admin approval queue (`AdminCampaignReview`) for pending brand collab submissions
 - [x] Upgraded Category Manager with live tab labels (`Deals`, `Brand Collabs`, `Creators`)
-- [x] Live Brand Collabs content moderation with 1-click admin removal
-- [x] Header and mobile nav quick-access badges for administrator role
 - [x] Removed irrelevant consumer upsells ("Switch Plan") for Admin accounts
 
 ### ⬜ Phase 4 — Stripe Subscriptions (Upcoming) — [#3](https://github.com/nur0709/menitap/issues/3)

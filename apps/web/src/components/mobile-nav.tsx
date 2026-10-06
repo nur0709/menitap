@@ -14,7 +14,6 @@ import {
   Users,
   CreditCard,
   Info,
-  ShieldCheck,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -23,7 +22,7 @@ interface MobileNavProps {
   role?: string | null
 }
 
-export function MobileNav({ currentPath: initialPath, role }: MobileNavProps) {
+export function MobileNav({ currentPath: initialPath }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const activePath = pathname || initialPath || ''
@@ -64,16 +63,6 @@ export function MobileNav({ currentPath: initialPath, role }: MobileNavProps) {
   }, [isOpen])
 
   const navItems = [
-    ...(role === 'ADMIN'
-      ? [
-          {
-            label: 'Admin Workspace',
-            href: '/dashboard',
-            icon: ShieldCheck,
-            description: 'Platform management & moderation',
-          },
-        ]
-      : []),
     {
       label: 'Deals',
       href: '/deals',

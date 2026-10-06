@@ -17,8 +17,6 @@ import {
   getUserBrandLinks,
   getAllCategories,
   getPendingBrandLinks,
-  getCampaignLinks,
-  getAdminPlatformStats,
 } from '@/features/links/actions'
 import { SignOutButton } from '@/features/auth/components/sign-out-button'
 import { ShoppingBag, Video, Building2, ArrowRight, Sparkles } from 'lucide-react'
@@ -38,20 +36,12 @@ export default async function DashboardPage() {
 
   const supabase = await createClient()
 
-  // If Admin: render dedicated, decoupled Admin Command Center
+  // If Admin: render clean, decoupled Admin view
   if (isAdmin) {
-    const [
-      { data: profile },
-      allCategories,
-      pendingCampaigns,
-      activeCampaigns,
-      stats,
-    ] = await Promise.all([
+    const [{ data: profile }, allCategories, pendingCampaigns] = await Promise.all([
       supabase.from('profiles').select('*').eq('id', user.id).single(),
       getAllCategories(),
       getPendingBrandLinks(),
-      getCampaignLinks(),
-      getAdminPlatformStats(),
     ])
 
     const email = user.email || ''
@@ -62,13 +52,11 @@ export default async function DashboardPage() {
       <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors selection:bg-[#FC801A]/30">
         <SiteHeader currentPath="/dashboard" />
 
-        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-5xl flex-1">
+        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-4xl flex-1">
           <AdminWorkspace
             user={{ email, fullName, avatarUrl }}
             categories={allCategories}
             pendingCampaigns={pendingCampaigns}
-            activeCampaigns={activeCampaigns}
-            stats={stats}
           />
         </main>
 
