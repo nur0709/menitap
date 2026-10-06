@@ -1,25 +1,24 @@
 # AGENTS.md — AI Agent Instructions for Menitap
 
-Menitap is an all-in-one platform tailored for user-generated content (UGC) creators and shoppers alike. It connects aspirational creators with brands and offers affiliate-linked product discounts to shoppers.
+Menitap is an all-in-one platform tailored for user-generated content (UGC) creators, shoppers, and brand managers. It connects aspirational creators with brands and offers affiliate-linked product discounts to shoppers.
 
 ## Tech Stack
-- **Framework**: Next.js 15 (App Router, React Server Components)
+- **Framework**: Next.js 16 (App Router, React Server Components)
 - **Language**: TypeScript (strict mode)
-- **Hosting**: Cloudflare Pages
-- **Database**: Supabase PostgreSQL
-- **ORM**: Drizzle ORM
-- **Auth**: Supabase Auth (Google OAuth + email/password)
-- **Payments**: Stripe (webhooks + local DB mirror)
-- **UI**: Tailwind CSS + shadcn/ui
-- **Monorepo**: Turborepo + pnpm
-- **Storage**: Cloudflare R2 (S3-compatible)
+- **Hosting / CI/CD**: Vercel (Production: https://menitap.vercel.app)
+- **Database & Auth**: Supabase PostgreSQL + Supabase Auth
+- **ORM / Querying**: Supabase Server & Client SDK (`@supabase/ssr`, `@supabase/supabase-js`)
+- **Payments**: Stripe (Phase 4 dependency)
+- **UI**: Tailwind CSS 4 + shadcn/ui (`@base-ui/react`)
+- **Monorepo**: Turborepo + pnpm 12
 
 ## Architecture Rules
 
 ### File Organization
 - **Feature-sliced design**: Group code by feature in `src/features/<name>/`
-- **Server Actions**: All mutations go through `src/server/actions/`
-- **Database queries**: Only in `src/server/db/`
+  - `src/features/auth/` — Session handling, auth modal, user context
+  - `src/features/links/` — Deals and campaign actions, modals, and queries
+  - `src/features/account/` — Profile, category management, deletion actions
 - **Components**: Reusable UI in `src/components/`, feature-specific in `src/features/<name>/components/`
 - **API Routes**: Only for webhooks and external integrations in `src/app/api/`
 
@@ -29,81 +28,37 @@ Menitap is an all-in-one platform tailored for user-generated content (UGC) crea
 - Use `"use server"` directive for Server Actions
 - Use `"use client"` directive only when client interactivity is required
 - Prefer React Server Components by default
-- Use Drizzle ORM for all database operations — never raw SQL
-- Use Zod for input validation on all Server Actions
+- Use Zod for input validation on all Server Actions and forms
 - Use `lucide-react` for icons
+- **shadcn/ui note**: Uses `@base-ui/react`, NOT Radix — `asChild` does NOT exist; use `buttonVariants()` with `Link`.
 
-### Authentication & Authorization
-- Always re-verify the session inside Server Actions (do NOT rely only on middleware)
-- Admin routes must check `user.role === 'ADMIN'` in both middleware AND Server Actions
-- Never expose Supabase service role key or Stripe secret key to the client
+### Navigation & Header Standards
+- The universal tabs are: `Deals` (`/deals`), `Brand Collabs` (`/collabs`), `Creators` (`/creators`), `Plans` (`/plans`), `About` (`/about`).
+- Center navigation tabs are locked with CSS 3-column grid (`grid grid-cols-[1fr_auto_1fr]`) to prevent shifting.
+- Active tabs use the brand orange ring frame (`ring-2 ring-[#FC801A] text-[#FC801A] bg-[#FC801A]/10`).
+- Sign Out is located inside My Account (`/dashboard`).
 
-### UGC / Content Rules
-- All user-submitted links (affiliate or brand) must default to `status: 'PENDING'`
-- Links only appear publicly after admin approval (`status: 'APPROVED'`)
-- Image uploads must be validated for type (jpg, png, webp) and size (<5MB)
-
-### Database / Stripe
-- Mirror Stripe subscription state in local `subscriptions` table via webhooks
-- Never call Stripe API at runtime to check entitlements — read from local DB
-- Store feature limits per plan as configuration, not hardcoded values
-
-### Styling
-- Use Tailwind CSS utility classes — no custom CSS files unless absolutely necessary
-- Use shadcn/ui components — do not install other UI libraries
-- Follow mobile-first responsive design
-- Use CSS variables defined in `globals.css` for theming
-
-### Testing
-- Unit tests with Vitest for utility functions and business logic
-- E2E tests with Playwright for critical user flows
-- Test files co-located with source: `feature.test.ts` next to `feature.ts`
-
-### Git Conventions
-- Conventional commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`
-- Branch naming: `feat/<name>`, `fix/<name>`, `chore/<name>`
-- PRs must pass CI (lint + typecheck + tests) before merge
+### UGC & Campaign Link Ingestion Rules
+- User/Brand submitted campaign links default to `status: 'PENDING'` for public submissions, or `'ACTIVE'` for authorized brand/admin posts.
+- AI & URL metadata scraping must always have a graceful, non-blocking fallback to OpenGraph meta tags so free tier exhaustion never breaks submission.
 
 ## Account Types & Roles
 | Role | User Type | Description & Access |
-|------|-----------|----------------------|
-| `USER` | Shopper / Consumer / Explorer | Default account type. Browses deals on Explore Deals, views free tutorials. |
-| `CREATOR` | UGC Creator | Posts affiliate links/deals with promo codes (`+ Post a Deal`), accesses direct brand application links, manages active deals in My Account. |
-| `BRAND` | Brand Manager | Accesses the For Brands section, creates product-for-review campaigns, discovers UGC creators. |
-| `ADMIN` | Platform Administrator | Has full access to all sections. Can switch preview modes safely via admin switcher cookie, manage categories per tab (`DEALS`, `CREATORS`, `BRANDS`), and administer the platform. |
-
-## Membership Tiers & Plans (`/plans`)
-| Tier | Price | Audience & Key Features |
-|------|-------|--------------------------|
-| **Explorer** | Free ($0) | Shoppers & beginner creators. Browse all affiliate deals, watch free beginner UGC tutorials, save deals. |
-| **Creator Basic** | $10/month | Active UGC creators. Everything in Explorer + access direct brand application links, receive products to test & review, publish affiliate links. |
-| **Creator Standard** | $15/month | Professional UGC creators. Everything in Basic + Public Creator Profile & Portfolio showcase, category-filtered brand visibility. |
-| **Brand Manager** | Free (MVP) | Companies & agencies. Direct collaboration tools, post product-for-review campaigns, discover creators by category. |
+|---|---|---|
+| `USER` | Shopper / Explorer | Default account type. Browses deals on `/deals`, copies verified promo codes, saves favorites. |
+| `CREATOR` | UGC Creator | Posts affiliate deals (`+ Post a Deal`), applies to brand campaigns on `/collabs`, manages active links, showcases public portfolio. |
+| `BRAND` | Brand Manager | Accesses the For Brands section, creates product review campaigns, discovers UGC creators. |
+| `ADMIN` | Platform Administrator | Has full access to all sections. Can switch preview modes safely via admin switcher cookie, manage categories per tab, and moderate campaigns. |
 
 ## Common Commands
 ```bash
 pnpm dev          # Start dev server
 pnpm build        # Production build
-pnpm lint         # Lint all packages
-pnpm typecheck    # TypeScript checks
+pnpm lint         # ESLint check
+pnpm typecheck    # TypeScript check (tsc --noEmit)
 ```
 
 ## AI Session Handoff Protocol
-
-> **CRITICAL: Read `PROJECT_STATUS.md` FIRST before doing any work.**
-
-This project uses multiple AI agents across sessions. To prevent conflicts and duplicated work:
-
-1. **START of session**: Read `PROJECT_STATUS.md` to understand current progress and what phase to work on next.
-2. **DURING session**: Follow the architecture rules above. Do not deviate from the tech stack decisions without discussing with the user.
-3. **END of session**: Update `PROJECT_STATUS.md` with:
-   - What you completed (mark items `[x]`)
-   - Any new known issues
-   - Update the "Last Updated" and "Last Agent" fields
-   - Commit the updated file
-4. **Key files to review when starting**:
-   - `PROJECT_STATUS.md` — Progress tracker and handoff context
-   - `AGENTS.md` (this file) — Coding standards and architecture rules
-   - `apps/web/src/app/page.tsx` — Landing page
-   - `apps/web/.env.example` — Required environment variables
-
+1. **START of session**: Read `PROJECT_STATUS.md` first.
+2. **DURING session**: Follow the architecture rules above.
+3. **END of session**: Update `PROJECT_STATUS.md` before finishing.
