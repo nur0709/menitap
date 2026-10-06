@@ -27,6 +27,7 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
   const [categoryId, setCategoryId] = useState('')
   const [title, setTitle] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [parseSource, setParseSource] = useState<'ai_gemini' | 'ai_groq' | 'opengraph' | null>(null)
 
   const router = useRouter()
 
@@ -58,14 +59,16 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
         const json = await res.json()
         if (json.data) {
           const data = json.data
+          setParseSource(data.source || 'opengraph')
           if (data.title) {
             setTitle(data.title)
           } else if (data.brandName) {
             setTitle(`${data.brandName} Deal`)
           }
 
-          if (data.imageUrl) {
-            setImageUrl(data.imageUrl)
+          const resolvedImg = data.imageUrl || data.logoUrl
+          if (resolvedImg) {
+            setImageUrl(resolvedImg)
           }
 
           if (data.suggestedCategory) {
@@ -190,6 +193,19 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
                       className="pl-8 bg-background border-border text-xs h-9"
                     />
                   </div>
+                  {parseSource && (
+                    <div className="flex items-center gap-1.5 pt-0.5">
+                      {parseSource.startsWith('ai') ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
+                          ✨ AI Extracted ({parseSource === 'ai_gemini' ? 'Gemini' : 'Groq'})
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full border border-border">
+                          🌐 Page Metadata Extracted
+                        </span>
+                      )}
+                    </div>
+                  )}
                   {imageUrl && (
                     <div className="flex items-center gap-2.5 p-2 rounded-xl bg-muted/40 border border-border mt-1">
                       {/* eslint-disable-next-line @next/next/no-img-element */}

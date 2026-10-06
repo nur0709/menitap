@@ -44,7 +44,7 @@ export async function extractOpenGraphMetadata(targetUrl: string): Promise<Parse
       }
     }
 
-    const iconHref = $('link[rel="apple-touch-icon"]').attr('href') || $('link[rel="icon"]').attr('href') || ''
+    const iconHref = $('link[rel="apple-touch-icon"]').attr('href') || $('link[rel*="icon"]').attr('href') || ''
     let logoUrl = ''
     if (iconHref) {
       try {
@@ -52,6 +52,58 @@ export async function extractOpenGraphMetadata(targetUrl: string): Promise<Parse
       } catch {
         logoUrl = ''
       }
+    }
+
+    // Advanced image fallback: if og:image is missing, check image_src, JSON-LD, or page imgs
+    if (!ogImage) {
+      const imgRel = $('link[rel="image_src"]').attr('href')
+      if (imgRel) {
+        try {
+          ogImage = new URL(imgRel, targetUrl).toString()
+        } catch {}
+      }
+    }
+
+    if (!ogImage) {
+      // Check JSON-LD schema
+      $('script[type="application/ld+json"]').each((_, el) => {
+        if (ogImage) return
+        try {
+          const json = JSON.parse($(el).html() || '{}')
+          const img = json.image || json.logo || (Array.isArray(json.image) ? json.image[0] : null)
+          if (typeof img === 'string' && img) {
+            ogImage = new URL(img, targetUrl).toString()
+          } else if (img && typeof img === 'object' && img.url) {
+            ogImage = new URL(img.url, targetUrl).toString()
+          }
+        } catch {}
+      })
+    }
+
+    if (!ogImage) {
+      // Check first prominent content <img> tag (avoiding pixels and analytics)
+      $('img').each((_, el) => {
+        if (ogImage) return
+        const src = $(el).attr('src') || $(el).attr('data-src') || ''
+        if (
+          src &&
+          !src.startsWith('data:') &&
+          !src.includes('pixel') &&
+          !src.includes('analytics') &&
+          !src.includes('tracker') &&
+          !src.includes('1x1') &&
+          !src.includes('spacer')
+        ) {
+          try {
+            ogImage = new URL(src, targetUrl).toString()
+          } catch {}
+        }
+      })
+    }
+
+    // Final image fallback: if still no image, use the logo
+    if (!ogImage && logoUrl) {
+      ogImage = logoUrl
     }
 
     // Derive brand name from domain or site_name
@@ -73,7 +125,7 @@ export async function extractOpenGraphMetadata(targetUrl: string): Promise<Parse
       brandName: derivedBrand.trim(),
       description: ogDesc.trim(),
       imageUrl: ogImage.trim(),
-      logoUrl: logoUrl.trim(),
+      logoUrl: logoUrl.trim() || ogImage.trim(),
       source: 'opengraph',
     }
   } catch (error) {
@@ -107,6 +159,7 @@ export async function smartExtractCampaignMetadata(targetUrl: string): Promise<P
 
   // If no AI keys are configured, return the OpenGraph metadata directly
   if (!geminiApiKey && !groqApiKey) {
+    console.log('[smartExtractCampaignMetadata] No AI keys found in environment. Using OpenGraph metadata.')
     return ogData
   }
 
@@ -125,40 +178,47 @@ Respond ONLY with valid JSON with these fields:
   "suggestedCategory": "Beauty" | "Fashion" | "Tech" | "Health & Wellness" | "Home" | "Fitness" | "General"
 }`
 
-  // Attempt Tier 1: Gemini 2.5 Flash Free Tier
+  // Attempt Tier 1: Gemini Free Tier (Try 2.5 Flash -> 2.0 Flash -> 1.5 Flash)
   if (geminiApiKey) {
-    try {
-      const geminiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { responseMimeType: 'application/json' },
-          }),
-        }
-      )
-
-      if (geminiRes.ok) {
-        const geminiJson = await geminiRes.json()
-        const text = geminiJson.candidates?.[0]?.content?.parts?.[0]?.text
-        if (text) {
-          const parsed = JSON.parse(text)
-          return {
-            title: parsed.title || ogData.title,
-            brandName: parsed.brandName || ogData.brandName,
-            description: parsed.description || ogData.description,
-            imageUrl: ogData.imageUrl,
-            logoUrl: ogData.logoUrl,
-            compensationType: parsed.compensationType || 'FREE_PRODUCT',
-            suggestedCategory: parsed.suggestedCategory || 'General',
-            source: 'ai_gemini',
+    const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash']
+    for (const model of candidateModels) {
+      try {
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { responseMimeType: 'application/json' },
+            }),
           }
+        )
+
+        if (geminiRes.ok) {
+          const geminiJson = await geminiRes.json()
+          const text = geminiJson.candidates?.[0]?.content?.parts?.[0]?.text
+          if (text) {
+            const parsed = JSON.parse(text)
+            console.log(`[smartExtractCampaignMetadata] Successfully processed with Gemini (${model})`)
+            return {
+              title: parsed.title || ogData.title,
+              brandName: parsed.brandName || ogData.brandName,
+              description: parsed.description || ogData.description,
+              imageUrl: ogData.imageUrl,
+              logoUrl: ogData.logoUrl,
+              compensationType: parsed.compensationType || 'FREE_PRODUCT',
+              suggestedCategory: parsed.suggestedCategory || 'General',
+              source: 'ai_gemini',
+            }
+          }
+        } else {
+          const errText = await geminiRes.text()
+          console.warn(`[smartExtractCampaignMetadata] Gemini (${model}) failed HTTP ${geminiRes.status}:`, errText)
         }
+      } catch (err) {
+        console.warn(`[smartExtractCampaignMetadata] Gemini (${model}) fetch error:`, err)
       }
-    } catch (err) {
-      console.warn('[smartExtractCampaignMetadata] Gemini attempt failed, falling back...', err)
     }
   }
 
@@ -183,6 +243,7 @@ Respond ONLY with valid JSON with these fields:
         const text = groqJson.choices?.[0]?.message?.content
         if (text) {
           const parsed = JSON.parse(text)
+          console.log('[smartExtractCampaignMetadata] Successfully processed with Groq')
           return {
             title: parsed.title || ogData.title,
             brandName: parsed.brandName || ogData.brandName,
@@ -194,9 +255,12 @@ Respond ONLY with valid JSON with these fields:
             source: 'ai_groq',
           }
         }
+      } else {
+        const errText = await groqRes.text()
+        console.warn(`[smartExtractCampaignMetadata] Groq failed HTTP ${groqRes.status}:`, errText)
       }
     } catch (err) {
-      console.warn('[smartExtractCampaignMetadata] Groq attempt failed, falling back...', err)
+      console.warn('[smartExtractCampaignMetadata] Groq error:', err)
     }
   }
 

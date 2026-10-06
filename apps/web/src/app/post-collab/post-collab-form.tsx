@@ -12,9 +12,14 @@ import Link from 'next/link'
 interface PostCollabFormProps {
   categories: Category[]
   defaultCategorySlug?: string
+  userEmail?: string
 }
 
-export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFormProps) {
+export function PostCollabForm({
+  categories,
+  defaultCategorySlug,
+  userEmail,
+}: PostCollabFormProps) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -23,11 +28,12 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
   // Form field state for smart autofill
   const [applicationUrl, setApplicationUrl] = useState('')
   const [brandName, setBrandName] = useState('')
-  const [contactEmail, setContactEmail] = useState('')
+  const [contactEmail, setContactEmail] = useState(userEmail || '')
   const [description, setDescription] = useState('')
   const [compensationDetails, setCompensationDetails] = useState('')
   const [productsProvided, setProductsProvided] = useState(true)
   const [imageUrl, setImageUrl] = useState('')
+  const [parseSource, setParseSource] = useState<'ai_gemini' | 'ai_groq' | 'opengraph' | null>(null)
 
   const defaultCat = categories.find((c) => c.slug === defaultCategorySlug)
   const [categoryId, setCategoryId] = useState(defaultCat ? String(defaultCat.id) : '')
@@ -47,6 +53,7 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
         const json = await res.json()
         if (json.data) {
           const data = json.data
+          setParseSource(data.source || 'opengraph')
           if (data.brandName) {
             setBrandName(data.brandName)
           }
@@ -183,6 +190,19 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
               className="pl-8 bg-background border-border text-xs h-9"
             />
           </div>
+          {parseSource && (
+            <div className="flex items-center gap-1.5 pt-0.5">
+              {parseSource.startsWith('ai') ? (
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
+                  ✨ AI Extracted ({parseSource === 'ai_gemini' ? 'Gemini' : 'Groq'})
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full border border-border">
+                  🌐 Page Metadata Extracted
+                </span>
+              )}
+            </div>
+          )}
           {imageUrl && (
             <div className="flex items-center gap-2.5 p-2 rounded-xl bg-muted/40 border border-border mt-1">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -229,9 +249,16 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="contact_email" className="text-xs font-medium text-foreground">
-              Work Email *
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="contact_email" className="text-xs font-medium text-foreground">
+                Contact Email *
+              </Label>
+              {userEmail && (
+                <span className="text-[10px] text-muted-foreground font-normal">
+                  (Account email)
+                </span>
+              )}
+            </div>
             <Input
               id="contact_email"
               name="contact_email"

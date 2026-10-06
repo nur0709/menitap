@@ -1,6 +1,7 @@
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { getCategories } from '@/features/links/actions'
+import { createClient } from '@/lib/supabase/server'
 import { PostCollabForm } from './post-collab-form'
 
 export const metadata = {
@@ -15,6 +16,11 @@ interface PostCollabPageProps {
 export default async function PostCollabPage({ searchParams }: PostCollabPageProps) {
   const { category } = await searchParams
   const categories = await getCategories('CREATORS')
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-[#FC801A]/30 selection:text-foreground">
@@ -33,7 +39,11 @@ export default async function PostCollabPage({ searchParams }: PostCollabPagePro
           </div>
 
           {/* Form */}
-          <PostCollabForm categories={categories} defaultCategorySlug={category} />
+          <PostCollabForm
+            categories={categories}
+            defaultCategorySlug={category}
+            userEmail={user?.email}
+          />
         </div>
       </main>
 
