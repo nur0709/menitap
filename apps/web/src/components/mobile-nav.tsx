@@ -17,6 +17,7 @@ import {
   User,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { SignOutButton } from '@/features/auth/components/sign-out-button'
 
 interface MobileNavProps {
   currentPath?: string
@@ -183,16 +184,19 @@ export function MobileNav({ currentPath: initialPath, role }: MobileNavProps) {
             </div>
 
             {/* Bottom Actions */}
-            <div className="p-4 border-t border-border">
+            <div className="p-4 border-t border-border space-y-1">
               {role ? (
-                <Link
-                  href="/dashboard"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-muted transition-colors text-foreground"
-                >
-                  <User className="h-4 w-4 text-[#FC801A]" />
-                  <span>My Account</span>
-                </Link>
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-muted transition-colors text-foreground"
+                  >
+                    <User className="h-4 w-4 text-[#FC801A]" />
+                    <span>My Account</span>
+                  </Link>
+                  <SignOutButton variant="drawer" />
+                </>
               ) : (
                 <p className="text-xs text-center text-muted-foreground">
                   Menitap © 2026

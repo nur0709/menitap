@@ -13,6 +13,7 @@ import { BrandCampaignsManager } from '@/features/account/brand-campaigns-manage
 import { CreatorPublicProfileManager } from '@/features/account/creator-public-profile-manager'
 import { AdminCategoryManager } from '@/features/account/admin-category-manager'
 import { getUserLinks, getUserBrandLinks, getAllCategories } from '@/features/links/actions'
+import { SignOutButton } from '@/features/auth/components/sign-out-button'
 import { ShoppingBag, Video, Building2, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react'
 
 
@@ -134,16 +135,17 @@ export default async function DashboardPage() {
               <BrandCampaignsManager campaigns={brandLinks} />
             )}
 
-            {/* Switch Plan button: forwards to /plans to compare, upgrade, or switch tiers */}
-            <div className="w-full pt-4 border-t border-border mt-4 flex justify-center">
+            {/* Plan & Account Actions */}
+            <div className="w-full pt-4 border-t border-border mt-4 flex items-center justify-center gap-3">
               <Link
                 href="/plans"
-                className="inline-flex items-center gap-1.5 bg-[#FC801A] hover:bg-[#E66F0D] text-white font-medium text-xs shadow-xs px-5 h-9 rounded-lg transition-colors"
+                className="inline-flex items-center gap-1.5 bg-[#FC801A] hover:bg-[#E66F0D] text-white font-medium text-xs shadow-xs px-4 h-9 rounded-lg transition-colors"
               >
                 <Sparkles className="h-3.5 w-3.5" />
                 <span>Switch Plan</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-0.5" />
               </Link>
+              <SignOutButton variant="account" />
             </div>
 
 
