@@ -12,7 +12,8 @@ import { CreatorLinksManager } from '@/features/account/creator-links-manager'
 import { BrandCampaignsManager } from '@/features/account/brand-campaigns-manager'
 import { CreatorPublicProfileManager } from '@/features/account/creator-public-profile-manager'
 import { AdminCategoryManager } from '@/features/account/admin-category-manager'
-import { getUserLinks, getUserBrandLinks, getAllCategories } from '@/features/links/actions'
+import { getUserLinks, getUserBrandLinks, getAllCategories, getPendingBrandLinks } from '@/features/links/actions'
+import { AdminCampaignReview } from '@/features/account/admin-campaign-review'
 import { SignOutButton } from '@/features/auth/components/sign-out-button'
 import { ShoppingBag, Video, Building2, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react'
 
@@ -32,7 +33,7 @@ export default async function DashboardPage() {
   }
 
   const supabase = await createClient()
-  const [{ data: profile }, { affiliateLinks }, { brandLinks }, allCategories] = await Promise.all([
+  const [{ data: profile }, { affiliateLinks }, { brandLinks }, allCategories, pendingCampaigns] = await Promise.all([
     supabase
       .from('profiles')
       .select('*')
@@ -41,6 +42,7 @@ export default async function DashboardPage() {
     role === 'CREATOR' ? getUserLinks() : Promise.resolve({ affiliateLinks: [] }),
     role === 'BRAND' ? getUserBrandLinks() : Promise.resolve({ brandLinks: [] }),
     isAdmin ? getAllCategories() : Promise.resolve([]),
+    isAdmin ? getPendingBrandLinks() : Promise.resolve([]),
   ])
 
   const email = user.email || ''
@@ -153,6 +155,9 @@ export default async function DashboardPage() {
 
             {/* Danger Zone: Delete Account (Regular accounts only) */}
             {!isAdmin && <DeleteAccountSection />}
+
+            {/* Admin Campaign Review: review and approve pending brand collab submissions */}
+            {isAdmin && <AdminCampaignReview campaigns={pendingCampaigns} />}
 
             {/* Admin Category Manager: add/remove categories across tabs */}
             {isAdmin && <AdminCategoryManager categories={allCategories} />}

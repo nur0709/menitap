@@ -475,6 +475,94 @@ export async function deleteBrandLink(linkId: number): Promise<{ error?: string;
   return { success: 'Campaign removed.' }
 }
 
+export async function getPendingBrandLinks() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return []
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role !== 'ADMIN') return []
+
+  const { data, error } = await supabase
+    .from('brand_links')
+    .select('*, categories(name)')
+    .eq('status', 'PENDING')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching pending brand links:', error)
+    return []
+  }
+
+  return data || []
+}
+
+export async function approveBrandLink(linkId: number): Promise<{ error?: string; success?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role !== 'ADMIN') {
+    return { error: 'Only admins can approve campaigns.' }
+  }
+
+  const { error } = await supabase
+    .from('brand_links')
+    .update({ status: 'ACTIVE' })
+    .eq('id', linkId)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/collabs')
+  revalidatePath('/dashboard')
+  return { success: 'Campaign approved and published live!' }
+}
+
+export async function adminDeleteBrandLink(linkId: number): Promise<{ error?: string; success?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return { error: 'Not authenticated' }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role !== 'ADMIN') {
+    return { error: 'Only admins can delete campaigns.' }
+  }
+
+  const { error } = await supabase
+    .from('brand_links')
+    .delete()
+    .eq('id', linkId)
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  revalidatePath('/collabs')
+  revalidatePath('/dashboard')
+  return { success: 'Campaign rejected and deleted.' }
+}
+
 export async function getPublicCreators() {
   const supabase = await createClient()
 
