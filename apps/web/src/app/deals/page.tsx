@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { getCurrentUserRole } from "@/features/auth/actions";
+import { getEffectiveUserContext } from "@/features/auth/actions";
 import { getCategories, getExploreDeals } from "@/features/links/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { AddDealModal } from "@/features/links/components/add-deal-modal";
+import { DeleteDealButton } from "@/features/links/components/delete-deal-button";
+import { PromoCodeBadge } from "@/features/links/components/promo-code-badge";
 import { ExternalLink, ShoppingBag } from "lucide-react";
 
 export const dynamic = 'force-dynamic'
@@ -21,8 +22,9 @@ export default async function DealsPage({
   searchParams: Promise<{ category?: string }>
 }) {
   const { category: selectedCategorySlug } = await searchParams
-  const role = await getCurrentUserRole()
-  const isCreatorOrAdmin = role === 'CREATOR' || role === 'ADMIN'
+  const { user, role, isAdmin } = await getEffectiveUserContext()
+  const isCreatorOrAdmin = role === 'CREATOR' || isAdmin
+  const currentUserId = user?.id || null
 
   // Fetch categories and active deals
   const categories = await getCategories('DEALS')
@@ -106,6 +108,8 @@ export default async function DealsPage({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {deals.map((deal) => {
                 const categoryName = (deal.categories as unknown as { name?: string })?.name || 'General'
+                const creatorName = (deal.profiles as unknown as { full_name?: string })?.full_name
+                const canDelete = isAdmin || (Boolean(currentUserId) && (deal as unknown as { user_id?: string | null }).user_id === currentUserId)
 
                 return (
                   <Card
@@ -118,27 +122,38 @@ export default async function DealsPage({
                           {categoryName}
                         </span>
                         {deal.promo_code && (
-                          <Badge className="bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30 font-mono text-[11px] font-bold px-2 py-0">
-                            {deal.promo_code}
-                          </Badge>
+                          <PromoCodeBadge code={deal.promo_code} />
                         )}
                       </div>
                       <CardTitle className="text-base text-foreground font-semibold line-clamp-2">
                         {deal.title}
                       </CardTitle>
+                      {creatorName && (
+                        <p className="text-[11px] text-muted-foreground pt-1 flex items-center gap-1">
+                          <span>Shared by</span>
+                          <span className="font-medium text-foreground">{creatorName}</span>
+                        </p>
+                      )}
                     </CardHeader>
 
                     <CardContent className="p-4 pt-2">
-                      <div className="pt-2.5 border-t border-border flex items-center justify-end">
-                        <a
-                          href={deal.product_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#08739C] hover:bg-[#02547A] text-white transition-colors cursor-pointer"
-                        >
-                          View Deal
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
+                      <div className="pt-2.5 border-t border-border flex items-center justify-between gap-2">
+                        <div>
+                          {canDelete && (
+                            <DeleteDealButton dealId={deal.id} dealTitle={deal.title} />
+                          )}
+                        </div>
+                        <div>
+                          <a
+                            href={deal.product_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#08739C] hover:bg-[#02547A] text-white transition-colors cursor-pointer"
+                          >
+                            View Deal
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

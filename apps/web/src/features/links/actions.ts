@@ -264,14 +264,23 @@ export async function deleteAffiliateLink(linkId: number): Promise<{ error?: str
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return { error: 'You must be signed in to delete a link.' }
+    return { error: 'You must be signed in to delete a deal.' }
   }
 
-  const { error } = await supabase
-    .from('affiliate_links')
-    .delete()
-    .eq('id', linkId)
-    .eq('user_id', user.id)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const isAdmin = profile?.role === 'ADMIN'
+
+  let query = supabase.from('affiliate_links').delete().eq('id', linkId)
+  if (!isAdmin) {
+    query = query.eq('user_id', user.id)
+  }
+
+  const { error } = await query
 
   if (error) {
     return { error: error.message }
@@ -279,7 +288,7 @@ export async function deleteAffiliateLink(linkId: number): Promise<{ error?: str
 
   revalidatePath('/deals')
   revalidatePath('/dashboard')
-  return { success: 'Affiliate link removed.' }
+  return { success: 'Affiliate deal removed.' }
 }
 
 export async function addCategory(
@@ -359,7 +368,7 @@ export async function getExploreDeals(categoryId?: number) {
 
   let query = supabase
     .from('affiliate_links')
-    .select('id, title, product_url, promo_code, click_count, created_at, category_id, categories(name, slug), profiles(full_name)')
+    .select('id, user_id, title, product_url, promo_code, click_count, created_at, category_id, categories(name, slug), profiles(full_name)')
     .in('status', ['ACTIVE', 'APPROVED'])
     .order('created_at', { ascending: false })
     .limit(100)

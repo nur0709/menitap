@@ -19,11 +19,19 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [isParsing, setIsParsing] = useState(false)
+
+  // Form field state for smart autofill
+  const [productUrl, setProductUrl] = useState('')
+  const [promoCode, setPromoCode] = useState('')
+  const [categoryId, setCategoryId] = useState('')
+  const [title, setTitle] = useState('')
+
   const router = useRouter()
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isPending) {
+      if (e.key === 'Escape' && !isPending && !isParsing) {
         setIsOpen(false)
       }
     }
@@ -31,12 +39,55 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
       window.addEventListener('keydown', handleKeyDown)
     }
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, isPending])
+  }, [isOpen, isPending, isParsing])
+
+  // Smart Autofill when URL changes
+  const handleAutoFill = async (urlToParse: string) => {
+    if (!urlToParse || urlToParse.trim().length < 8) return
+
+    setIsParsing(true)
+    try {
+      const res = await fetch('/api/extract-metadata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlToParse.trim() }),
+      })
+
+      if (res.ok) {
+        const json = await res.json()
+        if (json.data) {
+          const data = json.data
+          if (data.title) {
+            setTitle(data.title)
+          } else if (data.brandName) {
+            setTitle(`${data.brandName} Deal`)
+          }
+
+          if (data.suggestedCategory) {
+            const matched = categories.find(
+              (c) => c.name.toLowerCase() === data.suggestedCategory.toLowerCase()
+            )
+            if (matched) {
+              setCategoryId(String(matched.id))
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Autofill error:', err)
+    } finally {
+      setIsParsing(false)
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
-    const formData = new FormData(e.currentTarget)
+    const formData = new FormData()
+    formData.append('product_url', productUrl)
+    formData.append('promo_code', promoCode)
+    formData.append('category_id', categoryId)
+    formData.append('title', title)
 
     startTransition(async () => {
       const res = await createAffiliateLink(null, formData)
@@ -47,8 +98,12 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
         setTimeout(() => {
           setIsOpen(false)
           setSuccess(false)
+          setProductUrl('')
+          setPromoCode('')
+          setCategoryId('')
+          setTitle('')
           router.refresh()
-        }, 1000)
+        }, 800)
       }
     })
   }
@@ -69,7 +124,7 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
           <div className="relative w-full max-w-md rounded-2xl bg-card border border-border p-6 shadow-2xl">
             {/* Close */}
             <button
-              onClick={() => !isPending && setIsOpen(false)}
+              onClick={() => !isPending && !isParsing && setIsOpen(false)}
               className="absolute right-4 top-4 rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
               aria-label="Close"
             >
@@ -102,15 +157,26 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Affiliate URL */}
                 <div className="space-y-1.5 text-left">
-                  <Label htmlFor="product_url" className="text-xs font-medium text-foreground">
-                    Affiliate Link / URL *
-                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="product_url" className="text-xs font-medium text-foreground">
+                      Affiliate Link / URL *
+                    </Label>
+                    {isParsing && (
+                      <span className="text-[11px] font-medium text-[#FC801A] flex items-center gap-1">
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        Autofilling...
+                      </span>
+                    )}
+                  </div>
                   <div className="relative">
                     <LinkIcon className="h-3.5 w-3.5 absolute left-3 top-3 text-muted-foreground" />
                     <Input
                       id="product_url"
                       name="product_url"
                       required
+                      value={productUrl}
+                      onChange={(e) => setProductUrl(e.target.value)}
+                      onBlur={() => handleAutoFill(productUrl)}
                       placeholder="https://brand.com/deal or amzn.to/..."
                       className="pl-8 bg-background border-border text-xs h-9"
                     />
@@ -125,6 +191,8 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
                   <Input
                     id="promo_code"
                     name="promo_code"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
                     placeholder="e.g. SAVE20, CREATOR10"
                     className="bg-background border-border text-xs h-9 uppercase"
                   />
@@ -139,7 +207,8 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
                     id="category_id"
                     name="category_id"
                     required
-                    defaultValue=""
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
                     className="w-full h-9 rounded-md bg-background border border-border px-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-[#08739C]"
                   >
                     <option value="" disabled>Select deal category</option>
@@ -159,6 +228,8 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
                   <Input
                     id="title"
                     name="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. Wireless Headset or leave empty"
                     className="bg-background border-border text-xs h-9"
                   />
@@ -169,7 +240,7 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    disabled={isPending}
+                    disabled={isPending || isParsing}
                     onClick={() => setIsOpen(false)}
                     className="text-xs cursor-pointer"
                   >
@@ -178,7 +249,7 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
                   <Button
                     type="submit"
                     size="sm"
-                    disabled={isPending}
+                    disabled={isPending || isParsing}
                     className="bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 text-xs font-medium cursor-pointer"
                   >
                     {isPending ? (
