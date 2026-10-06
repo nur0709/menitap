@@ -22,6 +22,7 @@ export type Database = {
           description: string | null
           discount_percentage: number | null
           id: number
+          image_url: string | null
           product_url: string
           promo_code: string | null
           status: string
@@ -36,6 +37,7 @@ export type Database = {
           description?: string | null
           discount_percentage?: number | null
           id?: number
+          image_url?: string | null
           product_url: string
           promo_code?: string | null
           status?: string
@@ -50,6 +52,7 @@ export type Database = {
           description?: string | null
           discount_percentage?: number | null
           id?: number
+          image_url?: string | null
           product_url?: string
           promo_code?: string | null
           status?: string
@@ -85,6 +88,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: number
+          image_url: string | null
           products_provided: boolean
           status: string
           updated_at: string
@@ -100,6 +104,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: number
+          image_url?: string | null
           products_provided?: boolean
           status?: string
           updated_at?: string
@@ -115,6 +120,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: number
+          image_url?: string | null
           products_provided?: boolean
           status?: string
           updated_at?: string

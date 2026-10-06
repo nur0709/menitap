@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { approveBrandLink, adminDeleteBrandLink } from '@/features/links/actions'
+import { BrandLogoBadge } from '@/features/links/components/brand-logo-badge'
 import { Check, Trash2, ExternalLink, Mail, Package, Loader2, Clock } from 'lucide-react'
 
 export interface PendingCampaignItem {
@@ -15,6 +16,7 @@ export interface PendingCampaignItem {
   description: string | null
   compensation_details: string | null
   products_provided: boolean
+  image_url?: string | null
   created_at: string
   categories?: { name: string } | null
 }
@@ -102,26 +104,32 @@ export function AdminCampaignReview({ campaigns }: { campaigns: PendingCampaignI
               className="p-3.5 rounded-xl border border-border bg-card/60 hover:bg-card transition-colors flex flex-col gap-2.5 text-xs"
             >
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-foreground">{camp.brand_name}</span>
-                    <Badge variant="secondary" className="text-[10px] py-0 px-2">
-                      {categoryName}
-                    </Badge>
-                    {camp.products_provided && (
-                      <span className="inline-flex items-center gap-1 text-[11px] text-[#08739C] dark:text-[#38BDF8]">
-                        <Package className="h-3 w-3" />
-                        Free Product
-                      </span>
-                    )}
-                  </div>
-
-                  {camp.contact_email && (
-                    <div className="flex items-center gap-1.5 text-muted-foreground mt-1">
-                      <Mail className="h-3 w-3 text-muted-foreground" />
-                      <span>{camp.contact_email}</span>
+                <div className="flex items-start gap-3">
+                  <BrandLogoBadge
+                    brandName={camp.brand_name}
+                    applicationUrl={camp.application_url}
+                    imageUrl={camp.image_url}
+                  />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm text-foreground">{camp.brand_name}</span>
+                      <Badge variant="secondary" className="text-[10px] py-0 px-2">
+                        {categoryName}
+                      </Badge>
+                      {camp.products_provided && (
+                        <span className="inline-flex items-center gap-1 text-[11px] text-[#08739C] dark:text-[#38BDF8]">
+                          <Package className="h-3 w-3" />
+                          Free Product
+                        </span>
+                      )}
                     </div>
-                  )}
+
+                    {camp.contact_email && (
+                      <div className="flex items-center gap-1.5 text-muted-foreground mt-1">
+                        <Mail className="h-3 w-3 text-muted-foreground" />
+                        <span>{camp.contact_email}</span>
+                      </div>
+                    )}
 
                   {camp.compensation_details && (
                     <p className="text-muted-foreground mt-0.5 font-medium">
@@ -135,6 +143,7 @@ export function AdminCampaignReview({ campaigns }: { campaigns: PendingCampaignI
                     </p>
                   )}
                 </div>
+              </div>
 
                 <a
                   href={camp.application_url}

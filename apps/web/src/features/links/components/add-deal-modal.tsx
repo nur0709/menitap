@@ -26,6 +26,7 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
   const [promoCode, setPromoCode] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [title, setTitle] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
 
   const router = useRouter()
 
@@ -63,6 +64,10 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
             setTitle(`${data.brandName} Deal`)
           }
 
+          if (data.imageUrl) {
+            setImageUrl(data.imageUrl)
+          }
+
           if (data.suggestedCategory) {
             const matched = categories.find(
               (c) => c.name.toLowerCase() === data.suggestedCategory.toLowerCase()
@@ -88,6 +93,9 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
     formData.append('promo_code', promoCode)
     formData.append('category_id', categoryId)
     formData.append('title', title)
+    if (imageUrl) {
+      formData.append('image_url', imageUrl)
+    }
 
     startTransition(async () => {
       const res = await createAffiliateLink(null, formData)
@@ -102,6 +110,7 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
           setPromoCode('')
           setCategoryId('')
           setTitle('')
+          setImageUrl('')
           router.refresh()
         }, 800)
       }
@@ -181,6 +190,32 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
                       className="pl-8 bg-background border-border text-xs h-9"
                     />
                   </div>
+                  {imageUrl && (
+                    <div className="flex items-center gap-2.5 p-2 rounded-xl bg-muted/40 border border-border mt-1">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={imageUrl}
+                        alt="Product preview"
+                        referrerPolicy="no-referrer"
+                        className="h-10 w-10 rounded-lg object-cover border border-border shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-[11px] font-medium text-foreground block truncate">
+                          {title || 'Product Image Preview'}
+                        </span>
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                          ✓ Visual Preview Attached
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setImageUrl('')}
+                        className="text-[10px] text-muted-foreground hover:text-destructive px-1.5 py-0.5 rounded cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Promo Code */}

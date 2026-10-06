@@ -9,6 +9,7 @@ const AffiliateLinkSchema = z.object({
   promo_code: z.string().optional().default(''),
   category_id: z.coerce.number().positive('Please select a category'),
   title: z.string().optional().default(''),
+  image_url: z.string().nullable().optional(),
 })
 
 const BrandLinkSchema = z.object({
@@ -17,6 +18,7 @@ const BrandLinkSchema = z.object({
   category_id: z.coerce.number().positive('Please select a valid category'),
   description: z.string().nullable().optional(),
   products_provided: z.preprocess((val) => val === 'on' || val === true || val === 'true', z.boolean()),
+  image_url: z.string().nullable().optional(),
 })
 
 export type LinkActionState = {
@@ -59,6 +61,7 @@ export async function createAffiliateLink(
     promo_code: (formData.get('promo_code') as string)?.trim() || '',
     category_id: formData.get('category_id'),
     title: (formData.get('title') as string)?.trim() || '',
+    image_url: (formData.get('image_url') as string)?.trim() || null,
   }
 
   const validation = AffiliateLinkSchema.safeParse(rawData)
@@ -83,6 +86,7 @@ export async function createAffiliateLink(
     title: autoTitle,
     product_url: validation.data.product_url,
     promo_code: validation.data.promo_code || null,
+    image_url: validation.data.image_url || null,
     status: 'ACTIVE', // Automatically active for creators
   })
 
@@ -114,6 +118,7 @@ export async function createBrandLink(
     category_id: formData.get('category_id'),
     description: formData.get('description') || '',
     products_provided: formData.get('products_provided'),
+    image_url: (formData.get('image_url') as string)?.trim() || null,
   }
 
   const validation = BrandLinkSchema.safeParse(rawData)
@@ -140,6 +145,7 @@ export async function createBrandLink(
     application_url: validation.data.application_url,
     description: validation.data.description || null,
     products_provided: validation.data.products_provided,
+    image_url: validation.data.image_url || null,
     status: 'ACTIVE',
   })
 
@@ -160,6 +166,7 @@ const PublicCampaignSchema = z.object({
   compensation_details: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   products_provided: z.preprocess((val) => val === 'on' || val === true || val === 'true', z.boolean()),
+  image_url: z.string().nullable().optional(),
 })
 
 export async function submitPublicBrandCampaign(
@@ -188,6 +195,7 @@ export async function submitPublicBrandCampaign(
     compensation_details: comp ? comp : null,
     description: desc ? desc : null,
     products_provided: formData.get('products_provided'),
+    image_url: (formData.get('image_url') as string)?.trim() || null,
   }
 
   const validation = PublicCampaignSchema.safeParse(rawData)
@@ -210,6 +218,7 @@ export async function submitPublicBrandCampaign(
     description: validation.data.description || null,
     compensation_details: validation.data.compensation_details || null,
     products_provided: validation.data.products_provided,
+    image_url: validation.data.image_url || null,
     status,
   })
 
@@ -368,7 +377,7 @@ export async function getExploreDeals(categoryId?: number) {
 
   let query = supabase
     .from('affiliate_links')
-    .select('id, user_id, title, product_url, promo_code, click_count, created_at, category_id, categories(name, slug), profiles(full_name)')
+    .select('id, user_id, title, product_url, promo_code, image_url, click_count, created_at, category_id, categories(name, slug), profiles(full_name)')
     .in('status', ['ACTIVE', 'APPROVED'])
     .order('created_at', { ascending: false })
     .limit(100)
@@ -439,7 +448,7 @@ export async function getCampaignLinks(categoryId?: number) {
 
   let query = supabase
     .from('brand_links')
-    .select('id, user_id, brand_name, application_url, description, products_provided, click_count, created_at, category_id, categories(name, slug), profiles(full_name)')
+    .select('id, user_id, brand_name, application_url, description, image_url, products_provided, click_count, created_at, category_id, categories(name, slug), profiles(full_name)')
     .in('status', ['ACTIVE', 'APPROVED'])
     .order('created_at', { ascending: false })
     .limit(100)

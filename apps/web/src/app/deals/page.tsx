@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { AddDealModal } from "@/features/links/components/add-deal-modal";
 import { DeleteDealButton } from "@/features/links/components/delete-deal-button";
 import { PromoCodeBadge } from "@/features/links/components/promo-code-badge";
+import { DealThumbnail } from "@/features/links/components/deal-thumbnail";
 import { ExternalLink, ShoppingBag } from "lucide-react";
 
 export const dynamic = 'force-dynamic'
@@ -114,10 +115,10 @@ export default async function DealsPage({
                 return (
                   <Card
                     key={deal.id}
-                    className="bg-card border-border shadow-xs hover:border-[#08739C]/40 transition-colors flex flex-col justify-between"
+                    className="group bg-card border-border shadow-xs hover:border-[#08739C]/40 hover:shadow-sm transition-all flex flex-col justify-between"
                   >
-                    <CardHeader className="p-4 pb-2">
-                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <CardHeader className="p-4 pb-2 space-y-2.5">
+                      <div className="flex items-center justify-between gap-2">
                         <span className="text-[11px] font-medium text-muted-foreground">
                           {categoryName}
                         </span>
@@ -125,15 +126,25 @@ export default async function DealsPage({
                           <PromoCodeBadge code={deal.promo_code} />
                         )}
                       </div>
-                      <CardTitle className="text-base text-foreground font-semibold line-clamp-2">
-                        {deal.title}
-                      </CardTitle>
-                      {creatorName && (
-                        <p className="text-[11px] text-muted-foreground pt-1 flex items-center gap-1">
-                          <span>Shared by</span>
-                          <span className="font-medium text-foreground">{creatorName}</span>
-                        </p>
-                      )}
+
+                      {/* Compact Thumbnail + Title & Creator Layout */}
+                      <div className="flex items-start gap-3">
+                        <DealThumbnail
+                          imageUrl={(deal as unknown as { image_url?: string | null }).image_url}
+                          title={deal.title || 'Deal'}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-sm sm:text-base text-foreground font-semibold line-clamp-2 leading-snug">
+                            {deal.title}
+                          </CardTitle>
+                          {creatorName && (
+                            <p className="text-[11px] text-muted-foreground pt-1 flex items-center gap-1 truncate">
+                              <span>Shared by</span>
+                              <span className="font-medium text-foreground">{creatorName}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </CardHeader>
 
                     <CardContent className="p-4 pt-2">

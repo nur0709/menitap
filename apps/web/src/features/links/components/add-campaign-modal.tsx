@@ -27,6 +27,7 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
   const [description, setDescription] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [productsProvided, setProductsProvided] = useState(true)
+  const [imageUrl, setImageUrl] = useState('')
 
   const router = useRouter()
 
@@ -67,6 +68,10 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
             setDescription(data.title)
           }
 
+          if (data.logoUrl || data.imageUrl) {
+            setImageUrl(data.logoUrl || data.imageUrl)
+          }
+
           // Match category if suggested
           if (data.suggestedCategory) {
             const matched = categories.find(
@@ -96,6 +101,9 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
     if (productsProvided) {
       formData.append('products_provided', 'on')
     }
+    if (imageUrl) {
+      formData.append('image_url', imageUrl)
+    }
 
     startTransition(async () => {
       const res = await createBrandLink(null, formData)
@@ -110,6 +118,7 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
           setBrandName('')
           setDescription('')
           setCategoryId('')
+          setImageUrl('')
           router.refresh()
         }, 1000)
       }
@@ -189,6 +198,32 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
                       className="pl-8 bg-background border-border text-xs h-9"
                     />
                   </div>
+                  {imageUrl && (
+                    <div className="flex items-center gap-2.5 p-2 rounded-xl bg-muted/40 border border-border mt-1">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={imageUrl}
+                        alt="Brand preview"
+                        referrerPolicy="no-referrer"
+                        className="h-10 w-10 rounded-lg object-contain bg-card border border-border shrink-0 p-1"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-[11px] font-medium text-foreground block truncate">
+                          {brandName || 'Brand Visual Preview'}
+                        </span>
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                          ✓ Brand Art Attached
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setImageUrl('')}
+                        className="text-[10px] text-muted-foreground hover:text-destructive px-1.5 py-0.5 rounded cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Brand Name */}

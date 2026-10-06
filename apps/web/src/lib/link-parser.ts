@@ -32,9 +32,27 @@ export async function extractOpenGraphMetadata(targetUrl: string): Promise<Parse
     const $ = cheerio.load(html)
 
     const ogTitle = $('meta[property="og:title"]').attr('content') || $('title').text() || ''
-    const ogSiteName = $('meta[property="og:site_name"]').attr('content') || ''
     const ogDesc = $('meta[property="og:description"]').attr('content') || $('meta[name="description"]').attr('content') || ''
-    const ogImage = $('meta[property="og:image"]').attr('content') || $('meta[name="twitter:image"]').attr('content') || ''
+    const ogSiteName = $('meta[property="og:site_name"]').attr('content') || ''
+    const rawImage = $('meta[property="og:image"]').attr('content') || $('meta[name="twitter:image"]').attr('content') || ''
+    let ogImage = ''
+    if (rawImage) {
+      try {
+        ogImage = new URL(rawImage, targetUrl).toString()
+      } catch {
+        ogImage = ''
+      }
+    }
+
+    const iconHref = $('link[rel="apple-touch-icon"]').attr('href') || $('link[rel="icon"]').attr('href') || ''
+    let logoUrl = ''
+    if (iconHref) {
+      try {
+        logoUrl = new URL(iconHref, targetUrl).toString()
+      } catch {
+        logoUrl = ''
+      }
+    }
 
     // Derive brand name from domain or site_name
     let derivedBrand = ogSiteName
@@ -55,6 +73,7 @@ export async function extractOpenGraphMetadata(targetUrl: string): Promise<Parse
       brandName: derivedBrand.trim(),
       description: ogDesc.trim(),
       imageUrl: ogImage.trim(),
+      logoUrl: logoUrl.trim(),
       source: 'opengraph',
     }
   } catch (error) {
@@ -131,6 +150,7 @@ Respond ONLY with valid JSON with these fields:
             brandName: parsed.brandName || ogData.brandName,
             description: parsed.description || ogData.description,
             imageUrl: ogData.imageUrl,
+            logoUrl: ogData.logoUrl,
             compensationType: parsed.compensationType || 'FREE_PRODUCT',
             suggestedCategory: parsed.suggestedCategory || 'General',
             source: 'ai_gemini',
@@ -168,6 +188,7 @@ Respond ONLY with valid JSON with these fields:
             brandName: parsed.brandName || ogData.brandName,
             description: parsed.description || ogData.description,
             imageUrl: ogData.imageUrl,
+            logoUrl: ogData.logoUrl,
             compensationType: parsed.compensationType || 'FREE_PRODUCT',
             suggestedCategory: parsed.suggestedCategory || 'General',
             source: 'ai_groq',

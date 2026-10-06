@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { AddCampaignModal } from "@/features/links/components/add-campaign-modal";
 import { DeleteCollabButton } from "@/features/links/components/delete-collab-button";
+import { BrandLogoBadge } from "@/features/links/components/brand-logo-badge";
 import { ExternalLink, Building2, Package, Lock, ArrowRight } from "lucide-react";
 
 export const dynamic = 'force-dynamic'
@@ -137,10 +138,10 @@ export default async function CollabsPage({
                 return (
                   <Card
                     key={camp.id}
-                    className="bg-card border-border shadow-xs hover:border-[#08739C]/40 transition-colors flex flex-col justify-between"
+                    className="group bg-card border-border shadow-xs hover:border-[#08739C]/40 hover:shadow-sm transition-all flex flex-col justify-between"
                   >
-                    <CardHeader className="p-4 pb-2">
-                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <CardHeader className="p-4 pb-2 space-y-2.5">
+                      <div className="flex items-center justify-between gap-2">
                         <span className="text-[11px] font-medium text-muted-foreground">
                           {categoryName}
                         </span>
@@ -151,14 +152,29 @@ export default async function CollabsPage({
                           </Badge>
                         )}
                       </div>
-                      <CardTitle className="text-base text-foreground font-semibold line-clamp-1">
-                        {camp.brand_name}
-                      </CardTitle>
-                      {camp.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-2 pt-1">
-                          {camp.description}
-                        </p>
-                      )}
+
+                      {/* Brand Logo / Monogram + Brand Name & Details */}
+                      <div className="flex items-start gap-3">
+                        <BrandLogoBadge
+                          brandName={camp.brand_name}
+                          applicationUrl={camp.application_url}
+                          imageUrl={(camp as unknown as { image_url?: string | null }).image_url}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-base text-foreground font-semibold line-clamp-1 leading-snug">
+                            {camp.brand_name}
+                          </CardTitle>
+                          {camp.description ? (
+                            <p className="text-xs text-muted-foreground line-clamp-2 pt-0.5 leading-relaxed">
+                              {camp.description}
+                            </p>
+                          ) : (
+                            <p className="text-xs text-muted-foreground/70 italic pt-0.5">
+                              Accepting creator applications
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </CardHeader>
 
                     <CardContent className="p-4 pt-2">
