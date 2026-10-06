@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { getCurrentUserRole } from "@/features/auth/actions";
+import { getEffectiveUserContext } from "@/features/auth/actions";
 import { getCategories, getCampaignLinks } from "@/features/links/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { AddCampaignModal } from "@/features/links/components/add-campaign-modal";
+import { DeleteCollabButton } from "@/features/links/components/delete-collab-button";
 import { ExternalLink, Building2, Package, Lock, ArrowRight } from "lucide-react";
 
 export const dynamic = 'force-dynamic'
@@ -21,9 +22,10 @@ export default async function CollabsPage({
   searchParams: Promise<{ category?: string }>
 }) {
   const { category: selectedCategorySlug } = await searchParams
-  const role = await getCurrentUserRole()
-  const isCreatorOrAdmin = role === 'CREATOR' || role === 'ADMIN'
-  const isBrandOrAdmin = role === 'BRAND' || role === 'ADMIN'
+  const { user, role, isAdmin } = await getEffectiveUserContext()
+  const isCreatorOrAdmin = role === 'CREATOR' || isAdmin
+  const isBrandOrAdmin = role === 'BRAND' || isAdmin
+  const currentUserId = user?.id || null
 
   // Fetch categories and active campaign links
   const categories = await getCategories('CREATORS')
@@ -130,6 +132,7 @@ export default async function CollabsPage({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {campaigns.map((camp) => {
                 const categoryName = (camp.categories as unknown as { name?: string })?.name || 'General'
+                const canDelete = isAdmin || (Boolean(currentUserId) && (camp as unknown as { user_id?: string | null }).user_id === currentUserId)
 
                 return (
                   <Card
@@ -159,26 +162,34 @@ export default async function CollabsPage({
                     </CardHeader>
 
                     <CardContent className="p-4 pt-2">
-                      <div className="pt-2.5 border-t border-border flex items-center justify-end">
-                        {isCreatorOrAdmin ? (
-                          <a
-                            href={camp.application_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#08739C] hover:bg-[#02547A] text-white transition-colors cursor-pointer"
-                          >
-                            Apply
-                            <ExternalLink className="h-3 w-3" />
-                          </a>
-                        ) : (
-                          <Link
-                            href="/plans"
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-[#FC801A] hover:underline"
-                          >
-                            <Lock className="h-3 w-3" />
-                            Join to Apply
-                          </Link>
-                        )}
+                      <div className="pt-2.5 border-t border-border flex items-center justify-between gap-2">
+                        <div>
+                          {canDelete && (
+                            <DeleteCollabButton campaignId={camp.id} brandName={camp.brand_name} />
+                          )}
+                        </div>
+
+                        <div>
+                          {isCreatorOrAdmin ? (
+                            <a
+                              href={camp.application_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#08739C] hover:bg-[#02547A] text-white transition-colors cursor-pointer"
+                            >
+                              Apply
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          ) : (
+                            <Link
+                              href="/plans"
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-[#FC801A] hover:underline"
+                            >
+                              <Lock className="h-3 w-3" />
+                              Join to Apply
+                            </Link>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

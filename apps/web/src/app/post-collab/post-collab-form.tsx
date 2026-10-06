@@ -112,6 +112,9 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
         <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
           Thanks for sharing your collab. It will be verified and published to creators within 24 hours.
         </p>
+        <p className="text-[11px] text-muted-foreground/80 max-w-sm mx-auto">
+          Need to update or remove your collab? You can delete it from your account or contact team@menitap.com.
+        </p>
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             href="/collabs"
