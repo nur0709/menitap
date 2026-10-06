@@ -14,6 +14,11 @@ Menitap is an all-in-one platform tailored for user-generated content (UGC) crea
 
 ## Architecture Rules
 
+### Scope Discipline & Minimal Diff Principle (STRICT YAGNI)
+1. **Solve Only What Is Requested**: Never add speculative or unrequested features, auxiliary dashboards, extra sub-tables, or metric counters.
+2. **Minimal Code Footprint**: Always prefer the smallest, cleanest, simplest diff. If a task can be solved in 30–50 lines, never create 300+ line abstractions or multi-file systems.
+3. **Propose First**: If you see an opportunity for an additional enhancement, suggest it briefly in conversational text first. Never generate or commit code for it without explicit user consent.
+
 ### File Organization
 - **Feature-sliced design**: Group code by feature in `src/features/<name>/`
   - `src/features/auth/` — Session handling, auth modal, user context
