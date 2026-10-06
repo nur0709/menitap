@@ -58,17 +58,17 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
         const json = await res.json()
         if (json.data) {
           const data = json.data
-          if (data.brandName && !brandName) {
+          if (data.brandName) {
             setBrandName(data.brandName)
           }
-          if (data.description && !description) {
+          if (data.description) {
             setDescription(data.description)
-          } else if (data.title && !description) {
+          } else if (data.title) {
             setDescription(data.title)
           }
 
           // Match category if suggested
-          if (data.suggestedCategory && !categoryId) {
+          if (data.suggestedCategory) {
             const matched = categories.find(
               (c) => c.name.toLowerCase() === data.suggestedCategory.toLowerCase()
             )
@@ -128,14 +128,8 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
       </Button>
 
       {isOpen && (
-        <div
-          onClick={() => !isPending && !isParsing && setIsOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-150"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-md rounded-2xl bg-card border border-border p-6 shadow-2xl text-left"
-          >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="relative w-full max-w-md rounded-2xl bg-card border border-border p-6 shadow-2xl text-left">
             {/* Close */}
             <button
               onClick={() => !isPending && !isParsing && setIsOpen(false)}

@@ -46,12 +46,12 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
         const json = await res.json()
         if (json.data) {
           const data = json.data
-          if (data.brandName && !brandName) {
+          if (data.brandName) {
             setBrandName(data.brandName)
           }
-          if (data.description && !description) {
+          if (data.description) {
             setDescription(data.description)
-          } else if (data.title && !description) {
+          } else if (data.title) {
             setDescription(data.title)
           }
 
@@ -61,7 +61,7 @@ export function PostCollabForm({ categories, defaultCategorySlug }: PostCollabFo
             setCompensationDetails('Commission + Samples')
           }
 
-          if (data.suggestedCategory && !categoryId) {
+          if (data.suggestedCategory) {
             const matched = categories.find(
               (c) => c.name.toLowerCase() === data.suggestedCategory.toLowerCase()
             )

@@ -130,10 +130,8 @@ export function PlanCtaButton({
           role="dialog"
           aria-modal="true"
           className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto"
-          onClick={() => !isPending && setConfirmModalOpen(false)}
         >
           <div
-            onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-md rounded-2xl bg-card border border-border p-6 shadow-2xl text-left my-auto"
           >
             <button

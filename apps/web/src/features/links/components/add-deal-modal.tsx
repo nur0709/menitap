@@ -65,14 +65,8 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
       </Button>
 
       {isOpen && (
-        <div
-          onClick={() => !isPending && setIsOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-150"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-md rounded-2xl bg-card border border-border p-6 shadow-2xl"
-          >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="relative w-full max-w-md rounded-2xl bg-card border border-border p-6 shadow-2xl">
             {/* Close */}
             <button
               onClick={() => !isPending && setIsOpen(false)}

@@ -189,19 +189,8 @@ export async function submitPublicBrandCampaign(
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // If user is already authenticated as BRAND or ADMIN, publish immediately as ACTIVE; otherwise PENDING review
-  let status = 'PENDING'
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-    const role = (profile?.role || '').toUpperCase()
-    if (role === 'BRAND' || role === 'ADMIN') {
-      status = 'ACTIVE'
-    }
-  }
+  // Public submissions from /post-collab must always enter the pending review queue
+  const status = 'PENDING'
 
   const { error } = await supabase.from('brand_links').insert({
     user_id: user?.id || null,
@@ -433,7 +422,7 @@ export async function getCampaignLinks(categoryId?: number) {
   let query = supabase
     .from('brand_links')
     .select('id, brand_name, application_url, description, products_provided, click_count, created_at, category_id, categories(name, slug), profiles(full_name)')
-    .eq('status', 'ACTIVE')
+    .in('status', ['ACTIVE', 'APPROVED'])
     .order('created_at', { ascending: false })
     .limit(100)
 

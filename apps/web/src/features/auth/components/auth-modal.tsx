@@ -104,12 +104,10 @@ export function AuthModal({
     <div
       role="dialog"
       aria-modal="true"
-      onClick={onClose}
       className="fixed inset-0 z-[9999] overflow-y-auto bg-black/60 backdrop-blur-sm p-4 sm:p-6 animate-in fade-in duration-200"
     >
       <div className="flex min-h-full items-center justify-center">
         <div
-          onClick={(e) => e.stopPropagation()}
           className="relative my-auto w-full max-w-md rounded-2xl bg-card border border-border p-6 sm:p-7 shadow-2xl text-center animate-in zoom-in-95 duration-200"
         >
           {/* Close Button */}
