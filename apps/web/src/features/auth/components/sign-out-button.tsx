@@ -27,7 +27,7 @@ export function SignOutButton({ className, iconOnly = false, variant = 'nav' }: 
         onClick={handleSignOut}
         disabled={isPending}
         className={cn(
-          'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors w-full cursor-pointer',
+          'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium border border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors w-full cursor-pointer',
           className
         )}
       >
