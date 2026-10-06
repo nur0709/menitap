@@ -48,11 +48,19 @@ export default async function CollabsPage({
               Brand Collabs
             </h1>
 
-            {isBrandOrAdmin && (
-              <div className="shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
+              {isBrandOrAdmin ? (
                 <AddCampaignModal categories={categories} />
-              </div>
-            )}
+              ) : (
+                <Link
+                  href="/post-collab"
+                  className="inline-flex items-center gap-1.5 px-3.5 h-9 rounded-lg border border-border hover:bg-muted text-xs font-semibold text-foreground transition-colors"
+                >
+                  <Building2 className="h-3.5 w-3.5 text-[#08739C] dark:text-[#38BDF8]" />
+                  <span>Post a Collab</span>
+                </Link>
+              )}
+            </div>
           </div>
 
           {/* Minimalist 1-Line Gating Ribbon for Visitors / Explorers */}

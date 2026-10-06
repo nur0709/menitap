@@ -152,6 +152,80 @@ export async function createBrandLink(
   return { success: 'Campaign link posted successfully!' }
 }
 
+const PublicCampaignSchema = z.object({
+  brand_name: z.string().min(2, 'Brand name must be at least 2 characters'),
+  contact_email: z.string().email('Please enter a valid work or brand email'),
+  application_url: z.string().url('Please enter a valid brand application or collab URL (including https://)'),
+  category_id: z.coerce.number().positive('Please select a category'),
+  compensation_details: z.string().optional().default('Free Product'),
+  description: z.string().optional(),
+  products_provided: z.preprocess((val) => val === 'on' || val === true || val === 'true', z.boolean()),
+})
+
+export async function submitPublicBrandCampaign(
+  prevState: LinkActionState | null,
+  formData: FormData
+): Promise<LinkActionState> {
+  const rawUrl = (formData.get('application_url') as string)?.trim() || ''
+  const formattedUrl = rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
+    ? rawUrl
+    : `https://${rawUrl}`
+
+  const rawData = {
+    brand_name: formData.get('brand_name'),
+    contact_email: formData.get('contact_email'),
+    application_url: formattedUrl,
+    category_id: formData.get('category_id'),
+    compensation_details: formData.get('compensation_details') || 'Free Product',
+    description: formData.get('description') || '',
+    products_provided: formData.get('products_provided'),
+  }
+
+  const validation = PublicCampaignSchema.safeParse(rawData)
+  if (!validation.success) {
+    return { error: validation.error.issues[0]?.message || 'Validation failed' }
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // If user is already authenticated as BRAND or ADMIN, publish immediately as ACTIVE; otherwise PENDING review
+  let status = 'PENDING'
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    const role = (profile?.role || '').toUpperCase()
+    if (role === 'BRAND' || role === 'ADMIN') {
+      status = 'ACTIVE'
+    }
+  }
+
+  const { error } = await supabase.from('brand_links').insert({
+    user_id: user?.id || null,
+    category_id: validation.data.category_id,
+    brand_name: validation.data.brand_name,
+    contact_email: validation.data.contact_email,
+    application_url: validation.data.application_url,
+    description: validation.data.description || null,
+    compensation_details: validation.data.compensation_details,
+    products_provided: validation.data.products_provided,
+    status,
+  })
+
+  if (error) {
+    console.error('Error submitting public campaign:', error)
+    return { error: error.message }
+  }
+
+  revalidatePath('/collabs')
+  return {
+    success: 'Campaign received! Our team will review and publish it within 24 hours.',
+  }
+}
+
 export async function getCategories(type: 'DEALS' | 'CREATORS' | 'BRANDS' = 'DEALS') {
   const supabase = await createClient()
   const { data, error } = await supabase

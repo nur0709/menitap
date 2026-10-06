@@ -20,6 +20,9 @@ export function SiteFooter() {
             <Link href="/about" className="hover:text-foreground transition-colors">
               About
             </Link>
+            <Link href="/post-collab" className="hover:text-foreground transition-colors">
+              Post a Collab
+            </Link>
             <Link href="/plans" className="hover:text-foreground transition-colors">
               Plans
             </Link>

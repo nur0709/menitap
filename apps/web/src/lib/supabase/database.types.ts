@@ -25,7 +25,7 @@ export type Database = {
           product_url: string
           promo_code: string | null
           status: string
-          title: string
+          title: string | null
           updated_at: string
           user_id: string
         }
@@ -39,7 +39,7 @@ export type Database = {
           product_url: string
           promo_code?: string | null
           status?: string
-          title: string
+          title?: string | null
           updated_at?: string
           user_id: string
         }
@@ -53,7 +53,7 @@ export type Database = {
           product_url?: string
           promo_code?: string | null
           status?: string
-          title?: string
+          title?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -80,39 +80,45 @@ export type Database = {
           brand_name: string
           category_id: number
           click_count: number
+          compensation_details: string | null
+          contact_email: string | null
           created_at: string
           description: string | null
           id: number
           products_provided: boolean
           status: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           application_url: string
           brand_name: string
           category_id: number
           click_count?: number
+          compensation_details?: string | null
+          contact_email?: string | null
           created_at?: string
           description?: string | null
           id?: number
           products_provided?: boolean
           status?: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           application_url?: string
           brand_name?: string
           category_id?: number
           click_count?: number
+          compensation_details?: string | null
+          contact_email?: string | null
           created_at?: string
           description?: string | null
           id?: number
           products_provided?: boolean
           status?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -141,7 +147,7 @@ export type Database = {
           name: string
           slug: string
           sort_order: number
-          type: "DEALS" | "CREATORS" | "BRANDS"
+          type: string
         }
         Insert: {
           created_at?: string
@@ -152,7 +158,7 @@ export type Database = {
           name: string
           slug: string
           sort_order?: number
-          type?: "DEALS" | "CREATORS" | "BRANDS"
+          type?: string
         }
         Update: {
           created_at?: string
@@ -163,7 +169,7 @@ export type Database = {
           name?: string
           slug?: string
           sort_order?: number
-          type?: "DEALS" | "CREATORS" | "BRANDS"
+          type?: string
         }
         Relationships: []
       }
@@ -211,7 +217,7 @@ export type Database = {
           full_name: string | null
           id: string
           instagram_url: string | null
-          is_public_profile: boolean
+          is_public_profile: boolean | null
           role: string
           tiktok_url: string | null
           updated_at: string
@@ -225,7 +231,7 @@ export type Database = {
           full_name?: string | null
           id: string
           instagram_url?: string | null
-          is_public_profile?: boolean
+          is_public_profile?: boolean | null
           role?: string
           tiktok_url?: string | null
           updated_at?: string
@@ -239,7 +245,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           instagram_url?: string | null
-          is_public_profile?: boolean
+          is_public_profile?: boolean | null
           role?: string
           tiktok_url?: string | null
           updated_at?: string
@@ -296,7 +302,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_user_exists: { Args: { p_email: string }; Returns: boolean }
+      remove_user: { Args: never; Returns: undefined }
+      request_account_deletion: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

@@ -8,7 +8,7 @@ import { ExternalLink, Trash2, Tag, Loader2 } from 'lucide-react'
 
 export interface AffiliateLinkItem {
   id: number
-  title: string
+  title: string | null
   product_url: string
   promo_code: string | null
   click_count: number
