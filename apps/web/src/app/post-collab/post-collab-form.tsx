@@ -8,6 +8,7 @@ import { submitPublicBrandCampaign } from '@/features/links/actions'
 import { type Category } from '@/features/links/components/add-campaign-modal'
 import { Loader2, Link as LinkIcon, Package, CheckCircle2, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import { matchCategory } from '@/lib/category-matcher'
 
 interface PostCollabFormProps {
   categories: Category[]
@@ -73,13 +74,12 @@ export function PostCollabForm({
             setCompensationDetails('Commission + Samples')
           }
 
-          if (data.suggestedCategory) {
-            const matched = categories.find(
-              (c) => c.name.toLowerCase() === data.suggestedCategory.toLowerCase()
-            )
-            if (matched) {
-              setCategoryId(String(matched.id))
-            }
+          const matched = matchCategory(
+            data.suggestedCategory || data.brandName || data.title,
+            categories
+          )
+          if (matched) {
+            setCategoryId(String(matched.id))
           }
         }
       }

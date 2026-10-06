@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createBrandLink } from '../actions'
 import { Plus, X, Loader2, Link as LinkIcon, Building2, Package } from 'lucide-react'
+import { matchCategory } from '@/lib/category-matcher'
 
 export type Category = {
   id: number
@@ -74,14 +75,13 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
             setImageUrl(data.logoUrl || data.imageUrl)
           }
 
-          // Match category if suggested
-          if (data.suggestedCategory) {
-            const matched = categories.find(
-              (c) => c.name.toLowerCase() === data.suggestedCategory.toLowerCase()
-            )
-            if (matched) {
-              setCategoryId(String(matched.id))
-            }
+          // Match category using robust fuzzy heuristic
+          const matched = matchCategory(
+            data.suggestedCategory || data.brandName || data.title,
+            categories
+          )
+          if (matched) {
+            setCategoryId(String(matched.id))
           }
         }
       }

@@ -165,7 +165,7 @@ export default async function CollabsPage({
                             {camp.brand_name}
                           </CardTitle>
                           {camp.description ? (
-                            <p className="text-xs text-muted-foreground line-clamp-2 pt-0.5 leading-relaxed">
+                            <p className="text-xs text-muted-foreground line-clamp-4 pt-1 leading-relaxed">
                               {camp.description}
                             </p>
                           ) : (

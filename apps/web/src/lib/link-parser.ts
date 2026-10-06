@@ -163,19 +163,43 @@ export async function smartExtractCampaignMetadata(targetUrl: string): Promise<P
     return ogData
   }
 
-  const prompt = `Analyze this brand or product campaign URL:
+  const prompt = `You are an expert commerce & UGC content analyst for Menitap, an influencer marketplace.
+Analyze this URL, page title, and content:
 URL: ${targetUrl}
 Page Title: ${ogData.title || 'N/A'}
 Page Description: ${ogData.description || 'N/A'}
 Site Name: ${ogData.brandName || 'N/A'}
 
+Supported Menitap Categories (CHOOSE THE CLOSEST MATCH FROM THIS LIST):
+- "Beauty & Skincare"
+- "Tech & Electronics"
+- "Fashion & Apparel"
+- "Home & Kitchen"
+- "Travel & Lifestyle"
+- "E-commerce Brands"
+- "Tech & SaaS"
+- "Beauty & Wellness Brands"
+- "TikTok UGC"
+- "Instagram Reels"
+- "YouTube Longform"
+
+Guidelines:
+1. "brandName": Clean recognizable brand/company name (e.g. "Beekman 1802", "Gymshark", "Glossier", "Apple", "Nike").
+2. "title": Format a clean, attractive title (max 50 chars).
+   - If it is a creator affiliate shop or favorites page (e.g. "Bermet E's Beekman 1802 Favorites | Kindness Krew"), format cleanly as "Beekman 1802 – Bermet's Curated Deals".
+   - If it is a product page, remove SEO junk, model SKUs, and shipping slogans down to the clean product name (e.g. "Glossier Cloud Paint Blush", "Apple AirPods Pro 2").
+   - If it is a brand collab, format as "Gymshark Athlete & Creator Program".
+3. "description": Write a punchy 1-2 sentence pitch for creators and shoppers (max 180 chars). Highlight product perks, gifting, or exclusive discounts.
+4. "compensationType": "FREE_PRODUCT" | "PAID" | "COMMISSION" | "GIFTING"
+5. "suggestedCategory": Pick the single best category name from the list above.
+
 Respond ONLY with valid JSON with these fields:
 {
-  "brandName": "Brand or company name",
-  "title": "Clean short campaign or product title (max 60 chars)",
-  "description": "Engaging 1-2 sentence description for UGC creators (max 160 chars)",
+  "brandName": "Brand Name",
+  "title": "Clean Title",
+  "description": "Engaging pitch or summary",
   "compensationType": "FREE_PRODUCT" | "PAID" | "COMMISSION" | "GIFTING",
-  "suggestedCategory": "Beauty" | "Fashion" | "Tech" | "Health & Wellness" | "Home" | "Fitness" | "General"
+  "suggestedCategory": "Category Name"
 }`
 
   // Attempt Tier 1: Gemini Free Tier (Try 2.5 Flash -> 2.0 Flash -> 1.5 Flash)

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createAffiliateLink } from '../actions'
 import { Plus, X, Loader2, Link as LinkIcon, Tag } from 'lucide-react'
+import { matchCategory } from '@/lib/category-matcher'
 
 export type Category = {
   id: number
@@ -71,13 +72,12 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
             setImageUrl(resolvedImg)
           }
 
-          if (data.suggestedCategory) {
-            const matched = categories.find(
-              (c) => c.name.toLowerCase() === data.suggestedCategory.toLowerCase()
-            )
-            if (matched) {
-              setCategoryId(String(matched.id))
-            }
+          const matched = matchCategory(
+            data.suggestedCategory || data.brandName || data.title,
+            categories
+          )
+          if (matched) {
+            setCategoryId(String(matched.id))
           }
         }
       }
