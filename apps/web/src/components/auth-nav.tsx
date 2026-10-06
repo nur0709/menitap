@@ -23,15 +23,13 @@ export async function AuthNav() {
     <div className="flex items-center gap-1.5 sm:gap-2">
       <Link
         href="/dashboard"
-        className="flex items-center gap-2 p-1 rounded-full hover:ring-2 hover:ring-[#FC801A] transition-all cursor-pointer group"
+        className="p-0.5 rounded-full hover:ring-2 hover:ring-[#FC801A] transition-all cursor-pointer inline-flex items-center justify-center"
         title="My Account"
+        aria-label="My Account"
       >
         <UserAvatar user={{ email, fullName, avatarUrl }} size="md" />
-        <span className="hidden sm:inline text-xs font-semibold text-foreground group-hover:text-[#FC801A] transition-colors pr-1">
-          My Account
-        </span>
       </Link>
-      <SignOutButton />
+      <SignOutButton iconOnly />
       <ThemeToggle />
     </div>
   )
