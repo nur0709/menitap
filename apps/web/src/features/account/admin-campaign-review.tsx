@@ -26,7 +26,24 @@ export function AdminCampaignReview({ campaigns }: { campaigns: PendingCampaignI
   const router = useRouter()
 
   if (campaigns.length === 0) {
-    return null
+    return (
+      <div className="w-full pt-6 border-t border-border mt-6 text-left">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-[#FC801A]" />
+            <h3 className="text-sm font-bold text-foreground">
+              Pending Collab Submissions (0)
+            </h3>
+          </div>
+          <Badge variant="outline" className="text-[10px] text-muted-foreground border-border">
+            Queue Clean
+          </Badge>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          No pending brand campaigns waiting for review. New public submissions will appear here.
+        </p>
+      </div>
+    )
   }
 
   const handleApprove = (id: number) => {
