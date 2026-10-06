@@ -19,11 +19,20 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [isParsing, setIsParsing] = useState(false)
+
+  // Form field state for smart autofill
+  const [applicationUrl, setApplicationUrl] = useState('')
+  const [brandName, setBrandName] = useState('')
+  const [description, setDescription] = useState('')
+  const [categoryId, setCategoryId] = useState('')
+  const [productsProvided, setProductsProvided] = useState(true)
+
   const router = useRouter()
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isPending) {
+      if (e.key === 'Escape' && !isPending && !isParsing) {
         setIsOpen(false)
       }
     }
@@ -31,12 +40,62 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
       window.addEventListener('keydown', handleKeyDown)
     }
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, isPending])
+  }, [isOpen, isPending, isParsing])
+
+  // Smart Autofill when URL changes
+  const handleAutoFill = async (urlToParse: string) => {
+    if (!urlToParse || urlToParse.trim().length < 8) return
+
+    setIsParsing(true)
+    try {
+      const res = await fetch('/api/extract-metadata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlToParse.trim() }),
+      })
+
+      if (res.ok) {
+        const json = await res.json()
+        if (json.data) {
+          const data = json.data
+          if (data.brandName && !brandName) {
+            setBrandName(data.brandName)
+          }
+          if (data.description && !description) {
+            setDescription(data.description)
+          } else if (data.title && !description) {
+            setDescription(data.title)
+          }
+
+          // Match category if suggested
+          if (data.suggestedCategory && !categoryId) {
+            const matched = categories.find(
+              (c) => c.name.toLowerCase() === data.suggestedCategory.toLowerCase()
+            )
+            if (matched) {
+              setCategoryId(String(matched.id))
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Autofill error:', err)
+    } finally {
+      setIsParsing(false)
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
-    const formData = new FormData(e.currentTarget)
+    const formData = new FormData()
+    formData.append('brand_name', brandName)
+    formData.append('application_url', applicationUrl)
+    formData.append('category_id', categoryId)
+    formData.append('description', description)
+    if (productsProvided) {
+      formData.append('products_provided', 'on')
+    }
 
     startTransition(async () => {
       const res = await createBrandLink(null, formData)
@@ -47,6 +106,10 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
         setTimeout(() => {
           setIsOpen(false)
           setSuccess(false)
+          setApplicationUrl('')
+          setBrandName('')
+          setDescription('')
+          setCategoryId('')
           router.refresh()
         }, 1000)
       }
@@ -66,7 +129,7 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
 
       {isOpen && (
         <div
-          onClick={() => !isPending && setIsOpen(false)}
+          onClick={() => !isPending && !isParsing && setIsOpen(false)}
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-150"
         >
           <div
@@ -75,7 +138,7 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
           >
             {/* Close */}
             <button
-              onClick={() => !isPending && setIsOpen(false)}
+              onClick={() => !isPending && !isParsing && setIsOpen(false)}
               className="absolute right-4 top-4 rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
               aria-label="Close"
             >
@@ -90,7 +153,7 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
               </div>
               <h3 className="text-lg font-bold text-foreground">Post a Campaign Link</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Share your product review campaign or application link with UGC creators.
+                Paste any collab link — our system autofills brand info and details.
               </p>
             </div>
 
@@ -106,6 +169,34 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Collab Link / Application URL */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="application_url" className="text-xs font-medium text-foreground">
+                      Collab Link / Application URL *
+                    </Label>
+                    {isParsing && (
+                      <span className="text-[11px] font-medium text-[#FC801A] flex items-center gap-1">
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        Autofilling details...
+                      </span>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <LinkIcon className="h-3.5 w-3.5 absolute left-3 top-3 text-muted-foreground" />
+                    <Input
+                      id="application_url"
+                      name="application_url"
+                      required
+                      value={applicationUrl}
+                      onChange={(e) => setApplicationUrl(e.target.value)}
+                      onBlur={() => handleAutoFill(applicationUrl)}
+                      placeholder="https://brand.com/collab or forms.gle/..."
+                      className="pl-8 bg-background border-border text-xs h-9"
+                    />
+                  </div>
+                </div>
+
                 {/* Brand Name */}
                 <div className="space-y-1.5">
                   <Label htmlFor="brand_name" className="text-xs font-medium text-foreground">
@@ -115,26 +206,11 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
                     id="brand_name"
                     name="brand_name"
                     required
+                    value={brandName}
+                    onChange={(e) => setBrandName(e.target.value)}
                     placeholder="e.g. Glossier, Anker, Gymshark"
                     className="bg-background border-border text-xs h-9"
                   />
-                </div>
-
-                {/* Application URL */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="application_url" className="text-xs font-medium text-foreground">
-                    Collab Link / Application URL *
-                  </Label>
-                  <div className="relative">
-                    <LinkIcon className="h-3.5 w-3.5 absolute left-3 top-3 text-muted-foreground" />
-                    <Input
-                      id="application_url"
-                      name="application_url"
-                      required
-                      placeholder="https://brand.com/collab or forms.gle/..."
-                      className="pl-8 bg-background border-border text-xs h-9"
-                    />
-                  </div>
                 </div>
 
                 {/* Category */}
@@ -146,7 +222,8 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
                     id="category_id"
                     name="category_id"
                     required
-                    defaultValue=""
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
                     className="w-full h-9 rounded-md bg-background border border-border px-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-[#08739C]"
                   >
                     <option value="" disabled>Select campaign category</option>
@@ -166,7 +243,9 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
                   <Input
                     id="description"
                     name="description"
-                    placeholder="e.g. Looking for 30s TikTok video reviewing our skincare serum"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="e.g. 30s TikTok video reviewing our skincare serum"
                     className="bg-background border-border text-xs h-9"
                   />
                 </div>
@@ -177,7 +256,8 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
                     type="checkbox"
                     id="products_provided"
                     name="products_provided"
-                    defaultChecked
+                    checked={productsProvided}
+                    onChange={(e) => setProductsProvided(e.target.checked)}
                     className="h-4 w-4 rounded border-border text-[#08739C] focus:ring-[#08739C]"
                   />
                   <Label htmlFor="products_provided" className="text-xs text-foreground font-medium cursor-pointer flex items-center gap-1.5">
@@ -191,7 +271,7 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    disabled={isPending}
+                    disabled={isPending || isParsing}
                     onClick={() => setIsOpen(false)}
                     className="text-xs cursor-pointer"
                   >
@@ -200,7 +280,7 @@ export function AddCampaignModal({ categories }: { categories: Category[] }) {
                   <Button
                     type="submit"
                     size="sm"
-                    disabled={isPending}
+                    disabled={isPending || isParsing}
                     className="bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 text-xs font-medium cursor-pointer"
                   >
                     {isPending ? (
