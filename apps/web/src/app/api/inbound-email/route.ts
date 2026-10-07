@@ -58,28 +58,38 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Automated Google Forwarding Verification Link Handler
+    const isGoogleVerification =
+      from.toLowerCase().includes('forwarding-noreply@google.com') ||
+      subject.toLowerCase().includes('forwarding confirmation') ||
+      textBody.toLowerCase().includes('automatically forward mail')
+
     const verificationMatch = textBody.match(
-      /https:\/\/(?:mail-settings\.google\.com|mail\.google\.com)\/mail\/vf-[a-zA-Z0-9_\-]+/
+      /https?:\/\/(?:mail-settings\.google\.com|mail\.google\.com)\/mail\/vf-[^\s<>"')]+/i
     )
-    if (verificationMatch && verificationMatch[0]) {
-      const verifyUrl = verificationMatch[0]
-      console.log('[inbound-email] Auto-verifying Google forwarding link:', verifyUrl)
-      try {
-        const verifyRes = await fetch(verifyUrl, {
-          method: 'GET',
-          headers: {
-            'User-Agent':
-              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          },
-        })
-        console.log('[inbound-email] Google verification response status:', verifyRes.status)
-        return NextResponse.json({
-          status: 'verified_google_forwarding',
-          verifiedUrl: verifyUrl,
-        })
-      } catch (verifyErr) {
-        console.error('[inbound-email] Error pinging Google verification link:', verifyErr)
+
+    if (isGoogleVerification || verificationMatch) {
+      if (verificationMatch && verificationMatch[0]) {
+        const verifyUrl = verificationMatch[0]
+        console.log('[inbound-email] Auto-verifying Google forwarding link:', verifyUrl)
+        try {
+          const verifyRes = await fetch(verifyUrl, {
+            method: 'GET',
+            headers: {
+              'User-Agent':
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            },
+          })
+          console.log('[inbound-email] Google verification response status:', verifyRes.status)
+        } catch (verifyErr) {
+          console.error('[inbound-email] Error pinging Google verification link:', verifyErr)
+        }
       }
+
+      // Always return early so Google system confirmation emails never create dummy deal cards
+      return NextResponse.json({
+        status: 'verified_google_forwarding',
+        verifiedUrl: verificationMatch?.[0] || null,
+      })
     }
 
     // 3. Extract User Inbound Token from Recipient (e.g. deals+55cddc46@in.menitap.com)
