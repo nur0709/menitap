@@ -319,7 +319,7 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
         {/* Compact Logo Buttons + Connected Handles Row */}
         <div className="flex items-center gap-3 flex-wrap">
           {/* Logo Buttons Group */}
-          <div className="inline-flex items-center gap-1.5 p-1 rounded-2xl bg-muted/40 border border-border shadow-2xs">
+          <div className="inline-flex items-center gap-2.5 p-1.5 rounded-2xl bg-muted/40 border border-border shadow-2xs">
             {socialButtons.map((platform) => {
               const isConnected = Boolean(platform.url && platform.url.trim())
 
@@ -328,7 +328,7 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
                   <button
                     type="button"
                     onClick={() => openModal(platform.id)}
-                    className="relative h-9 w-9 rounded-xl hover:bg-background/90 active:scale-95 transition-all flex items-center justify-center cursor-pointer focus-visible:outline-none"
+                    className="relative h-9.5 w-9.5 rounded-xl hover:bg-background/90 active:scale-95 transition-all flex items-center justify-center cursor-pointer focus-visible:outline-none"
                     aria-label={`${platform.name}: ${isConnected ? 'Connected' : 'Not Connected'}`}
                   >
                     {platform.logo}
