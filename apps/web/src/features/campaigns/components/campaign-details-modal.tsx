@@ -141,7 +141,18 @@ export function CampaignDetailsModal({ campaign, isOpen, onClose }: CampaignDeta
               </div>
             )}
             <div className="min-w-0">
-              <h3 className="text-base font-bold text-foreground truncate">{campaign.brand_name}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-foreground truncate">{campaign.brand_name}</h3>
+                {campaign.status === 'NEW_PITCH' && (
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 shrink-0">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                    </span>
+                    New
+                  </span>
+                )}
+              </div>
               {campaign.product_name && (
                 <p className="text-xs text-muted-foreground font-medium truncate">{campaign.product_name}</p>
               )}

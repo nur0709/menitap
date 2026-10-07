@@ -78,7 +78,6 @@ export function CampaignsManager({ campaigns, inboundToken }: CampaignsManagerPr
       ALL: campaigns.length,
       NEW_PITCH: campaigns.filter((c) => c.status === 'NEW_PITCH').length,
       ACCEPTED: campaigns.filter((c) => c.status === 'ACCEPTED').length,
-      FILMING: campaigns.filter((c) => c.status === 'FILMING').length,
       DELIVERED: campaigns.filter((c) => c.status === 'DELIVERED').length,
       PAID: campaigns.filter((c) => c.status === 'PAID').length,
     }
@@ -144,23 +143,24 @@ export function CampaignsManager({ campaigns, inboundToken }: CampaignsManagerPr
         </button>
         <button
           onClick={() => setStatusFilter('NEW_PITCH')}
-          className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer text-xs whitespace-nowrap ${
+          className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer text-xs whitespace-nowrap flex items-center gap-1.5 ${
             statusFilter === 'NEW_PITCH'
-              ? 'bg-purple-600 text-white font-bold'
+              ? 'bg-emerald-600 text-white font-bold'
               : 'bg-muted/60 text-muted-foreground hover:text-foreground'
           }`}
         >
-          Pitches ({filterCounts.NEW_PITCH})
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          New ({filterCounts.NEW_PITCH})
         </button>
         <button
-          onClick={() => setStatusFilter('FILMING')}
+          onClick={() => setStatusFilter('ACCEPTED')}
           className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer text-xs whitespace-nowrap ${
-            statusFilter === 'FILMING'
-              ? 'bg-[#FC801A] text-white font-bold'
+            statusFilter === 'ACCEPTED'
+              ? 'bg-sky-600 text-white font-bold'
               : 'bg-muted/60 text-muted-foreground hover:text-foreground'
           }`}
         >
-          Filming ({filterCounts.FILMING})
+          Accepted ({filterCounts.ACCEPTED})
         </button>
         <button
           onClick={() => setStatusFilter('DELIVERED')}

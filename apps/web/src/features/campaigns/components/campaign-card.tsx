@@ -97,36 +97,59 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
     )
   }
 
-  const badgeClass = STATUS_BADGE_CLASS[currentStatus] || STATUS_BADGE_CLASS.NEW_PITCH
+  const isNew = currentStatus === 'NEW_PITCH'
+  const badgeClass =
+    currentStatus === 'NEW_PITCH'
+      ? 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground border-border'
+      : STATUS_BADGE_CLASS[currentStatus] || STATUS_BADGE_CLASS.DECLINED
 
   return (
     <>
-      <div className="relative rounded-2xl bg-card border border-border p-4 sm:p-5 shadow-xs hover:shadow-sm transition-all flex flex-col justify-between">
+      <div
+        className={`relative rounded-2xl bg-card border p-4 sm:p-5 shadow-xs hover:shadow-sm transition-all flex flex-col justify-between ${
+          isNew
+            ? 'border-emerald-500/30 border-l-[3.5px] border-l-emerald-500 dark:border-l-emerald-400'
+            : 'border-border'
+        }`}
+      >
         <div>
-          {/* Top: Full-width Brand & Product header (No squishing or cutting text) */}
-          <div className="flex items-start gap-3 mb-3">
-            {campaign.brand_logo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={campaign.brand_logo_url}
-                alt={campaign.brand_name}
-                className="h-10 w-10 rounded-xl object-contain bg-background border border-border p-1 shrink-0"
-              />
-            ) : (
-              <div className="h-10 w-10 rounded-xl bg-[#FC801A]/10 text-[#FC801A] font-bold flex items-center justify-center text-xs border border-[#FC801A]/20 shrink-0">
-                {campaign.brand_name.slice(0, 2).toUpperCase()}
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <h4 className="text-sm font-bold text-foreground truncate">{campaign.brand_name}</h4>
-              {campaign.product_name ? (
-                <p className="text-xs text-muted-foreground font-medium leading-snug line-clamp-2 mt-0.5">
-                  {campaign.product_name}
-                </p>
+          {/* Top: Brand & Product header + NEW indicator badge */}
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
+              {campaign.brand_logo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={campaign.brand_logo_url}
+                  alt={campaign.brand_name}
+                  className="h-10 w-10 rounded-xl object-contain bg-background border border-border p-1 shrink-0"
+                />
               ) : (
-                <p className="text-[11px] text-muted-foreground/80 mt-0.5">Brand Collaboration</p>
+                <div className="h-10 w-10 rounded-xl bg-[#FC801A]/10 text-[#FC801A] font-bold flex items-center justify-center text-xs border border-[#FC801A]/20 shrink-0">
+                  {campaign.brand_name.slice(0, 2).toUpperCase()}
+                </div>
               )}
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-bold text-foreground truncate">{campaign.brand_name}</h4>
+                {campaign.product_name ? (
+                  <p className="text-xs text-muted-foreground font-medium leading-snug line-clamp-2 mt-0.5">
+                    {campaign.product_name}
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground/80 mt-0.5">Brand Collaboration</p>
+                )}
+              </div>
             </div>
+
+            {/* Prominent Indicator for Newly Posted Cards */}
+            {isNew && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 shadow-xs shrink-0 mt-0.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                New
+              </span>
+            )}
           </div>
 
           {/* Key Metrics: Compensation & Highlighted Due Date */}
@@ -155,18 +178,18 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
 
         {/* Clean Bottom Row: Status Toggle + View Deal button + Delete */}
         <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs gap-2">
-          {/* Status Dropdown placed cleanly at bottom */}
+          {/* Status Dropdown placed cleanly at bottom without "New Pitch" option */}
           <div className="relative">
             <select
-              value={currentStatus}
+              value={currentStatus === 'NEW_PITCH' ? '' : currentStatus}
               onChange={handleStatusChange}
               disabled={isPending}
-              aria-label={`Change status for ${campaign.brand_name}`}
+              aria-label={`Update status for ${campaign.brand_name}`}
               className={`text-[11px] font-semibold pl-2.5 pr-6 py-1 rounded-full border appearance-none cursor-pointer focus:outline-none transition-colors ${badgeClass}`}
             >
-              {/* Show initial status if it's currently NEW_PITCH or FILMING */}
-              {currentStatus === 'NEW_PITCH' && <option value="NEW_PITCH">New Pitch</option>}
-              {currentStatus === 'FILMING' && <option value="FILMING">Filming</option>}
+              <option value="" disabled hidden>
+                Set Status
+              </option>
 
               {SELECTABLE_STATUSES.map((s) => (
                 <option key={s.value} value={s.value}>
