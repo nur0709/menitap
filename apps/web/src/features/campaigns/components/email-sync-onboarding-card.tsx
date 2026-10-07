@@ -91,7 +91,7 @@ export function EmailSyncOnboardingCard({ inboundToken }: EmailSyncOnboardingCar
               Opens the Forwarding page in your Gmail
             </div>
             <a
-              href="https://mail.google.com/mail/u/0/#settings/fwdandpop"
+              href="https://mail.google.com/mail/#settings/fwdandpop"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-semibold text-white bg-[#FC801A] hover:bg-[#E66F0D] transition-colors shrink-0 shadow-xs cursor-pointer"

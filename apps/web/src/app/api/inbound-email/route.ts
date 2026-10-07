@@ -18,17 +18,27 @@ export async function POST(req: NextRequest) {
       from = rawBody.data.from || ''
       subject = rawBody.data.subject || ''
 
-      // If Resend provided email_id, attempt to fetch full content if RESEND_API_KEY is configured
+      // If Resend provided email_id, attempt to fetch full content from Resend Receiving API
       const emailId = rawBody.data.email_id
       const resendApiKey = process.env.RESEND_API_KEY
       if (emailId && resendApiKey) {
         try {
-          const res = await fetch(`https://api.resend.com/emails/${emailId}`, {
+          // The correct Resend endpoint for inbound received emails is /emails/receiving/{id}
+          const res = await fetch(`https://api.resend.com/emails/receiving/${emailId}`, {
             headers: { Authorization: `Bearer ${resendApiKey}` },
           })
           if (res.ok) {
             const emailDetail = await res.json()
             textBody = emailDetail.text || emailDetail.html || ''
+          } else {
+            // Fallback check on standard /emails/{id}
+            const fallbackRes = await fetch(`https://api.resend.com/emails/${emailId}`, {
+              headers: { Authorization: `Bearer ${resendApiKey}` },
+            })
+            if (fallbackRes.ok) {
+              const emailDetail = await fallbackRes.json()
+              textBody = emailDetail.text || emailDetail.html || ''
+            }
           }
         } catch (fetchErr) {
           console.warn('[inbound-email] Failed fetching full email from Resend:', fetchErr)
@@ -48,12 +58,20 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Automated Google Forwarding Verification Link Handler
-    const verificationMatch = textBody.match(/https:\/\/mail-settings\.google\.com\/mail\/vf-[a-zA-Z0-9_\-]+/)
+    const verificationMatch = textBody.match(
+      /https:\/\/(?:mail-settings\.google\.com|mail\.google\.com)\/mail\/vf-[a-zA-Z0-9_\-]+/
+    )
     if (verificationMatch && verificationMatch[0]) {
       const verifyUrl = verificationMatch[0]
       console.log('[inbound-email] Auto-verifying Google forwarding link:', verifyUrl)
       try {
-        const verifyRes = await fetch(verifyUrl, { method: 'GET' })
+        const verifyRes = await fetch(verifyUrl, {
+          method: 'GET',
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          },
+        })
         console.log('[inbound-email] Google verification response status:', verifyRes.status)
         return NextResponse.json({
           status: 'verified_google_forwarding',
