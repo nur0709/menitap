@@ -92,10 +92,12 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // 3. Extract User Inbound Token from Recipient (e.g. deals+55cddc46@in.menitap.com)
+    // 3. Extract User Inbound Token from Recipient (e.g. deals-55cddc46@in.menitap.com)
     let extractedToken: string | null = null
     for (const recipient of toList) {
-      const match = recipient.match(/deals\+([a-zA-Z0-9_-]+)@/i) || recipient.match(/^([a-zA-Z0-9_-]+)@in\.menitap\.com/i)
+      const match =
+        recipient.match(/(?:deals[-+._]|^)([a-zA-Z0-9_-]+)@/i) ||
+        recipient.match(/^([a-zA-Z0-9_-]+)@in\.menitap\.com/i)
       if (match && match[1]) {
         extractedToken = match[1]
         break

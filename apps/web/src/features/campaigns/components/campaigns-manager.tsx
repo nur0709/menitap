@@ -18,7 +18,7 @@ export function CampaignsManager({ campaigns, inboundToken }: CampaignsManagerPr
   const [copiedSyncEmail, setCopiedSyncEmail] = useState(false)
 
   const syncAddress = inboundToken
-    ? `deals+${inboundToken}@in.menitap.com`
+    ? `deals-${inboundToken}@in.menitap.com`
     : 'deals@in.menitap.com'
 
   const handleCopySyncAddress = async () => {

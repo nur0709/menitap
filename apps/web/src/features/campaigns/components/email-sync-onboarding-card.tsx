@@ -13,7 +13,7 @@ export function EmailSyncOnboardingCard({ inboundToken }: EmailSyncOnboardingCar
   const [copied, setCopied] = useState(false)
 
   const forwardAddress = inboundToken
-    ? `deals+${inboundToken}@in.menitap.com`
+    ? `deals-${inboundToken}@in.menitap.com`
     : 'deals@in.menitap.com'
 
   const handleCopy = async () => {
