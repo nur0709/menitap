@@ -77,80 +77,33 @@ export function EmailSyncOnboardingCard({ inboundToken }: EmailSyncOnboardingCar
           </div>
         </div>
 
-        {/* Step 2: Realistic Gmail Settings View (Matching User Screenshot) */}
-        <div className="space-y-3 pt-2 border-t border-border/60">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#08739C] text-white text-[10px] font-bold">
-                2
-              </span>
-              Paste in Gmail &gt; Forwarding
-            </label>
+        {/* Step 2: Open Gmail Forwarding (Simple, Symmetrical, Orange) */}
+        <div className="space-y-2 pt-2 border-t border-border/60">
+          <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FC801A] text-white text-[10px] font-bold">
+              2
+            </span>
+            Add to Gmail Forwarding
+          </label>
 
+          <div className="flex items-center gap-2">
+            <div className="flex-1 bg-muted/50 border border-border px-3.5 py-2 rounded-xl text-xs text-muted-foreground truncate">
+              Opens the Forwarding page in your Gmail
+            </div>
             <a
               href="https://mail.google.com/mail/u/0/#settings/fwdandpop"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-[#08739C] dark:text-[#38BDF8] hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-semibold text-white bg-[#FC801A] hover:bg-[#E66F0D] transition-colors shrink-0 shadow-xs cursor-pointer"
             >
               <span>Open Gmail Settings</span>
-              <ExternalLink className="h-3 w-3" />
+              <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
 
-          {/* Authentic Gmail Settings Screenshot Replica */}
-          <div className="rounded-xl border border-border bg-[#F8FAFC] dark:bg-muted/30 p-3.5 sm:p-5 shadow-xs text-left overflow-x-auto text-[11px] sm:text-xs text-foreground font-sans">
-            {/* Top Tabs replica */}
-            <div className="flex items-center gap-3 sm:gap-4 border-b border-border/70 pb-2 mb-3 text-muted-foreground text-[11px] whitespace-nowrap overflow-x-auto scrollbar-none">
-              <span>Filters and Blocked Addresses</span>
-              <span className="text-[#1A73E8] dark:text-[#38BDF8] font-bold border-b-2 border-[#1A73E8] dark:border-[#38BDF8] pb-2 -mb-2">
-                Forwarding and POP/IMAP
-              </span>
-              <span>Add-ons</span>
-            </div>
-
-            {/* Forwarding Row */}
-            <div className="grid grid-cols-[auto_1fr] gap-3 sm:gap-5 items-start py-2">
-              <span className="font-bold text-foreground shrink-0 pt-0.5">
-                Forwarding:
-              </span>
-
-              <div className="space-y-2.5">
-                {/* Disabled option */}
-                <div className="flex items-center gap-2 text-muted-foreground text-xs opacity-60">
-                  <span className="h-3.5 w-3.5 rounded-full border border-border inline-block" />
-                  <span>Disable forwarding</span>
-                </div>
-
-                {/* Active Forward option */}
-                <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-foreground">
-                  <span className="h-3.5 w-3.5 rounded-full border-4 border-[#1A73E8] bg-white inline-block shrink-0" />
-                  <span>Forward a copy of incoming mail to</span>
-
-                  {/* Input Box with Pasted Address */}
-                  <div className="bg-background border-2 border-blue-500 rounded px-2.5 py-1 font-mono text-[11px] text-blue-600 dark:text-blue-400 font-semibold shadow-xs flex items-center gap-1.5">
-                    <span>{forwardAddress}</span>
-                    <span className="text-[10px] bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1 rounded font-sans font-bold">
-                      Pasted ✓
-                    </span>
-                  </div>
-
-                  <span>and</span>
-
-                  {/* Keep in Inbox dropdown */}
-                  <div className="bg-background border border-border rounded px-2 py-1 text-[11px] text-muted-foreground font-medium flex items-center gap-1">
-                    <span>keep Gmail&apos;s copy in the Inbox</span>
-                    <span className="text-[9px]">▾</span>
-                  </div>
-                </div>
-
-                {/* Subtext */}
-                <p className="text-[10px] sm:text-[11px] text-muted-foreground/80 pl-5">
-                  Tip: You can forward specific messages using filters
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="text-[11px] text-muted-foreground pl-1">
+            Click <strong>&quot;Add a forwarding address&quot;</strong> and paste your email. Menitap auto-approves it!
+          </p>
         </div>
 
         {/* Minimal Auto-verify badge */}
