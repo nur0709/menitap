@@ -144,35 +144,33 @@ export function GoogleSyncCard({ initialStatus }: GoogleSyncCardProps) {
         </div>
       </div>
 
-      {/* 3. Sync Action Button (Completely standalone button) */}
+      {/* 3. Sync Action Button (Completely standalone icon button) */}
       <div className="relative group flex items-center">
         {status.isConnected ? (
           <button
             type="button"
             onClick={handleSync}
             disabled={isPending}
-            className={`h-10 px-3.5 rounded-2xl border border-border bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center gap-2 text-xs font-semibold shadow-2xs focus-visible:outline-none ${
+            className={`relative h-10 w-10 rounded-2xl border border-border bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center justify-center shadow-2xs focus-visible:outline-none ${
               isPending ? 'cursor-wait text-muted-foreground' : 'cursor-pointer text-foreground'
             }`}
             aria-label="Sync Deals"
           >
             <RefreshCw
-              className={`h-4 w-4 ${
+              className={`h-5 w-5 ${
                 isPending
                   ? 'animate-spin text-[#FC801A]'
                   : 'text-[#FC801A]'
               }`}
             />
-            <span className="hidden sm:inline">Sync</span>
           </button>
         ) : (
           <a
             href="/api/auth/google/connect"
-            className="h-10 px-3.5 rounded-2xl border border-border bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground shadow-2xs focus-visible:outline-none cursor-pointer"
+            className="relative h-10 w-10 rounded-2xl border border-border bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center justify-center text-muted-foreground hover:text-foreground shadow-2xs focus-visible:outline-none cursor-pointer"
             aria-label="Connect Gmail to Sync"
           >
-            <RefreshCw className="h-4 w-4 text-muted-foreground/60" />
-            <span className="hidden sm:inline">Sync</span>
+            <RefreshCw className="h-5 w-5 text-muted-foreground/60" />
           </a>
         )}
 
