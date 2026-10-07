@@ -9,7 +9,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   weight: ["400", "500", "600", "700", "800"],
 });
 
-const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://menitap.vercel.app'
+const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://menitap.com'
 const siteUrl = rawAppUrl.startsWith('http') ? rawAppUrl : `https://${rawAppUrl}`
 
 export const metadata: Metadata = {
