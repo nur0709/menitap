@@ -1,11 +1,14 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Button } from '@/components/ui/button'
-import { triggerGmailSyncAction, disconnectGoogleAction, GoogleIntegrationStatus } from '../actions'
+import {
+  triggerGmailSyncAction,
+  disconnectGoogleAction,
+  GoogleIntegrationStatus,
+} from '../actions'
 import { formatTimeAgo } from '@/features/campaigns/lib/action-helpers'
-import { GmailLogo } from '@/components/social-icons'
-import { RefreshCw, ArrowRight } from 'lucide-react'
+import { GmailLogo, OutlookLogo } from '@/components/social-icons'
+import { RefreshCw } from 'lucide-react'
 
 interface GoogleSyncCardProps {
   initialStatus: GoogleIntegrationStatus
@@ -15,8 +18,22 @@ export function GoogleSyncCard({ initialStatus }: GoogleSyncCardProps) {
   const [status, setStatus] = useState<GoogleIntegrationStatus>(initialStatus)
   const [isPending, startTransition] = useTransition()
   const [syncFeedback, setSyncFeedback] = useState<string | null>(null)
+  const [outlookFeedback, setOutlookFeedback] = useState<string | null>(null)
+
+  const handleDisconnect = () => {
+    if (confirm(`Disconnect Gmail (${status.emailAddress || ''}) from Menitap?`)) {
+      startTransition(async () => {
+        const res = await disconnectGoogleAction()
+        if (res.success) {
+          setStatus({ isConnected: false, emailAddress: null, lastSyncedAt: null })
+        }
+      })
+    }
+  }
 
   const handleSync = () => {
+    if (!status.isConnected) return
+
     setSyncFeedback(null)
     startTransition(async () => {
       const res = await triggerGmailSyncAction()
@@ -27,8 +44,8 @@ export function GoogleSyncCard({ initialStatus }: GoogleSyncCardProps) {
         }))
         setSyncFeedback(
           res.newDealsCount > 0
-            ? `Found ${res.newDealsCount} new deal${res.newDealsCount > 1 ? 's' : ''}!`
-            : 'Inbox is up to date'
+            ? `+${res.newDealsCount} deal${res.newDealsCount > 1 ? 's' : ''}`
+            : 'Up to date'
         )
       } else {
         setSyncFeedback(res.error || 'Failed to sync')
@@ -37,90 +54,154 @@ export function GoogleSyncCard({ initialStatus }: GoogleSyncCardProps) {
     })
   }
 
-  const handleDisconnect = () => {
-    if (confirm('Disconnect your Gmail account from Menitap?')) {
-      startTransition(async () => {
-        const res = await disconnectGoogleAction()
-        if (res.success) {
-          setStatus({ isConnected: false, emailAddress: null, lastSyncedAt: null })
-        }
-      })
-    }
+  const handleOutlookClick = () => {
+    setOutlookFeedback('Outlook coming soon!')
+    setTimeout(() => setOutlookFeedback(null), 3000)
   }
 
-  if (status.isConnected) {
-    return (
-      <div className="flex flex-wrap items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-xl bg-card border border-border shadow-2xs text-xs">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="p-1.5 rounded-lg bg-muted/60 shrink-0">
-            <GmailLogo className="h-4 w-4" />
-          </div>
-          <div className="flex items-center gap-2 flex-wrap min-w-0">
-            <span className="font-bold text-foreground">Gmail Synced</span>
-            <span className="font-mono text-muted-foreground text-[11px] truncate max-w-[220px]">
-              {status.emailAddress}
-            </span>
-            {status.lastSyncedAt && (
-              <span className="text-[11px] text-muted-foreground/70 hidden sm:inline">
-                • Checked {formatTimeAgo(status.lastSyncedAt)}
-              </span>
-            )}
-            {syncFeedback && (
-              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold animate-in fade-in">
-                • {syncFeedback}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1.5 shrink-0 ml-auto sm:ml-0">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={handleSync}
-            disabled={isPending}
-            className="h-7 px-2.5 rounded-lg text-xs gap-1.5 cursor-pointer shadow-2xs"
-          >
-            <RefreshCw className={`h-3 w-3 ${isPending ? 'animate-spin' : ''}`} />
-            <span>{isPending ? 'Syncing...' : 'Sync Now'}</span>
-          </Button>
-
+  return (
+    <div className="inline-flex items-center gap-1.5 p-1 rounded-xl bg-card border border-border shadow-2xs">
+      {/* 1. Gmail Button with Indicator & Hover Tooltip (Zero static text) */}
+      <div className="relative group flex items-center">
+        {status.isConnected ? (
           <button
             type="button"
             onClick={handleDisconnect}
             disabled={isPending}
-            className="text-[11px] text-muted-foreground/70 hover:text-destructive px-2 py-1 cursor-pointer transition-colors"
+            className="relative h-8 w-8 rounded-lg border border-border/80 bg-background hover:bg-muted/80 transition-all flex items-center justify-center cursor-pointer shadow-2xs group-hover:border-foreground/30 focus-visible:outline-none"
+            aria-label={`Gmail connected (${status.emailAddress})`}
           >
-            Disconnect
+            <GmailLogo className="h-4.5 w-4.5 shrink-0" />
+            {/* Pulsing Connected Emerald Dot */}
+            <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border border-background" />
+            </span>
           </button>
+        ) : (
+          <a
+            href="/api/auth/google/connect"
+            className="relative h-8 w-8 rounded-lg border border-border/80 bg-background hover:bg-muted/80 transition-all flex items-center justify-center cursor-pointer shadow-2xs group-hover:border-foreground/30 focus-visible:outline-none"
+            aria-label="Connect Gmail"
+          >
+            <GmailLogo className="h-4.5 w-4.5 shrink-0" />
+            {/* Gray Unlinked Dot */}
+            <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-500 border border-background" />
+          </a>
+        )}
+
+        {/* Hover Tooltip (Only visible on hover) */}
+        <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50 flex flex-col items-center min-w-max shadow-lg">
+          <div className="w-2 h-2 -mb-1 rotate-45 bg-popover border-t border-l border-border" />
+          <div className="bg-popover text-popover-foreground text-xs py-1.5 px-3 rounded-xl border border-border shadow-md space-y-0.5 text-center">
+            <div className="font-semibold text-foreground flex items-center justify-center gap-1.5">
+              <GmailLogo className="h-3 w-3" />
+              <span>Gmail: {status.isConnected ? 'Connected' : 'Not Connected'}</span>
+            </div>
+            {status.isConnected ? (
+              <>
+                <div className="text-[11px] text-muted-foreground font-mono">
+                  {status.emailAddress}
+                </div>
+                <div className="text-[10px] text-muted-foreground/80 pt-0.5">
+                  Click to disconnect
+                </div>
+              </>
+            ) : (
+              <div className="text-[11px] text-muted-foreground">
+                Click to connect & auto-sync brand deals
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    )
-  }
 
-  return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:px-4 rounded-xl bg-card border border-border shadow-2xs text-xs">
-      <div className="flex items-center gap-3">
-        <div className="p-1.5 rounded-lg bg-muted/60 shrink-0">
-          <GmailLogo className="h-5 w-5" />
-        </div>
-        <div>
-          <span className="font-bold text-foreground">Auto-Sync Brand Deals</span>
-          <span className="text-muted-foreground text-[11px] block sm:inline sm:ml-2">
-            Connect Gmail to auto-detect brand pitches & PR packages. Read-only.
-          </span>
+      {/* 2. Outlook Button with Indicator & Tooltip */}
+      <div className="relative group flex items-center">
+        <button
+          type="button"
+          onClick={handleOutlookClick}
+          className="relative h-8 w-8 rounded-lg border border-border/80 bg-background/60 hover:bg-muted/80 transition-all flex items-center justify-center cursor-pointer shadow-2xs group-hover:border-foreground/30 focus-visible:outline-none"
+          aria-label="Outlook (Coming soon)"
+        >
+          <OutlookLogo className="h-4.5 w-4.5 shrink-0" />
+          {/* Muted / Coming Soon Dot */}
+          <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-600 border border-background" />
+        </button>
+
+        {/* Hover Tooltip */}
+        <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50 flex flex-col items-center min-w-max shadow-lg">
+          <div className="w-2 h-2 -mb-1 rotate-45 bg-popover border-t border-l border-border" />
+          <div className="bg-popover text-popover-foreground text-xs py-1.5 px-3 rounded-xl border border-border shadow-md space-y-0.5 text-center">
+            <div className="font-semibold text-foreground flex items-center justify-center gap-1.5">
+              <OutlookLogo className="h-3 w-3" />
+              <span>Outlook: Coming Soon</span>
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              Auto-sync for Microsoft Outlook
+            </div>
+          </div>
         </div>
       </div>
 
-      <a
-        href="/api/auth/google/connect"
-        className="inline-flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-[#FC801A] hover:bg-[#E66F0D] transition-colors shadow-2xs shrink-0 cursor-pointer self-start sm:self-auto"
-      >
-        <GmailLogo className="h-3.5 w-3.5 shrink-0" />
-        <span>Connect Gmail</span>
-        <ArrowRight className="h-3 w-3" />
-      </a>
+      {/* 3. Sync Icon Button Right Next to the Buttons */}
+      <div className="relative group flex items-center">
+        {status.isConnected ? (
+          <button
+            type="button"
+            onClick={handleSync}
+            disabled={isPending}
+            className={`h-8 w-8 rounded-lg border border-border/80 bg-background hover:bg-muted/80 transition-all flex items-center justify-center shadow-2xs group-hover:border-foreground/30 focus-visible:outline-none ${
+              isPending ? 'cursor-wait' : 'cursor-pointer'
+            }`}
+            aria-label="Sync Deals"
+          >
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${
+                isPending
+                  ? 'animate-spin text-[#FC801A]'
+                  : 'text-muted-foreground group-hover:text-foreground'
+              }`}
+            />
+          </button>
+        ) : (
+          <a
+            href="/api/auth/google/connect"
+            className="h-8 w-8 rounded-lg border border-border/80 bg-background hover:bg-muted/80 transition-all flex items-center justify-center shadow-2xs group-hover:border-foreground/30 focus-visible:outline-none cursor-pointer"
+            aria-label="Connect Gmail to Sync"
+          >
+            <RefreshCw className="h-3.5 w-3.5 text-muted-foreground/60" />
+          </a>
+        )}
+
+        {/* Hover Tooltip */}
+        <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50 flex flex-col items-center min-w-max shadow-lg">
+          <div className="w-2 h-2 -mb-1 rotate-45 bg-popover border-t border-l border-border" />
+          <div className="bg-popover text-popover-foreground text-xs py-1.5 px-3 rounded-xl border border-border shadow-md space-y-0.5 text-center">
+            <div className="font-semibold text-foreground">
+              {isPending ? 'Syncing...' : 'Sync Inbox'}
+            </div>
+            {status.isConnected ? (
+              <div className="text-[11px] text-muted-foreground">
+                {status.lastSyncedAt
+                  ? `Checked ${formatTimeAgo(status.lastSyncedAt)}`
+                  : 'Click to scan for brand pitches'}
+              </div>
+            ) : (
+              <div className="text-[11px] text-muted-foreground">
+                Connect Gmail to auto-sync pitches
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Sync / Outlook Feedback Badge */}
+      {(syncFeedback || outlookFeedback) && (
+        <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-lg animate-in fade-in slide-in-from-left-1 whitespace-nowrap ml-1">
+          {syncFeedback || outlookFeedback}
+        </span>
+      )}
     </div>
   )
 }

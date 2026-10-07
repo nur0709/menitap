@@ -6,12 +6,15 @@ import { CampaignCard } from './campaign-card'
 import { AddCampaignManualModal } from './add-campaign-manual-modal'
 import { Search, Inbox } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { GoogleSyncCard } from '@/features/integrations/google/components/google-sync-card'
+import { GoogleIntegrationStatus } from '@/features/integrations/google/actions'
 
 interface CampaignsManagerProps {
   campaigns: CreatorCampaign[]
+  googleIntegration?: GoogleIntegrationStatus
 }
 
-export function CampaignsManager({ campaigns }: CampaignsManagerProps) {
+export function CampaignsManager({ campaigns, googleIntegration }: CampaignsManagerProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PITCHES' | CampaignStatus>('ALL')
 
@@ -84,6 +87,10 @@ export function CampaignsManager({ campaigns }: CampaignsManagerProps) {
               {stats.paid > 0 && ` • ${stats.paid} paid`}
             </span>
           </div>
+
+          {googleIntegration && (
+            <GoogleSyncCard initialStatus={googleIntegration} />
+          )}
         </div>
 
         <div className="flex items-center gap-2.5">

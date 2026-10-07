@@ -16,6 +16,22 @@ export function GmailLogo({ className = 'h-4 w-4' }: { className?: string }) {
 }
 
 /**
+ * Official Microsoft Outlook Logo
+ */
+export function OutlookLogo({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none">
+      <path fill="#0078d4" d="M41.7 13.5L25.3 24.8a2.5 2.5 0 0 1-2.6 0L6.3 13.5C5.5 14.3 5 15.3 5 16.5v19c0 2.2 1.8 4 4 4h30c2.2 0 4-1.8 4-4v-19c0-1.2-.5-2.2-1.3-3z" />
+      <path fill="#28a8ea" d="M39 9H9c-1.2 0-2.3.5-3 1.4l17 11.7a2 2 0 0 0 2 0l17-11.7C41.3 9.5 40.2 9 39 9z" />
+      <path fill="#005a9e" d="M23.5 22.5L5.7 34.8C6.3 37.8 9 40 12 40h24c3 0 5.7-2.2 6.3-5.2L24.5 22.5c-.3-.2-.7-.2-1 0z" opacity="0.15" />
+      <rect x="7" y="14" width="18" height="18" rx="3.5" fill="#004c87" />
+      <ellipse cx="16" cy="23" rx="5" ry="5.5" fill="#ffffff" />
+      <ellipse cx="16" cy="23" rx="2.5" ry="3" fill="#004c87" />
+    </svg>
+  )
+}
+
+/**
  * Official Instagram Gradient Logo
  */
 export function InstagramLogo({ className = 'h-4 w-4' }: { className?: string }) {

@@ -7,7 +7,6 @@ import { CreatorLinksManager, AffiliateLinkItem } from './creator-links-manager'
 import { CreatorPublicProfileManager } from './creator-public-profile-manager'
 import { DeleteAccountSection } from './delete-account-section'
 import { CampaignsManager } from '@/features/campaigns/components/campaigns-manager'
-import { GoogleSyncCard } from '@/features/integrations/google/components/google-sync-card'
 import { GoogleIntegrationStatus } from '@/features/integrations/google/actions'
 import { CreatorCampaign } from '@/features/campaigns/types'
 import { SignOutButton } from '@/features/auth/components/sign-out-button'
@@ -127,8 +126,9 @@ export function CreatorWorkspace({
         {/* Tab 1: Campaigns */}
         {activeTab === 'campaigns' && (
           <div className="space-y-4">
-            <GoogleSyncCard
-              initialStatus={
+            <CampaignsManager
+              campaigns={campaigns}
+              googleIntegration={
                 googleIntegration || {
                   isConnected: false,
                   emailAddress: null,
@@ -136,7 +136,6 @@ export function CreatorWorkspace({
                 }
               }
             />
-            <CampaignsManager campaigns={campaigns} />
           </div>
         )}
 
