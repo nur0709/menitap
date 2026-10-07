@@ -1,6 +1,9 @@
-import Link from 'next/link'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { SignUpForm, type AccountType } from '@/features/auth/components/sign-up-form'
+import { AuthCard, type AccountType } from '@/features/auth/components/auth-card'
+
+export const metadata = {
+  title: 'Sign Up | Menitap',
+  description: 'Create an account on Menitap',
+}
 
 export default async function SignUpPage({
   searchParams,
@@ -14,25 +17,5 @@ export default async function SignUpPage({
       : 'USER'
   ) as AccountType
 
-  return (
-    <Card className="bg-card border-border shadow-xl transition-colors">
-      <CardHeader className="text-center pb-4">
-        <CardTitle className="text-2xl font-bold text-foreground">Create an account</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Select your account type to get started
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <SignUpForm defaultRole={defaultRole} />
-      </CardContent>
-      <CardFooter className="flex justify-center border-t border-border/50 pt-4">
-        <p className="text-sm text-muted-foreground">
-          Already have an account?{' '}
-          <Link href="/sign-in" className="text-[#FC801A] hover:text-[#E66F0D] font-medium">
-            Sign in
-          </Link>
-        </p>
-      </CardFooter>
-    </Card>
-  )
+  return <AuthCard initialMode="signup" initialRole={defaultRole} />
 }
