@@ -1,25 +1,92 @@
 import React from 'react'
 
-export function InstagramIcon({ className = 'h-4 w-4' }: { className?: string }) {
+/**
+ * Official Google Gmail 4-Color Logo
+ */
+export function GmailLogo({ className = 'h-4 w-4' }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+    <svg className={className} viewBox="0 0 48 48" fill="none">
+      <path fill="#4caf50" d="M45,16.2l-5,2.75v19.05c0,1.1-.9,2-2,2h-6V24.57L45,16.2z" />
+      <path fill="#1e88e5" d="M3,16.2l5,2.75v19.05c0,1.1.9,2,2,2h6V24.57L3,16.2z" />
+      <path fill="#e53935" d="M40.2,8.8l-15.6,9.5c-.4.2-.8.2-1.2,0L7.8,8.8C6.6,8.1,5.2,8.7,4.8,10c-.2.6-.1,1.3.3,1.8l7.9,5.7v10.5h22V17.5l7.9-5.7c.4-.3.6-.9.4-1.5C43,9,41.5,8.2,40.2,8.8z" />
+      <path fill="#c62828" d="M40.2,8.8L24,18.7L7.8,8.8C5.7,7.5,3,9,3,11.5v4.7l21,13.8l21-13.8v-4.7C45,9,42.3,7.5,40.2,8.8z" />
+      <path fill="#fbc02d" d="M45,11.5v4.7l-7,5.1V9.8L40.2,8.8C42.3,7.5,45,9,45,11.5z" />
     </svg>
   )
+}
+
+/**
+ * Official Instagram Gradient Logo
+ */
+export function InstagramLogo({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none">
+      <defs>
+        <radialGradient id="ig-gradient-fill" cx="0.2" cy="1" r="1">
+          <stop offset="0%" stopColor="#fdf497" />
+          <stop offset="5%" stopColor="#fdf497" />
+          <stop offset="45%" stopColor="#fd5949" />
+          <stop offset="60%" stopColor="#d6249f" />
+          <stop offset="90%" stopColor="#285AEB" />
+        </radialGradient>
+      </defs>
+      <rect width="24" height="24" rx="6" fill="url(#ig-gradient-fill)" />
+      <circle cx="12" cy="12" r="4.3" stroke="#ffffff" strokeWidth="1.8" fill="none" />
+      <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" stroke="#ffffff" strokeWidth="1.8" fill="none" />
+      <circle cx="17.2" cy="6.8" r="1.1" fill="#ffffff" />
+    </svg>
+  )
+}
+
+/**
+ * Official TikTok Logo with Cyan/Magenta Chromatic Aberration
+ */
+export function TikTokLogo({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#000000" />
+      {/* Cyan shadow */}
+      <path
+        fill="#25F4EE"
+        d="M17.3 7.8c-.8-.5-1.4-1.2-1.7-2.1-.1-.3-.2-.7-.2-1h-2.1v10.3c0 1.6-1.3 2.9-2.9 2.9-1.2 0-2.3-.8-2.7-1.9-.5-1.3.1-2.8 1.4-3.4.4-.2.8-.3 1.3-.3v-2.3c-2.4 0-4.5 1.7-4.9 4.1-.5 2.7 1.4 5.2 4.1 5.6 2.7.5 5.2-1.4 5.6-4.1V10c1.2.9 2.7 1.4 4.2 1.4V9.2c-.8 0-1.5-.5-1.9-1.4z"
+      />
+      {/* Magenta shadow */}
+      <path
+        fill="#FE2C55"
+        d="M16.9 7.4c-.8-.5-1.4-1.2-1.7-2.1-.1-.3-.2-.7-.2-1h-2.1v10.3c0 1.6-1.3 2.9-2.9 2.9-1.2 0-2.3-.8-2.7-1.9-.5-1.3.1-2.8 1.4-3.4.4-.2.8-.3 1.3-.3v-2.3c-2.4 0-4.5 1.7-4.9 4.1-.5 2.7 1.4 5.2 4.1 5.6 2.7.5 5.2-1.4 5.6-4.1V10c1.2.9 2.7 1.4 4.2 1.4V9.2c-.8 0-1.5-.5-1.9-1.4z"
+      />
+      {/* Crisp White Top Note */}
+      <path
+        fill="#FFFFFF"
+        d="M17.1 7.6c-.8-.5-1.4-1.2-1.7-2.1-.1-.3-.2-.7-.2-1h-2.1v10.3c0 1.6-1.3 2.9-2.9 2.9-1.2 0-2.3-.8-2.7-1.9-.5-1.3.1-2.8 1.4-3.4.4-.2.8-.3 1.3-.3v-2.3c-2.4 0-4.5 1.7-4.9 4.1-.5 2.7 1.4 5.2 4.1 5.6 2.7.5 5.2-1.4 5.6-4.1V10c1.2.9 2.7 1.4 4.2 1.4V9.2c-.8 0-1.5-.5-1.9-1.4z"
+      />
+    </svg>
+  )
+}
+
+/**
+ * Official YouTube Red & White Logo
+ */
+export function YouTubeLogo({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="#FF0000" />
+      <path d="M10 8.5L16 12L10 15.5V8.5Z" fill="#FFFFFF" />
+    </svg>
+  )
+}
+
+/**
+ * Backwards-compatible Monochrome SVGs
+ */
+export function InstagramIcon({ className = 'h-4 w-4' }: { className?: string }) {
+  return <InstagramLogo className={className} />
 }
 
 export function TikTokIcon({ className = 'h-4 w-4' }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.82 4.49 6.27 6.27 0 0 0 1.84-4.49V8.75a8.16 8.16 0 0 0 4.93 1.64V6.93a4.85 4.85 0 0 1-1-.24z" />
-    </svg>
-  )
+  return <TikTokLogo className={className} />
 }
 
 export function YouTubeIcon({ className = 'h-4 w-4' }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-    </svg>
-  )
+  return <YouTubeLogo className={className} />
 }

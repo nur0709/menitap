@@ -18,7 +18,6 @@ import {
   Layers,
   Link as LinkIcon,
   User,
-  Settings,
 } from 'lucide-react'
 
 interface CreatorWorkspaceProps {
@@ -49,7 +48,7 @@ export function CreatorWorkspace({
   affiliateLinks,
   googleIntegration,
 }: CreatorWorkspaceProps) {
-  const [activeTab, setActiveTab] = useState<'campaigns' | 'links' | 'profile' | 'settings'>('campaigns')
+  const [activeTab, setActiveTab] = useState<'campaigns' | 'links' | 'profile'>('campaigns')
 
   return (
     <div className="space-y-6">
@@ -71,6 +70,10 @@ export function CreatorWorkspace({
             </div>
             <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <SignOutButton variant="account" />
         </div>
       </div>
 
@@ -115,19 +118,7 @@ export function CreatorWorkspace({
           }`}
         >
           <User className="h-4 w-4" />
-          <span>Public Profile</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('settings')}
-          className={`flex items-center gap-2 px-3.5 py-2.5 border-b-2 font-medium transition-colors cursor-pointer whitespace-nowrap ${
-            activeTab === 'settings'
-              ? 'border-[#FC801A] text-[#FC801A] font-bold'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <Settings className="h-4 w-4" />
-          <span>Settings & Sync</span>
+          <span>Profile & Settings</span>
         </button>
       </div>
 
@@ -135,7 +126,7 @@ export function CreatorWorkspace({
       <div>
         {/* Tab 1: Campaigns */}
         {activeTab === 'campaigns' && (
-          <div className="space-y-5">
+          <div className="space-y-4">
             <GoogleSyncCard
               initialStatus={
                 googleIntegration || {
@@ -158,26 +149,10 @@ export function CreatorWorkspace({
           </div>
         )}
 
-        {/* Tab 3: Public Profile */}
+        {/* Tab 3: Profile & Settings */}
         {activeTab === 'profile' && (
-          <div className="max-w-2xl mx-auto p-4 rounded-2xl bg-card border border-border">
+          <div className="max-w-2xl mx-auto space-y-6">
             <CreatorPublicProfileManager profile={profile} />
-          </div>
-        )}
-
-        {/* Tab 4: Settings & Sync */}
-        {activeTab === 'settings' && (
-          <div className="space-y-6 max-w-2xl mx-auto">
-            {/* Google Integration Card */}
-            <GoogleSyncCard
-              initialStatus={
-                googleIntegration || {
-                  isConnected: false,
-                  emailAddress: null,
-                  lastSyncedAt: null,
-                }
-              }
-            />
 
             {/* Plan Card */}
             <div className="p-5 rounded-2xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">

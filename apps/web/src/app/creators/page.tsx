@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { UserAvatar } from "@/components/user-avatar";
-import { InstagramIcon, TikTokIcon, YouTubeIcon } from "@/components/social-icons";
+import { InstagramLogo, TikTokLogo, YouTubeLogo } from "@/components/social-icons";
 import { Users, Sparkles, ArrowRight, Check } from "lucide-react";
 
 export const dynamic = 'force-dynamic'
@@ -120,16 +120,17 @@ export default async function CreatorsPage() {
 
                     <CardContent className="p-4 pt-2">
                       <div className="pt-2.5 border-t border-border flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           {creator.instagram_url && (
                             <a
                               href={creator.instagram_url}
                               target="_blank"
                               rel="noopener noreferrer"
                               aria-label="Instagram"
-                              className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-[#FC801A] transition-colors"
+                              title="Instagram"
+                              className="h-7 w-7 rounded-lg bg-card border border-border hover:border-pink-500/50 hover:scale-105 flex items-center justify-center transition-all shadow-2xs"
                             >
-                              <InstagramIcon className="h-3.5 w-3.5 fill-current" />
+                              <InstagramLogo className="h-4 w-4" />
                             </a>
                           )}
                           {creator.tiktok_url && (
@@ -138,9 +139,10 @@ export default async function CreatorsPage() {
                               target="_blank"
                               rel="noopener noreferrer"
                               aria-label="TikTok"
-                              className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-[#FC801A] transition-colors"
+                              title="TikTok"
+                              className="h-7 w-7 rounded-lg bg-card border border-border hover:border-zinc-500/50 hover:scale-105 flex items-center justify-center transition-all shadow-2xs"
                             >
-                              <TikTokIcon className="h-3.5 w-3.5 fill-current" />
+                              <TikTokLogo className="h-4 w-4" />
                             </a>
                           )}
                           {creator.youtube_url && (
@@ -149,9 +151,10 @@ export default async function CreatorsPage() {
                               target="_blank"
                               rel="noopener noreferrer"
                               aria-label="YouTube"
-                              className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-[#FC801A] transition-colors"
+                              title="YouTube"
+                              className="h-7 w-7 rounded-lg bg-card border border-border hover:border-red-500/50 hover:scale-105 flex items-center justify-center transition-all shadow-2xs"
                             >
-                              <YouTubeIcon className="h-3.5 w-3.5 fill-current" />
+                              <YouTubeLogo className="h-4 w-4" />
                             </a>
                           )}
                         </div>
