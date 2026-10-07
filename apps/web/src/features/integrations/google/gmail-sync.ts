@@ -108,7 +108,7 @@ export async function syncUserGmailCampaigns(userId: string): Promise<SyncResult
 
   const supabase = await createClient()
 
-  // 1. Targeted query for brand collaborations / UGC / pitches
+  // 1. Targeted query for brand collaborations / UGC / pitches (excluding self-sent emails)
   const query = [
     'collab',
     'collaboration',
@@ -124,8 +124,8 @@ export async function syncUserGmailCampaigns(userId: string): Promise<SyncResult
   ].join(' OR ')
 
   const listUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(
-    `(${query})`
-  )}&maxResults=25`
+    `-from:me (${query})`
+  )}&maxResults=30`
 
   const listRes = await fetch(listUrl, {
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -150,21 +150,29 @@ export async function syncUserGmailCampaigns(userId: string): Promise<SyncResult
     return { success: true, newDealsCount: 0, totalScanned: 0 }
   }
 
-  // 2. Filter out already processed messages (deduplication)
-  const messageIds = messageRefs.map((m) => m.id)
+  // Get user's own email to prevent processing self-replies
+  const { data: userIntegration } = await supabase
+    .from('user_email_integrations')
+    .select('email_address')
+    .eq('user_id', userId)
+    .single()
+  const userEmail = userIntegration?.email_address?.toLowerCase() || ''
+
+  // 2. Fetch existing campaigns to avoid duplicate threads/messages
   const { data: existingCampaigns } = await supabase
     .from('creator_campaigns')
     .select('source_message_id')
     .eq('user_id', userId)
-    .in('source_message_id', messageIds)
 
-  const existingSet = new Set((existingCampaigns || []).map((c) => c.source_message_id))
-  const newMessagesToFetch = messageIds.filter((id) => !existingSet.has(id))
+  const existingSet = new Set((existingCampaigns || []).map((c) => c.source_message_id).filter(Boolean))
 
   let newDealsCount = 0
 
-  // 3. Process new messages
-  for (const messageId of newMessagesToFetch) {
+  // 3. Process incoming messages
+  for (const messageRef of messageRefs) {
+    const messageId = messageRef.id
+    if (existingSet.has(messageId)) continue
+
     try {
       const msgRes = await fetch(
         `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}?format=full`,
@@ -180,6 +188,23 @@ export async function syncUserGmailCampaigns(userId: string): Promise<SyncResult
       const bodyText = extractBodyFromPayload(msg.payload)
 
       if (!bodyText && !subject) continue
+
+      // Skip self-sent emails
+      if (userEmail && from.toLowerCase().includes(userEmail)) continue
+
+      // Skip automated notifications
+      const lowerFrom = from.toLowerCase()
+      if (
+        lowerFrom.includes('messages-noreply@linkedin.com') ||
+        lowerFrom.includes('notifications@') ||
+        lowerFrom.includes('invitations@linkedin.com')
+      ) {
+        continue
+      }
+
+      // Deduplicate by thread ID if available, so 1 thread = 1 campaign card
+      const dedupeKey = msg.threadId || messageId
+      if (existingSet.has(dedupeKey)) continue
 
       // 4. Run AI Gatekeeper & Campaign Extractor
       const parsedCard = await parseEmailToCampaignCard({
@@ -213,12 +238,13 @@ export async function syncUserGmailCampaigns(userId: string): Promise<SyncResult
         source_type: 'EMAIL',
         source_sender: parsedCard.cleanSender,
         source_subject: parsedCard.cleanSubject,
-        source_message_id: messageId,
+        source_message_id: dedupeKey,
         created_at: emailDate,
       })
 
       if (!insertError) {
         newDealsCount++
+        existingSet.add(dedupeKey)
       } else {
         console.error('[syncUserGmailCampaigns] Insert error:', insertError)
       }
@@ -237,6 +263,6 @@ export async function syncUserGmailCampaigns(userId: string): Promise<SyncResult
   return {
     success: true,
     newDealsCount,
-    totalScanned: newMessagesToFetch.length,
+    totalScanned: messageRefs.length,
   }
 }
