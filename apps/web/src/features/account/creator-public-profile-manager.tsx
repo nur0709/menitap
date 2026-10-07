@@ -216,21 +216,21 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
       id: 'instagram' as const,
       name: 'Instagram',
       url: instagram,
-      logo: <InstagramLogo className="h-6 w-6 shrink-0" />,
+      logo: <InstagramLogo className="h-7 w-7 sm:h-8 sm:w-8 shrink-0" />,
       placeholder: 'your_handle',
     },
     {
       id: 'tiktok' as const,
       name: 'TikTok',
       url: tiktok,
-      logo: <TikTokLogo className="h-6 w-6 shrink-0" />,
+      logo: <TikTokLogo className="h-7 w-7 sm:h-8 sm:w-8 shrink-0" />,
       placeholder: 'your_handle',
     },
     {
       id: 'youtube' as const,
       name: 'YouTube',
       url: youtube,
-      logo: <YouTubeLogo className="h-6 w-6 shrink-0" />,
+      logo: <YouTubeLogo className="h-7 w-7 sm:h-8 sm:w-8 shrink-0" />,
       placeholder: 'channel_handle',
     },
   ]
@@ -305,7 +305,7 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
         </div>
       )}
 
-      {/* ----------------- Social Media Accounts: Standalone Logo Buttons ----------------- */}
+      {/* ----------------- Social Media Accounts: Large Standalone Circular Buttons ----------------- */}
       <div className="space-y-3">
         <div>
           <Label className="text-xs font-bold text-foreground uppercase tracking-wider block">
@@ -316,8 +316,8 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
           </span>
         </div>
 
-        {/* Clean row of standalone logo buttons with indicator dots and hover tooltips */}
-        <div className="flex items-center gap-3 flex-wrap">
+        {/* Clean row of large circular logo buttons with green-on-connected frame and hover tooltips */}
+        <div className="flex items-center gap-3.5 sm:gap-4 flex-wrap pt-1">
           {socialButtons.map((platform) => {
             const isConnected = Boolean(platform.url && platform.url.trim())
             const handle = extractHandle(platform.url)
@@ -327,31 +327,30 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
                 <button
                   type="button"
                   onClick={() => openModal(platform.id)}
-                  className="relative h-10 w-10 rounded-2xl border border-border bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-2xs focus-visible:outline-none"
-                  aria-label={`${platform.name}: ${isConnected ? handle : 'Not connected'}`}
+                  className={`relative h-13 w-13 sm:h-14 sm:w-14 rounded-full border-2 ${
+                    isConnected
+                      ? 'border-emerald-500 bg-card hover:bg-emerald-500/10 shadow-2xs shadow-emerald-500/15'
+                      : 'border-border/80 dark:border-zinc-700 hover:border-foreground/40 bg-card hover:bg-muted/70 shadow-2xs'
+                  } active:scale-95 transition-all flex items-center justify-center cursor-pointer focus-visible:outline-none`}
+                  aria-label={`${platform.name}: ${isConnected ? `Connected (${handle})` : 'Not Connected'}`}
                 >
                   {platform.logo}
-
-                  {/* Status Indicator Dot */}
-                  {isConnected ? (
-                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border-2 border-background" />
-                    </span>
-                  ) : (
-                    <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-500 border-2 border-background" />
-                  )}
                 </button>
 
                 {/* Hover Tooltip (Only appears on hover) */}
-                <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50 flex flex-col items-center min-w-max shadow-lg">
+                <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50 flex flex-col items-center min-w-max shadow-lg">
                   <div className="w-2 h-2 -mb-1 rotate-45 bg-popover border-t border-l border-border" />
                   <div className="bg-popover text-popover-foreground text-xs py-1.5 px-3 rounded-xl border border-border shadow-md space-y-0.5 text-center">
                     <div className="font-semibold text-foreground flex items-center justify-center gap-1.5">
                       {platform.id === 'instagram' && <InstagramLogo className="h-3.5 w-3.5" />}
                       {platform.id === 'tiktok' && <TikTokLogo className="h-3.5 w-3.5" />}
                       {platform.id === 'youtube' && <YouTubeLogo className="h-3.5 w-3.5" />}
-                      <span>{platform.name}: {isConnected ? 'Connected' : 'Not Connected'}</span>
+                      <span>{platform.name}:</span>
+                      {isConnected ? (
+                        <span className="text-emerald-500 font-bold">Connected</span>
+                      ) : (
+                        <span className="text-muted-foreground font-bold">Not Connected</span>
+                      )}
                     </div>
                     {isConnected ? (
                       <>

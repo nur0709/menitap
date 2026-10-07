@@ -61,42 +61,40 @@ export function GoogleSyncCard({ initialStatus }: GoogleSyncCardProps) {
 
   return (
     <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-      {/* 1. Gmail Button (Completely standalone button) */}
+      {/* 1. Gmail Button (Circular frame indicator) */}
       <div className="relative group flex items-center">
         {status.isConnected ? (
           <button
             type="button"
             onClick={handleDisconnect}
             disabled={isPending}
-            className="relative h-10 w-10 rounded-2xl border border-border bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-2xs focus-visible:outline-none"
+            className="relative h-10 w-10 rounded-full border-2 border-emerald-500 bg-card hover:bg-emerald-500/10 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-2xs shadow-emerald-500/10 focus-visible:outline-none"
             aria-label={`Gmail connected (${status.emailAddress})`}
           >
             <GmailLogo className="h-6 w-6 shrink-0" />
-            {/* Pulsing Connected Emerald Dot */}
-            <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border-2 border-background" />
-            </span>
           </button>
         ) : (
           <a
             href="/api/auth/google/connect"
-            className="relative h-10 w-10 rounded-2xl border border-border bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-2xs focus-visible:outline-none"
+            className="relative h-10 w-10 rounded-full border-2 border-border/80 dark:border-zinc-700 hover:border-foreground/40 bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-2xs focus-visible:outline-none"
             aria-label="Connect Gmail"
           >
             <GmailLogo className="h-6 w-6 shrink-0" />
-            {/* Gray Unlinked Dot */}
-            <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-500 border-2 border-background" />
           </a>
         )}
 
-        {/* Hover Tooltip (Text only shows on hover) */}
+        {/* Hover Tooltip */}
         <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50 flex flex-col items-center min-w-max shadow-lg">
           <div className="w-2 h-2 -mb-1 rotate-45 bg-popover border-t border-l border-border" />
           <div className="bg-popover text-popover-foreground text-xs py-1.5 px-3 rounded-xl border border-border shadow-md space-y-0.5 text-center">
             <div className="font-semibold text-foreground flex items-center justify-center gap-1.5">
               <GmailLogo className="h-3.5 w-3.5" />
-              <span>Gmail: {status.isConnected ? 'Connected' : 'Not Connected'}</span>
+              <span>Gmail:</span>
+              {status.isConnected ? (
+                <span className="text-emerald-500 font-bold">Connected</span>
+              ) : (
+                <span className="text-muted-foreground font-bold">Not Connected</span>
+              )}
             </div>
             {status.isConnected ? (
               <>
@@ -116,17 +114,15 @@ export function GoogleSyncCard({ initialStatus }: GoogleSyncCardProps) {
         </div>
       </div>
 
-      {/* 2. Outlook Button (Completely standalone button) */}
+      {/* 2. Outlook Button (Circular frame indicator) */}
       <div className="relative group flex items-center">
         <button
           type="button"
           onClick={handleOutlookClick}
-          className="relative h-10 w-10 rounded-2xl border border-border bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-2xs focus-visible:outline-none"
-          aria-label="Outlook (Coming soon)"
+          className="relative h-10 w-10 rounded-full border-2 border-border/80 dark:border-zinc-700 hover:border-foreground/40 bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-2xs focus-visible:outline-none"
+          aria-label="Outlook: Not Connected (Coming soon)"
         >
           <OutlookLogo className="h-6 w-6 shrink-0" />
-          {/* Muted / Coming Soon Dot */}
-          <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-600 border-2 border-background" />
         </button>
 
         {/* Hover Tooltip */}
@@ -135,23 +131,24 @@ export function GoogleSyncCard({ initialStatus }: GoogleSyncCardProps) {
           <div className="bg-popover text-popover-foreground text-xs py-1.5 px-3 rounded-xl border border-border shadow-md space-y-0.5 text-center">
             <div className="font-semibold text-foreground flex items-center justify-center gap-1.5">
               <OutlookLogo className="h-3.5 w-3.5" />
-              <span>Outlook: Coming Soon</span>
+              <span>Outlook:</span>
+              <span className="text-muted-foreground font-bold">Not Connected</span>
             </div>
             <div className="text-[11px] text-muted-foreground">
-              Auto-sync for Microsoft Outlook
+              Auto-sync for Microsoft Outlook (Coming soon)
             </div>
           </div>
         </div>
       </div>
 
-      {/* 3. Sync Action Button (Completely standalone icon button) */}
+      {/* 3. Sync Action Button (Circular frame) */}
       <div className="relative group flex items-center">
         {status.isConnected ? (
           <button
             type="button"
             onClick={handleSync}
             disabled={isPending}
-            className={`relative h-10 w-10 rounded-2xl border border-border bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center justify-center shadow-2xs focus-visible:outline-none ${
+            className={`relative h-10 w-10 rounded-full border-2 border-border/80 dark:border-zinc-700 hover:border-foreground/40 bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center justify-center shadow-2xs focus-visible:outline-none ${
               isPending ? 'cursor-wait text-muted-foreground' : 'cursor-pointer text-foreground'
             }`}
             aria-label="Sync Deals"
@@ -167,7 +164,7 @@ export function GoogleSyncCard({ initialStatus }: GoogleSyncCardProps) {
         ) : (
           <a
             href="/api/auth/google/connect"
-            className="relative h-10 w-10 rounded-2xl border border-border bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center justify-center text-muted-foreground hover:text-foreground shadow-2xs focus-visible:outline-none cursor-pointer"
+            className="relative h-10 w-10 rounded-full border-2 border-border/80 dark:border-zinc-700 hover:border-foreground/40 bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center justify-center text-muted-foreground hover:text-foreground shadow-2xs focus-visible:outline-none cursor-pointer"
             aria-label="Connect Gmail to Sync"
           >
             <RefreshCw className="h-5 w-5 text-muted-foreground/60" />
