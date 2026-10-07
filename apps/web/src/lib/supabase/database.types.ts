@@ -179,6 +179,63 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_campaigns: {
+        Row: {
+          brand_logo_url: string | null
+          brand_name: string
+          compensation: string | null
+          created_at: string | null
+          deadline: string | null
+          deliverables: string | null
+          id: string
+          notes: string | null
+          product_name: string | null
+          raw_source_text: string | null
+          source_sender: string | null
+          source_subject: string | null
+          source_type: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          brand_logo_url?: string | null
+          brand_name: string
+          compensation?: string | null
+          created_at?: string | null
+          deadline?: string | null
+          deliverables?: string | null
+          id?: string
+          notes?: string | null
+          product_name?: string | null
+          raw_source_text?: string | null
+          source_sender?: string | null
+          source_subject?: string | null
+          source_type?: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          brand_logo_url?: string | null
+          brand_name?: string
+          compensation?: string | null
+          created_at?: string | null
+          deadline?: string | null
+          deliverables?: string | null
+          id?: string
+          notes?: string | null
+          product_name?: string | null
+          raw_source_text?: string | null
+          source_sender?: string | null
+          source_subject?: string | null
+          source_type?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       point_transactions: {
         Row: {
           created_at: string
@@ -222,6 +279,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          inbound_email_token: string | null
           instagram_url: string | null
           is_public_profile: boolean | null
           role: string
@@ -236,6 +294,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          inbound_email_token?: string | null
           instagram_url?: string | null
           is_public_profile?: boolean | null
           role?: string
@@ -250,6 +309,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          inbound_email_token?: string | null
           instagram_url?: string | null
           is_public_profile?: boolean | null
           role?: string
