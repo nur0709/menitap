@@ -305,69 +305,69 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
         </div>
       )}
 
-      {/* ----------------- Social Media Accounts: Spacious, Misclick-Free Tiles ----------------- */}
+      {/* ----------------- Social Media Accounts: Standalone Logo Buttons ----------------- */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Label className="text-xs font-bold text-foreground uppercase tracking-wider">
+        <div>
+          <Label className="text-xs font-bold text-foreground uppercase tracking-wider block">
             Connected Social Accounts
           </Label>
           <span className="text-[11px] text-muted-foreground">
-            Click any account to connect or edit
+            Connect your social channels to display on your public creator card
           </span>
         </div>
 
-        {/* 3-Column Spacious Grid (Never cramped, impossible to misclick) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        {/* Clean row of standalone logo buttons with indicator dots and hover tooltips */}
+        <div className="flex items-center gap-3 flex-wrap">
           {socialButtons.map((platform) => {
             const isConnected = Boolean(platform.url && platform.url.trim())
             const handle = extractHandle(platform.url)
 
             return (
-              <div
-                key={platform.id}
-                onClick={() => openModal(platform.id)}
-                className="group relative flex items-center justify-between p-3.5 rounded-2xl border border-border bg-card hover:bg-muted/40 hover:border-foreground/30 active:scale-[0.99] transition-all cursor-pointer shadow-2xs"
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') openModal(platform.id)
-                }}
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="relative shrink-0">
-                    {platform.logo}
-                    {/* Status Dot */}
-                    {isConnected ? (
-                      <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border border-background" />
-                      </span>
-                    ) : (
-                      <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-500 border border-background" />
-                    )}
-                  </div>
+              <div key={platform.id} className="relative group flex items-center">
+                <button
+                  type="button"
+                  onClick={() => openModal(platform.id)}
+                  className="relative h-10 w-10 rounded-2xl border border-border bg-card hover:bg-muted/70 active:scale-95 transition-all flex items-center justify-center cursor-pointer shadow-2xs focus-visible:outline-none"
+                  aria-label={`${platform.name}: ${isConnected ? handle : 'Not connected'}`}
+                >
+                  {platform.logo}
 
-                  <div className="min-w-0">
-                    <span className="text-xs font-bold text-foreground block truncate">
-                      {platform.name}
-                    </span>
-                    <span className="text-[11px] font-mono text-muted-foreground block truncate">
-                      {isConnected ? handle : 'Not connected'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="shrink-0 pl-2">
+                  {/* Status Indicator Dot */}
                   {isConnected ? (
-                    <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <Check className="h-2.5 w-2.5" />
-                      Linked
+                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border-2 border-background" />
                     </span>
                   ) : (
-                    <span className="text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full group-hover:bg-foreground group-hover:text-background transition-colors">
-                      + Connect
-                    </span>
+                    <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-500 border-2 border-background" />
                   )}
+                </button>
+
+                {/* Hover Tooltip (Only appears on hover) */}
+                <div className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50 flex flex-col items-center min-w-max shadow-lg">
+                  <div className="w-2 h-2 -mb-1 rotate-45 bg-popover border-t border-l border-border" />
+                  <div className="bg-popover text-popover-foreground text-xs py-1.5 px-3 rounded-xl border border-border shadow-md space-y-0.5 text-center">
+                    <div className="font-semibold text-foreground flex items-center justify-center gap-1.5">
+                      {platform.id === 'instagram' && <InstagramLogo className="h-3.5 w-3.5" />}
+                      {platform.id === 'tiktok' && <TikTokLogo className="h-3.5 w-3.5" />}
+                      {platform.id === 'youtube' && <YouTubeLogo className="h-3.5 w-3.5" />}
+                      <span>{platform.name}: {isConnected ? 'Connected' : 'Not Connected'}</span>
+                    </div>
+                    {isConnected ? (
+                      <>
+                        <div className="text-[11px] text-muted-foreground font-mono">
+                          {handle}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground/80 pt-0.5">
+                          Click to edit or disconnect
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-[11px] text-muted-foreground">
+                        Click to connect profile
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )
