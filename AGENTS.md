@@ -5,7 +5,7 @@ Menitap is an all-in-one platform tailored for user-generated content (UGC) crea
 ## Tech Stack
 - **Framework**: Next.js 16 (App Router, React Server Components)
 - **Language**: TypeScript (strict mode)
-- **Hosting / CI/CD**: Vercel (Production: https://menitap.vercel.app)
+- **Hosting / CI/CD**: Vercel (Production: https://menitap.com)
 - **Database & Auth**: Supabase PostgreSQL + Supabase Auth
 - **ORM / Querying**: Supabase Server & Client SDK (`@supabase/ssr`, `@supabase/supabase-js`)
 - **Payments**: Stripe (Phase 4 dependency)

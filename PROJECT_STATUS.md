@@ -9,12 +9,12 @@
 
 ---
 
-## Current Phase: Phase 5.5 — Brand Campaign Ingestion & AI Auto-Fill Engine
+## Current Phase: Phase 9 — Creator Inbound Campaign Hub & Email Ingestion Pipeline (COMPLETED & LIVE)
 
-## Last Updated: 2026-10-05
-## Last Agent: Gemini (Antigravity)
+## Last Updated: 2026-10-06
+## Last Agent: Antigravity
 ## GitHub Repo: https://github.com/nur0709/menitap
-## Live Production URL: https://menitap.vercel.app
+## Live Production URL: https://menitap.com
 
 ---
 
@@ -24,7 +24,8 @@ Menitap is an all-in-one platform tailored for user-generated content (UGC) crea
 Read `AGENTS.md` for coding standards and conventions.
 
 **Key architectural decisions & current state:**
-- Next.js 16 (App Router) hosted on **Vercel** (`https://menitap.vercel.app`) with automatic CI/CD from `main`.
+- Next.js 16 (App Router) hosted on **Vercel** (`https://menitap.com`) with automatic CI/CD from `main`.
+- Custom domain **`menitap.com`** connected via GoDaddy DNS (A record `@` -> `76.76.21.21`, CNAME `www` -> `cname.vercel-dns.com`). Old `menitap.vercel.app` 307-redirects to `menitap.com`.
 - **Supabase** for PostgreSQL database + Auth (Google OAuth + email/password), project ID `fkexbdyptynweurzgtqd`.
 - **Universal Top & Mobile Navigation Tabs**:
   - `Deals` (`/deals`)
@@ -100,6 +101,22 @@ Read `AGENTS.md` for coding standards and conventions.
 - [x] Upgraded Category Manager with live tab labels (`Deals`, `Brand Collabs`, `Creators`)
 - [x] Removed irrelevant consumer upsells ("Switch Plan") for Admin accounts
 
+### ✅ Phase 9 — Creator Inbound Campaign Hub & Email Ingestion Pipeline (COMPLETED & LIVE)
+- [x] **Production Domain (`menitap.com`)**: Live with SSL; GoDaddy DNS configured with apex A record (`76.76.21.21`) and `www` CNAME (`cname.vercel-dns.com`). Old `menitap.vercel.app` 307-redirects to `menitap.com`.
+- [x] **Inbound Email Subdomain (`in.menitap.com`)**: Configured via Resend with MX `inbound-smtp.us-east-1.amazonaws.com` (priority 10), SPF, and DKIM TXT records.
+- [x] **RFC Hyphen Addressing Format**: Switched from plus-addressing to `deals-{token}@in.menitap.com` to prevent Gmail Forwarding validator rejections (*"Invalid forwarding address"*).
+- [x] **Resend Inbound Webhook (`/api/inbound-email`)**: Ingests email events and fetches full payloads from `https://api.resend.com/emails/receiving/{emailId}`.
+- [x] **Google Forwarding Verification Bypass**: Intercepts Google confirmation emails, extracts 9-digit codes / verification links, and exits early without generating dummy cards.
+- [x] **Dual-Engine AI Pitch Parser**: Uses Gemini 2.5 Flash -> Groq LLama 3.3 -> Regex heuristics to extract brand name, deliverables, compensation, deadlines, and application links.
+- [x] **Actionable Creator Deal Cards (`/dashboard`)**:
+  - Displays brand logo/fallback, compensation pill, highlighted deadlines (overdue/today/upcoming), deliverables, and relative timestamp (`formatTimeAgo`).
+  - Action button **"Review"** opens details modal.
+  - Clicking "Review" auto-transitions status from `NEW_PITCH` -> `REVIEWED`, clearing the pulsing `🟢 New` radar badge.
+  - Lifecycle statuses: `Reviewed` -> `Accepted` -> `Delivered` -> `Paid` -> `Declined`.
+  - Triage filter tabs: `All`, `Pitches` (encompassing unreviewed & reviewed deals with live pulse indicator), `Accepted`, `Delivered`, `Paid`.
+  - Review Modal includes 1-click external form button (Google Forms, Typeform, etc.), pre-written accept reply draft with 1-click Gmail compose, and status selector in footer.
+- [x] **Step 2 Onboarding Component**: Clear instructions on `/dashboard` explaining how to forward pitches to `deals-{token}@in.menitap.com`.
+
 ### ⬜ Phase 4 — Stripe Subscriptions (Upcoming) — [#3](https://github.com/nur0709/menitap/issues/3)
 - [ ] Stripe product/price creation (Explorer $0, Creator Basic $10, Creator Standard $15)
 - [ ] Checkout session flow
@@ -118,10 +135,18 @@ Read `AGENTS.md` for coding standards and conventions.
 ## Database Schema Reference
 
 ```
-User: id, email, full_name, avatar_url, role (USER|CREATOR|BRAND|ADMIN), created_at, updated_at
+Profile: id, email, full_name, avatar_url, role (USER|CREATOR|BRAND|ADMIN), inbound_email_token (text unique), created_at, updated_at
+CreatorCampaign: id, user_id, brand_name, brand_logo_url, product_name, compensation, deliverables, deadline, status (NEW_PITCH|REVIEWED|ACCEPTED|FILMING|DELIVERED|PAID|DECLINED), raw_source_text, source_type (EMAIL|MANUAL|EXTENSION), source_sender, source_subject, notes, created_at, updated_at
 Subscription: id, user_id, stripe_customer_id, stripe_subscription_id, plan (FREE|BASIC|STANDARD), status (ACTIVE|PAST_DUE|CANCELED|TRIALING), current_period_end
 Category: id, name, slug, description, sort_order, is_active, type ('DEALS'|'CREATORS'|'BRANDS')
 AffiliateLink: id, user_id, category_id, title, url, promo_code, description, product_image_url, discount_percentage, status (ACTIVE|PENDING|APPROVED|REJECTED), click_count
 BrandLink: id, user_id, category_id, brand_name, application_url, description, brand_logo_url, status (PENDING|APPROVED|ACTIVE|REJECTED), products_provided
 PointTransaction: id, user_id, points, reason, type (EARNED|REDEEMED)
 ```
+
+---
+
+## Next Steps (Tomorrow's Testing Session)
+1. **Real Pitch Testing**: Have the creator forward 3–5 real brand pitch emails from her Gmail to `deals-55cddc46@in.menitap.com`.
+2. **Parser Edge Cases**: Observe if compensation, brand name, and deliverables parse accurately across different agency email layouts.
+3. **Workflow Feedback**: Gather feedback on the "Review" -> "Reviewed" lifecycle, the pre-filled Gmail draft, and third-party application form link detection.
