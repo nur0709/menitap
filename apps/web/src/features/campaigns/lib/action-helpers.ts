@@ -102,3 +102,42 @@ export function getGmailComposeUrl(params: {
   const bodyParam = params.body ? `&body=${encodeURIComponent(params.body)}` : ''
   return `${base}${to}${subjectParam}${bodyParam}`
 }
+
+export function formatTimeAgo(dateString?: string | null): string {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ''
+    const now = new Date()
+    const diffInSeconds = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000))
+
+    if (diffInSeconds < 60) return 'Just now'
+    const diffInMinutes = Math.floor(diffInSeconds / 60)
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) return `${diffInHours}h ago`
+    const diffInDays = Math.floor(diffInHours / 24)
+    if (diffInDays === 1) return 'Yesterday'
+    if (diffInDays < 7) return `${diffInDays}d ago`
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  } catch {
+    return ''
+  }
+}
+
+export function formatExactDateTime(dateString?: string | null): string {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ''
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    })
+  } catch {
+    return ''
+  }
+}
+

@@ -12,7 +12,7 @@ const ManualCampaignSchema = z.object({
   deliverables: z.string().optional().default(''),
   deadline: z.string().optional().default(''),
   status: z
-    .enum(['NEW_PITCH', 'ACCEPTED', 'FILMING', 'DELIVERED', 'PAID', 'DECLINED'])
+    .enum(['NEW_PITCH', 'REVIEWED', 'ACCEPTED', 'FILMING', 'DELIVERED', 'PAID', 'DECLINED'])
     .default('NEW_PITCH'),
   brand_logo_url: z.string().nullable().optional(),
   raw_source_text: z.string().optional().default(''),

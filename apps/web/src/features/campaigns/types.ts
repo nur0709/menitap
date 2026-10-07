@@ -1,5 +1,6 @@
 export type CampaignStatus =
   | 'NEW_PITCH'
+  | 'REVIEWED'
   | 'ACCEPTED'
   | 'FILMING'
   | 'DELIVERED'

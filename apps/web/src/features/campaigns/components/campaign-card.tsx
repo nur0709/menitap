@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { CreatorCampaign, CampaignStatus } from '../types'
 import { updateCampaignStatus, deleteCampaign } from '../actions'
+import { formatTimeAgo, formatExactDateTime } from '../lib/action-helpers'
 import { CampaignDetailsModal } from './campaign-details-modal'
 import {
   DollarSign,
@@ -19,8 +20,9 @@ interface CampaignCardProps {
   campaign: CreatorCampaign
 }
 
-// User requested to remove "New Pitch" and "Filming" from the status toggle options
+// User requested lifecycle statuses: Reviewed -> Accepted -> Delivered -> Paid -> Declined
 const SELECTABLE_STATUSES: { value: CampaignStatus; label: string }[] = [
+  { value: 'REVIEWED', label: 'Reviewed' },
   { value: 'ACCEPTED', label: 'Accepted' },
   { value: 'DELIVERED', label: 'Delivered' },
   { value: 'PAID', label: 'Paid ✓' },
@@ -29,6 +31,7 @@ const SELECTABLE_STATUSES: { value: CampaignStatus; label: string }[] = [
 
 const STATUS_BADGE_CLASS: Record<CampaignStatus, string> = {
   NEW_PITCH: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
+  REVIEWED: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25',
   ACCEPTED: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20',
   FILMING: 'bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30',
   DELIVERED: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
@@ -47,6 +50,16 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
     startTransition(async () => {
       await updateCampaignStatus(campaign.id, nextStatus)
     })
+  }
+
+  const handleOpenReview = () => {
+    setIsDetailsOpen(true)
+    if (currentStatus === 'NEW_PITCH') {
+      setCurrentStatus('REVIEWED')
+      startTransition(async () => {
+        await updateCampaignStatus(campaign.id, 'REVIEWED')
+      })
+    }
   }
 
   const handleDelete = () => {
@@ -113,7 +126,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
         }`}
       >
         <div>
-          {/* Top: Brand & Product header + NEW indicator badge */}
+          {/* Top: Brand & Product header + NEW indicator badge & Relative Time */}
           <div className="flex items-start justify-between gap-3 mb-3">
             <div className="flex items-start gap-3 min-w-0 flex-1">
               {campaign.brand_logo_url ? (
@@ -140,16 +153,28 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
               </div>
             </div>
 
-            {/* Prominent Indicator for Newly Posted Cards */}
-            {isNew && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 shadow-xs shrink-0 mt-0.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            {/* Right: NEW badge + Received Time */}
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              {isNew && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 shadow-xs shrink-0">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  New
                 </span>
-                New
-              </span>
-            )}
+              )}
+              {campaign.created_at && (
+                <span
+                  suppressHydrationWarning
+                  title={formatExactDateTime(campaign.created_at)}
+                  className="text-[11px] font-medium text-muted-foreground/80 flex items-center gap-1 whitespace-nowrap"
+                >
+                  <Clock className="h-3 w-3 opacity-60" />
+                  {formatTimeAgo(campaign.created_at)}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Key Metrics: Compensation & Highlighted Due Date */}
@@ -176,9 +201,9 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
           </div>
         </div>
 
-        {/* Clean Bottom Row: Status Toggle + View Deal button + Delete */}
+        {/* Clean Bottom Row: Status Toggle + Review button + Delete */}
         <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs gap-2">
-          {/* Status Dropdown placed cleanly at bottom without "New Pitch" option */}
+          {/* Status Dropdown placed cleanly at bottom */}
           <div className="relative">
             <select
               value={currentStatus === 'NEW_PITCH' ? '' : currentStatus}
@@ -207,13 +232,13 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* View Deal Button */}
+            {/* Review Button */}
             <button
               type="button"
-              onClick={() => setIsDetailsOpen(true)}
-              className="text-xs font-bold text-white bg-[#FC801A] hover:bg-[#E66F0D] px-3 py-1 rounded-xl shadow-xs transition-colors cursor-pointer"
+              onClick={handleOpenReview}
+              className="text-xs font-bold text-white bg-[#FC801A] hover:bg-[#E66F0D] px-3.5 py-1 rounded-xl shadow-xs transition-colors cursor-pointer"
             >
-              View Deal
+              Review
             </button>
 
             {/* Delete button */}
@@ -233,6 +258,13 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
       {/* Details Modal */}
       <CampaignDetailsModal
         campaign={campaign}
+        currentStatus={currentStatus}
+        onStatusChange={(newStatus) => {
+          setCurrentStatus(newStatus)
+          startTransition(async () => {
+            await updateCampaignStatus(campaign.id, newStatus)
+          })
+        }}
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
       />

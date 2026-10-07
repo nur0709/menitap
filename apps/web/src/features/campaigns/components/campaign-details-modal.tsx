@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { CreatorCampaign } from '../types'
+import { CreatorCampaign, CampaignStatus } from '../types'
 import { Button } from '@/components/ui/button'
 import {
   extractEmailAddress,
   extractApplicationFormUrl,
   getGmailComposeUrl,
+  formatTimeAgo,
+  formatExactDateTime,
 } from '../lib/action-helpers'
 import {
   X,
@@ -25,13 +27,23 @@ import {
 
 interface CampaignDetailsModalProps {
   campaign: CreatorCampaign
+  currentStatus?: CampaignStatus
+  onStatusChange?: (newStatus: CampaignStatus) => void
   isOpen: boolean
   onClose: () => void
 }
 
-export function CampaignDetailsModal({ campaign, isOpen, onClose }: CampaignDetailsModalProps) {
+export function CampaignDetailsModal({
+  campaign,
+  currentStatus,
+  onStatusChange,
+  isOpen,
+  onClose,
+}: CampaignDetailsModalProps) {
   const [copiedEmail, setCopiedEmail] = useState(false)
   const [copiedReply, setCopiedReply] = useState(false)
+
+  const status = currentStatus || campaign.status
 
   if (!isOpen) return null
 
@@ -140,23 +152,44 @@ export function CampaignDetailsModal({ campaign, isOpen, onClose }: CampaignDeta
                 {campaign.brand_name.slice(0, 2).toUpperCase()}
               </div>
             )}
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-foreground truncate">{campaign.brand_name}</h3>
-                {campaign.status === 'NEW_PITCH' && (
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 shrink-0">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-bold text-foreground truncate">{campaign.brand_name}</h3>
+                  {status === 'NEW_PITCH' ? (
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 shrink-0">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                      </span>
+                      New
                     </span>
-                    New
-                  </span>
-                )}
+                  ) : status === 'REVIEWED' ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/25 shrink-0">
+                      Reviewed
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-muted text-muted-foreground border border-border shrink-0 capitalize">
+                      {status.toLowerCase()}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
+                  {campaign.product_name && (
+                    <p className="font-medium truncate">{campaign.product_name}</p>
+                  )}
+                  {campaign.product_name && campaign.created_at && <span>•</span>}
+                  {campaign.created_at && (
+                    <span
+                      suppressHydrationWarning
+                      title={formatExactDateTime(campaign.created_at)}
+                      className="flex items-center gap-1 shrink-0 text-[11px] text-muted-foreground/80 whitespace-nowrap"
+                    >
+                      <Clock className="h-3 w-3 opacity-60" />
+                      Received {formatTimeAgo(campaign.created_at)}
+                    </span>
+                  )}
+                </div>
               </div>
-              {campaign.product_name && (
-                <p className="text-xs text-muted-foreground font-medium truncate">{campaign.product_name}</p>
-              )}
-            </div>
           </div>
 
           {/* Prominent Apply Button (If application form URL exists) */}
@@ -327,7 +360,26 @@ export function CampaignDetailsModal({ campaign, isOpen, onClose }: CampaignDeta
         </div>
 
         {/* Footer */}
-        <div className="pt-3 border-t border-border mt-3 flex justify-end">
+        <div className="pt-3 border-t border-border mt-3 flex items-center justify-between gap-3">
+          {onStatusChange ? (
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-medium text-muted-foreground">Status:</span>
+              <select
+                value={status}
+                onChange={(e) => onStatusChange(e.target.value as CampaignStatus)}
+                className="text-xs font-semibold px-2.5 py-1 rounded-xl border border-border bg-background text-foreground cursor-pointer focus:outline-none"
+              >
+                <option value="REVIEWED">Reviewed</option>
+                <option value="ACCEPTED">Accepted</option>
+                <option value="DELIVERED">Delivered</option>
+                <option value="PAID">Paid ✓</option>
+                <option value="DECLINED">Declined</option>
+              </select>
+            </div>
+          ) : (
+            <div />
+          )}
+
           <Button
             type="button"
             variant="outline"

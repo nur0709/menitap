@@ -175,7 +175,15 @@ function formatParsedCard(
     logoUrl = `https://www.google.com/s2/favicons?domain=${brandDomain}&sz=128`
   }
 
-  const validStatuses: CampaignStatus[] = ['NEW_PITCH', 'ACCEPTED', 'FILMING', 'DELIVERED', 'PAID', 'DECLINED']
+  const validStatuses: CampaignStatus[] = [
+    'NEW_PITCH',
+    'REVIEWED',
+    'ACCEPTED',
+    'FILMING',
+    'DELIVERED',
+    'PAID',
+    'DECLINED',
+  ]
   const parsedStatus = parsed.status as CampaignStatus
   const status: CampaignStatus = validStatuses.includes(parsedStatus) ? parsedStatus : 'NEW_PITCH'
 

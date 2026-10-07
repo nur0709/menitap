@@ -14,7 +14,7 @@ interface CampaignsManagerProps {
 
 export function CampaignsManager({ campaigns, inboundToken }: CampaignsManagerProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'ALL' | CampaignStatus>('ALL')
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'PITCHES' | CampaignStatus>('ALL')
   const [copiedSyncEmail, setCopiedSyncEmail] = useState(false)
 
   const syncAddress = inboundToken
@@ -55,7 +55,11 @@ export function CampaignsManager({ campaigns, inboundToken }: CampaignsManagerPr
   const filteredCampaigns = useMemo(() => {
     return campaigns.filter((c) => {
       // Status filter
-      if (statusFilter !== 'ALL' && c.status !== statusFilter) {
+      if (statusFilter === 'PITCHES') {
+        if (c.status !== 'NEW_PITCH' && c.status !== 'REVIEWED') {
+          return false
+        }
+      } else if (statusFilter !== 'ALL' && c.status !== statusFilter) {
         return false
       }
       // Search query
@@ -76,6 +80,7 @@ export function CampaignsManager({ campaigns, inboundToken }: CampaignsManagerPr
   const filterCounts = useMemo(() => {
     return {
       ALL: campaigns.length,
+      PITCHES: campaigns.filter((c) => c.status === 'NEW_PITCH' || c.status === 'REVIEWED').length,
       NEW_PITCH: campaigns.filter((c) => c.status === 'NEW_PITCH').length,
       ACCEPTED: campaigns.filter((c) => c.status === 'ACCEPTED').length,
       DELIVERED: campaigns.filter((c) => c.status === 'DELIVERED').length,
@@ -142,15 +147,20 @@ export function CampaignsManager({ campaigns, inboundToken }: CampaignsManagerPr
           All ({filterCounts.ALL})
         </button>
         <button
-          onClick={() => setStatusFilter('NEW_PITCH')}
+          onClick={() => setStatusFilter('PITCHES')}
           className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer text-xs whitespace-nowrap flex items-center gap-1.5 ${
-            statusFilter === 'NEW_PITCH'
-              ? 'bg-emerald-600 text-white font-bold'
+            statusFilter === 'PITCHES'
+              ? 'bg-purple-600 text-white font-bold'
               : 'bg-muted/60 text-muted-foreground hover:text-foreground'
           }`}
         >
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-          New ({filterCounts.NEW_PITCH})
+          {filterCounts.NEW_PITCH > 0 && (
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+            </span>
+          )}
+          Pitches ({filterCounts.PITCHES})
         </button>
         <button
           onClick={() => setStatusFilter('ACCEPTED')}
