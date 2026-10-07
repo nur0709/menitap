@@ -119,6 +119,17 @@ export async function POST(req: NextRequest) {
       subject,
     })
 
+    if (!extractedCard) {
+      console.log(
+        `[inbound-email] Ignored non-collaboration email: "${subject}" from "${from}"`
+      )
+      return NextResponse.json({
+        status: 'ignored_not_a_collaboration',
+        subject,
+        sender: from,
+      })
+    }
+
     // 5. Connect to Supabase and execute Security Definer RPC
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''

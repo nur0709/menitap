@@ -48,42 +48,111 @@ export function extractOriginalEmailDetails(rawText: string, defaultSender: stri
 }
 
 /**
- * AI-powered email extractor using Gemini / Groq with heuristics fallback
+ * Fast regex pre-filter to instantly reject obvious non-collaboration / system noise
+ */
+export function isObviouslyNotCollaboration(sender: string, subject: string): boolean {
+  const senderLower = sender.toLowerCase()
+  const subjectLower = subject.toLowerCase()
+
+  // 1. Obvious automated system / non-collab senders
+  const nonCollabSenders = [
+    'messages-noreply@linkedin.com',
+    'notifications@linkedin.com',
+    'uspsinformeddelivery@',
+    'order2@shein.com',
+    'orders@',
+    'order@',
+    'support@vipis.com',
+    'noreply@backstage.com',
+    'campaigns@sr.smartrecruiters.app',
+    'billing@',
+    'receipts@',
+    'receipt@',
+    'no-reply@accounts.google.com',
+    'security@',
+    'notifications@',
+    'digest@',
+  ]
+  if (nonCollabSenders.some((s) => senderLower.includes(s))) {
+    return true
+  }
+
+  // 2. High-confidence transactional / personal / automated subject lines
+  const nonCollabSubjects = [
+    'daily digest',
+    'order delivery notification',
+    'order confirmation',
+    'shipping confirmation',
+    'viewed your profile',
+    'job recommendations',
+    'sports photos are ready',
+    'last meet + sectional',
+    'rsvp for our',
+    'someone you may know',
+    'security alert',
+    'password reset',
+    'your order has shipped',
+    'explore 1,500+ roles',
+  ]
+  if (nonCollabSubjects.some((s) => subjectLower.includes(s))) {
+    return true
+  }
+
+  return false
+}
+
+/**
+ * AI-powered email extractor with strict collaboration classifier
  */
 export async function parseEmailToCampaignCard(params: {
   text: string
   sender: string
   subject: string
-}): Promise<ParsedEmailCard> {
+}): Promise<ParsedEmailCard | null> {
   const { sender, subject, cleanBody } = extractOriginalEmailDetails(
     params.text,
     params.sender,
     params.subject
   )
 
+  // 1. Fast pre-filter check
+  if (isObviouslyNotCollaboration(sender, subject)) {
+    console.log(`[parseEmailToCampaignCard] Fast-filtered non-collab email: "${subject}" from "${sender}"`)
+    return null
+  }
+
   const geminiApiKey = process.env.GEMINI_API_KEY
   const groqApiKey = process.env.GROQ_API_KEY
 
-  const prompt = `You are an expert UGC creator assistant for Menitap.
-Analyze this incoming email from a brand or PR agency:
+  const prompt = `You are an expert UGC creator gatekeeper and campaign assistant for Menitap.
+Analyze this incoming email received by a content creator:
 
 From: ${sender}
 Subject: ${subject}
 Email Content:
 ${cleanBody.slice(0, 3000)}
 
-Extract the following deal details into strict JSON:
-1. "brandName": Clean company or brand name (e.g. "Gymshark", "Glossier", "Beekman 1802", "Anker").
-2. "brandDomain": Brand domain without https/www (e.g. "gymshark.com", "glossier.com") if identifiable, else null.
-3. "productName": Specific product or collection mentioned (e.g. "Seamless Training Set", "Milk Primer") or null.
-4. "compensation": Agreed or offered payment (e.g. "$350", "$200 + Product", "Gifted + 15% Comm"). If not mentioned, return "Gifted / TBD".
-5. "deliverables": Required creator deliverables (e.g. "1x 30s TikTok Video (9:16)", "2x Instagram Stories + Raw Files").
-6. "deadline": Target due date if mentioned (format as ISO string YYYY-MM-DD), else null.
-7. "status": "NEW_PITCH" | "ACCEPTED" | "FILMING" (default to "NEW_PITCH").
+YOUR FIRST AND MOST IMPORTANT TASK: Determine "isCollaboration".
+- Set "isCollaboration": true ONLY if this email is an authentic brand collaboration pitch, paid sponsorship, PR gifting / seeding offer, UGC video inquiry, casting invitation, or follow-up regarding creator deliverables/videos.
+- Set "isCollaboration": false if this email is:
+  * A retail/store sales newsletter or promotional blast ("Cashmere is on sale today", 20% off promos, consumer marketing).
+  * An e-commerce purchase receipt, shipping update, or tracking notification (SHEIN, Amazon, USPS, etc.).
+  * A personal, school, family, sports club, or community message.
+  * A job board digest, general recruiter message, or employment alert (LinkedIn, Backstage, SmartRecruiters, Indeed).
+  * A social media notification ("X people viewed your profile").
+  * Spam or administrative notifications.
 
-Return ONLY valid JSON matching this schema:
+RETURN ONLY VALID JSON:
+If "isCollaboration" is false:
 {
-  "brandName": "Brand",
+  "isCollaboration": false,
+  "rejectionReason": "Brief explanation"
+}
+
+If "isCollaboration" is true:
+{
+  "isCollaboration": true,
+  "brandName": "Brand Name",
   "brandDomain": "brand.com",
   "productName": "Product Name",
   "compensation": "$300",
@@ -166,7 +235,14 @@ function formatParsedCard(
   parsed: Record<string, unknown>,
   sender: string,
   subject: string
-): ParsedEmailCard {
+): ParsedEmailCard | null {
+  if (parsed.isCollaboration === false) {
+    console.log(
+      `[parseEmailToCampaignCard] AI rejected non-collab email: ${parsed.rejectionReason || 'Not a collab'}`
+    )
+    return null
+  }
+
   const brandName = (parsed.brandName as string)?.trim() || 'Brand Partner'
   const brandDomain = (parsed.brandDomain as string)?.trim() || null
 
@@ -204,7 +280,44 @@ function fallbackHeuristicParser(
   body: string,
   sender: string,
   subject: string
-): ParsedEmailCard {
+): ParsedEmailCard | null {
+  const combined = (subject + ' ' + body).toLowerCase()
+
+  // Must have clear collaboration signals
+  const collabKeywords = [
+    'collab',
+    'collaboration',
+    'ugc',
+    'creator',
+    'gifted',
+    'partnership',
+    'sponsor',
+    'sponsorship',
+    'pr package',
+    'seeding',
+    'deliverables',
+    'rate card',
+    'reels',
+    'tiktok',
+    'campaign',
+  ]
+
+  const hasCollabKeyword = collabKeywords.some((k) => combined.includes(k))
+  if (!hasCollabKeyword) {
+    return null
+  }
+
+  // Reject general retail marketing newsletter
+  if (
+    combined.includes('unsubscribe') &&
+    (combined.includes('sale today') || combined.includes('off entire order') || combined.includes('shop now')) &&
+    !combined.includes('deliverable') &&
+    !combined.includes('gifted') &&
+    !combined.includes('collaboration')
+  ) {
+    return null
+  }
+
   // Extract brand from subject or sender
   let derivedBrand = 'Brand Partner'
   const domainMatch = sender.match(/@([a-zA-Z0-9.-]+)/)
