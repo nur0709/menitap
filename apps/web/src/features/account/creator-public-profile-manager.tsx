@@ -138,7 +138,7 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
         setEditingPlatform(null)
         setSaveFeedback({
           type: 'success',
-          message: `${platform.charAt(0).toUpperCase() + platform.slice(1)} updated successfully!`,
+          message: `${platform.charAt(0).toUpperCase() + platform.slice(1)} updated!`,
         })
         setTimeout(() => setSaveFeedback(null), 3000)
       }
@@ -158,7 +158,7 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
     if (isPublic && !newInstagram && !newTiktok && !newYoutube) {
       setSaveFeedback({
         type: 'error',
-        message: 'Cannot disconnect all accounts while your public profile is active.',
+        message: 'Cannot disconnect all accounts while public profile is active.',
       })
       setTimeout(() => setSaveFeedback(null), 3500)
       return
@@ -207,67 +207,85 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
     })
   }
 
+  const socialPlatforms = [
+    {
+      id: 'instagram' as const,
+      name: 'Instagram',
+      url: instagram,
+      logo: <InstagramLogo className="h-5 w-5 shrink-0" />,
+      placeholder: 'your_handle',
+      connectClass: 'bg-gradient-to-r from-[#d6249f] to-[#fd5949] text-white hover:opacity-90',
+    },
+    {
+      id: 'tiktok' as const,
+      name: 'TikTok',
+      url: tiktok,
+      logo: <TikTokLogo className="h-5 w-5 shrink-0" />,
+      placeholder: 'your_handle',
+      connectClass: 'bg-black dark:bg-zinc-800 text-white hover:bg-zinc-900 border border-zinc-700/60',
+    },
+    {
+      id: 'youtube' as const,
+      name: 'YouTube',
+      url: youtube,
+      logo: <YouTubeLogo className="h-5 w-5 shrink-0" />,
+      placeholder: 'channel_handle',
+      connectClass: 'bg-[#FF0000] hover:bg-[#CC0000] text-white',
+    },
+  ]
+
   return (
     <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs space-y-6 text-left">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3 pb-4 border-b border-border">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-[#FC801A]" />
-          <h3 className="text-sm sm:text-base font-bold text-foreground">
-            Public Creator Profile & Socials
-          </h3>
-        </div>
-
-        {/* Live Status Badge */}
-        <div className="shrink-0">
-          {isPublic ? (
-            <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-xs flex items-center gap-1.5 py-1 px-2.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Public on Explore
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="bg-muted text-muted-foreground text-xs py-1 px-2.5">
-              Profile Hidden
-            </Badge>
-          )}
-        </div>
-      </div>
-
-      {/* Enable Public Toggle */}
-      <div className="p-3.5 rounded-xl bg-muted/30 border border-border flex items-center justify-between gap-4">
-        <div className="space-y-0.5">
+      {/* Header with Integrated Public Toggle (Tight, Cohesive, No Giant Empty Bar) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Label
-              htmlFor="public-profile-toggle"
-              className="text-xs sm:text-sm font-semibold text-foreground cursor-pointer"
-            >
-              Show Profile in Explore Creators
-            </Label>
-            {isToggling && <Loader2 className="h-3 w-3 animate-spin text-[#FC801A]" />}
+            <Sparkles className="h-4 w-4 text-[#FC801A]" />
+            <h3 className="text-sm sm:text-base font-bold text-foreground">
+              Public Creator Profile
+            </h3>
           </div>
-          <p className="text-[11px] sm:text-xs text-muted-foreground">
-            {isPublic
-              ? 'Your portfolio and connected social links are visible to brands searching for UGC creators.'
-              : 'Hidden: Brands cannot discover your profile until enabled.'}
+          <p className="text-xs text-muted-foreground">
+            Display your portfolio and social handles on Menitap Explore for brand deals.
           </p>
         </div>
 
-        <label className="relative inline-flex items-center cursor-pointer shrink-0">
-          <input
-            id="public-profile-toggle"
-            type="checkbox"
-            checked={isPublic}
-            disabled={isToggling}
-            onChange={(e) => handleToggle(e.target.checked)}
-            className="sr-only peer"
-          />
-          <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FC801A]" />
-        </label>
+        {/* Compact Toggle Pill */}
+        <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto bg-muted/40 px-3 py-1.5 rounded-xl border border-border">
+          <div className="text-right">
+            <div className="text-xs font-semibold text-foreground flex items-center justify-end gap-1.5">
+              {isPublic ? (
+                <>
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Public</span>
+                </>
+              ) : (
+                <span>Hidden</span>
+              )}
+            </div>
+            <span className="text-[10px] text-muted-foreground block">
+              {isPublic ? 'Visible on Explore' : 'Private'}
+            </span>
+          </div>
+
+          <label className="relative inline-flex items-center cursor-pointer shrink-0">
+            <input
+              id="public-profile-toggle"
+              type="checkbox"
+              checked={isPublic}
+              disabled={isToggling}
+              onChange={(e) => handleToggle(e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className="w-10 h-5.5 bg-muted-foreground/30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-emerald-500" />
+          </label>
+          {isToggling && <Loader2 className="h-3.5 w-3.5 animate-spin text-[#FC801A]" />}
+        </div>
       </div>
 
       {toggleFeedback && (
         <div
-          className={`p-3 rounded-xl text-xs font-medium flex items-center gap-2 ${
+          className={`p-3 rounded-xl text-xs font-medium flex items-center gap-2 animate-in fade-in ${
             toggleFeedback.type === 'error'
               ? 'bg-destructive/10 text-destructive border border-destructive/20'
               : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
@@ -282,333 +300,152 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
         </div>
       )}
 
-      {/* ----------------- Social Media Connect Buttons ----------------- */}
+      {/* ----------------- Social Media 3-Card Grid ----------------- */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <Label className="text-xs font-bold text-foreground uppercase tracking-wider">
             Connected Social Accounts
           </Label>
           <span className="text-[11px] text-muted-foreground">
-            Official 1-click connect
+            Shown on your public creator card
           </span>
         </div>
 
-        {/* 1. Instagram */}
-        <div className="p-3.5 rounded-xl border border-border bg-card/70 flex flex-col gap-2.5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <InstagramLogo className="h-6 w-6 shrink-0" />
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-foreground">Instagram</span>
-                  {instagram && (
-                    <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  )}
-                </div>
-                <div className="text-[11px] text-muted-foreground truncate">
-                  {instagram ? (
-                    <a
-                      href={instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-mono text-foreground hover:underline inline-flex items-center gap-1"
-                    >
-                      <span>{extractHandle(instagram)}</span>
-                      <ExternalLink className="h-2.5 w-2.5 text-muted-foreground" />
-                    </a>
+        {/* 3-Column Card Grid (Tight, Modern, Zero Void Gaps) */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {socialPlatforms.map((platform) => {
+            const isConnected = Boolean(platform.url && platform.url.trim())
+            const isEditing = editingPlatform === platform.id
+
+            return (
+              <div
+                key={platform.id}
+                className="flex flex-col justify-between p-3.5 rounded-xl border border-border bg-card/60 hover:bg-card/90 transition-all shadow-2xs min-h-[148px]"
+              >
+                {/* Card Top: Logo, Name & Badge */}
+                <div>
+                  <div className="flex items-center justify-between gap-1.5 mb-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {platform.logo}
+                      <span className="text-xs font-bold text-foreground truncate">
+                        {platform.name}
+                      </span>
+                    </div>
+
+                    {isConnected ? (
+                      <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-0 text-[10px] px-1.5 py-0.5 font-medium shrink-0 flex items-center gap-1">
+                        <Check className="h-2.5 w-2.5" />
+                        <span>Linked</span>
+                      </Badge>
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground font-medium shrink-0">
+                        Unlinked
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Card Middle: Handle display or Inline Edit */}
+                  {isEditing ? (
+                    <div className="space-y-2 my-2">
+                      <div className="relative">
+                        <span className="absolute left-2.5 top-2 text-xs text-muted-foreground">@</span>
+                        <Input
+                          value={handleInput}
+                          onChange={(e) => setHandleInput(e.target.value)}
+                          placeholder={platform.placeholder}
+                          className="pl-6 h-8 text-xs bg-background border-border"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSaveSocial(platform.id)
+                            if (e.key === 'Escape') setEditingPlatform(null)
+                          }}
+                        />
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => handleSaveSocial(platform.id)}
+                          disabled={isSaving}
+                          className="h-7 flex-1 text-xs bg-[#FC801A] hover:bg-[#E66F0D] text-white font-medium cursor-pointer"
+                        >
+                          {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Save'}
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingPlatform(null)}
+                          className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
                   ) : (
-                    'Not connected'
+                    <div className="my-2 min-h-[26px] flex items-center">
+                      {isConnected ? (
+                        <a
+                          href={platform.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-mono font-medium text-foreground hover:text-[#FC801A] transition-colors inline-flex items-center gap-1 truncate max-w-full group"
+                        >
+                          <span className="truncate">{extractHandle(platform.url)}</span>
+                          <ExternalLink className="h-2.5 w-2.5 text-muted-foreground group-hover:text-[#FC801A] shrink-0" />
+                        </a>
+                      ) : (
+                        <span className="text-[11px] text-muted-foreground">
+                          Not connected yet
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
+
+                {/* Card Footer: Action Buttons (Only when not editing) */}
+                {!isEditing && (
+                  <div className="pt-2 border-t border-border/50">
+                    {isConnected ? (
+                      <div className="flex items-center gap-1.5">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => startEditing(platform.id)}
+                          className="h-7 flex-1 text-xs text-muted-foreground hover:text-foreground cursor-pointer shadow-2xs"
+                        >
+                          <Edit2 className="h-3 w-3 mr-1" />
+                          Edit
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDisconnectSocial(platform.id)}
+                          disabled={isSaving}
+                          className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive cursor-pointer"
+                          title={`Disconnect ${platform.name}`}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => startEditing(platform.id)}
+                        className={`w-full h-7.5 rounded-lg font-semibold text-xs shadow-2xs cursor-pointer flex items-center justify-center gap-1.5 transition-all ${platform.connectClass}`}
+                      >
+                        <Plus className="h-3 w-3" />
+                        <span>Connect</span>
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 shrink-0">
-              {instagram ? (
-                <>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => startEditing('instagram')}
-                    className="h-7 px-2.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
-                  >
-                    <Edit2 className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDisconnectSocial('instagram')}
-                    disabled={isSaving}
-                    className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive cursor-pointer"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => startEditing('instagram')}
-                  className="h-8 px-3 rounded-xl bg-gradient-to-r from-[#d6249f] to-[#fd5949] hover:opacity-90 text-white font-semibold text-xs border-0 shadow-2xs cursor-pointer flex items-center gap-1.5"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  <span>Connect Instagram</span>
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {editingPlatform === 'instagram' && (
-            <div className="pt-2 border-t border-border flex items-center gap-2 animate-in fade-in">
-              <div className="relative flex-1">
-                <span className="absolute left-3 top-2 text-xs text-muted-foreground">@</span>
-                <Input
-                  value={handleInput}
-                  onChange={(e) => setHandleInput(e.target.value)}
-                  placeholder="your_handle"
-                  className="pl-7 h-8 text-xs bg-background border-border"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSaveSocial('instagram')
-                    if (e.key === 'Escape') setEditingPlatform(null)
-                  }}
-                />
-              </div>
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => handleSaveSocial('instagram')}
-                disabled={isSaving}
-                className="h-8 px-3 text-xs bg-[#FC801A] hover:bg-[#E66F0D] text-white cursor-pointer"
-              >
-                {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Save'}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                onClick={() => setEditingPlatform(null)}
-                className="h-8 px-2 text-xs text-muted-foreground cursor-pointer"
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* 2. TikTok */}
-        <div className="p-3.5 rounded-xl border border-border bg-card/70 flex flex-col gap-2.5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <TikTokLogo className="h-6 w-6 shrink-0" />
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-foreground">TikTok</span>
-                  {tiktok && (
-                    <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  )}
-                </div>
-                <div className="text-[11px] text-muted-foreground truncate">
-                  {tiktok ? (
-                    <a
-                      href={tiktok}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-mono text-foreground hover:underline inline-flex items-center gap-1"
-                    >
-                      <span>{extractHandle(tiktok)}</span>
-                      <ExternalLink className="h-2.5 w-2.5 text-muted-foreground" />
-                    </a>
-                  ) : (
-                    'Not connected'
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 shrink-0">
-              {tiktok ? (
-                <>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => startEditing('tiktok')}
-                    className="h-7 px-2.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
-                  >
-                    <Edit2 className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDisconnectSocial('tiktok')}
-                    disabled={isSaving}
-                    className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive cursor-pointer"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => startEditing('tiktok')}
-                  className="h-8 px-3 rounded-xl bg-black hover:bg-zinc-800 text-white font-semibold text-xs border border-zinc-700 shadow-2xs cursor-pointer flex items-center gap-1.5"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  <span>Connect TikTok</span>
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {editingPlatform === 'tiktok' && (
-            <div className="pt-2 border-t border-border flex items-center gap-2 animate-in fade-in">
-              <div className="relative flex-1">
-                <span className="absolute left-3 top-2 text-xs text-muted-foreground">@</span>
-                <Input
-                  value={handleInput}
-                  onChange={(e) => setHandleInput(e.target.value)}
-                  placeholder="your_handle"
-                  className="pl-7 h-8 text-xs bg-background border-border"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSaveSocial('tiktok')
-                    if (e.key === 'Escape') setEditingPlatform(null)
-                  }}
-                />
-              </div>
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => handleSaveSocial('tiktok')}
-                disabled={isSaving}
-                className="h-8 px-3 text-xs bg-[#FC801A] hover:bg-[#E66F0D] text-white cursor-pointer"
-              >
-                {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Save'}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                onClick={() => setEditingPlatform(null)}
-                className="h-8 px-2 text-xs text-muted-foreground cursor-pointer"
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* 3. YouTube */}
-        <div className="p-3.5 rounded-xl border border-border bg-card/70 flex flex-col gap-2.5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <YouTubeLogo className="h-6 w-6 shrink-0" />
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-foreground">YouTube</span>
-                  {youtube && (
-                    <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  )}
-                </div>
-                <div className="text-[11px] text-muted-foreground truncate">
-                  {youtube ? (
-                    <a
-                      href={youtube}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-mono text-foreground hover:underline inline-flex items-center gap-1"
-                    >
-                      <span>{extractHandle(youtube)}</span>
-                      <ExternalLink className="h-2.5 w-2.5 text-muted-foreground" />
-                    </a>
-                  ) : (
-                    'Not connected'
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 shrink-0">
-              {youtube ? (
-                <>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => startEditing('youtube')}
-                    className="h-7 px-2.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
-                  >
-                    <Edit2 className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDisconnectSocial('youtube')}
-                    disabled={isSaving}
-                    className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive cursor-pointer"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => startEditing('youtube')}
-                  className="h-8 px-3 rounded-xl bg-[#FF0000] hover:bg-[#CC0000] text-white font-semibold text-xs border-0 shadow-2xs cursor-pointer flex items-center gap-1.5"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  <span>Connect YouTube</span>
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {editingPlatform === 'youtube' && (
-            <div className="pt-2 border-t border-border flex items-center gap-2 animate-in fade-in">
-              <div className="relative flex-1">
-                <span className="absolute left-3 top-2 text-xs text-muted-foreground">@</span>
-                <Input
-                  value={handleInput}
-                  onChange={(e) => setHandleInput(e.target.value)}
-                  placeholder="your_channel_handle"
-                  className="pl-7 h-8 text-xs bg-background border-border"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSaveSocial('youtube')
-                    if (e.key === 'Escape') setEditingPlatform(null)
-                  }}
-                />
-              </div>
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => handleSaveSocial('youtube')}
-                disabled={isSaving}
-                className="h-8 px-3 text-xs bg-[#FC801A] hover:bg-[#E66F0D] text-white cursor-pointer"
-              >
-                {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Save'}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                onClick={() => setEditingPlatform(null)}
-                className="h-8 px-2 text-xs text-muted-foreground cursor-pointer"
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
+            )
+          })}
         </div>
       </div>
 
