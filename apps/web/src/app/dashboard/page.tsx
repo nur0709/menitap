@@ -18,6 +18,7 @@ import {
   getPendingBrandLinks,
 } from '@/features/links/actions'
 import { getUserCampaigns } from '@/features/campaigns/actions'
+import { getGoogleIntegration } from '@/features/integrations/google/actions'
 import { SignOutButton } from '@/features/auth/components/sign-out-button'
 import { Building2, ArrowRight, Sparkles, ShoppingBag } from 'lucide-react'
 
@@ -66,12 +67,15 @@ export default async function DashboardPage() {
   }
 
   // 2. Standard user, creator, or brand account
-  const [{ data: profile }, { affiliateLinks }, { brandLinks }, creatorCampaigns] =
+  const [{ data: profile }, { affiliateLinks }, { brandLinks }, creatorCampaigns, googleIntegration] =
     await Promise.all([
       supabase.from('profiles').select('*').eq('id', user.id).single(),
       role === 'CREATOR' ? getUserLinks() : Promise.resolve({ affiliateLinks: [] }),
       role === 'BRAND' ? getUserBrandLinks() : Promise.resolve({ brandLinks: [] }),
       role === 'CREATOR' ? getUserCampaigns() : Promise.resolve([]),
+      role === 'CREATOR'
+        ? getGoogleIntegration()
+        : Promise.resolve({ isConnected: false, emailAddress: null, lastSyncedAt: null }),
     ])
 
   const email = user.email || ''
@@ -94,6 +98,7 @@ export default async function DashboardPage() {
             campaigns={creatorCampaigns}
             affiliateLinks={affiliateLinks}
             inboundToken={inboundToken}
+            googleIntegration={googleIntegration}
           />
         </main>
 

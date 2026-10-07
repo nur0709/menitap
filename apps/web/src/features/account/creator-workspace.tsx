@@ -7,7 +7,8 @@ import { CreatorLinksManager, AffiliateLinkItem } from './creator-links-manager'
 import { CreatorPublicProfileManager } from './creator-public-profile-manager'
 import { DeleteAccountSection } from './delete-account-section'
 import { CampaignsManager } from '@/features/campaigns/components/campaigns-manager'
-import { EmailSyncOnboardingCard } from '@/features/campaigns/components/email-sync-onboarding-card'
+import { GoogleSyncCard } from '@/features/integrations/google/components/google-sync-card'
+import { GoogleIntegrationStatus } from '@/features/integrations/google/actions'
 import { CreatorCampaign } from '@/features/campaigns/types'
 import { SignOutButton } from '@/features/auth/components/sign-out-button'
 import Link from 'next/link'
@@ -38,6 +39,7 @@ interface CreatorWorkspaceProps {
   campaigns: CreatorCampaign[]
   affiliateLinks: AffiliateLinkItem[]
   inboundToken: string | null
+  googleIntegration?: GoogleIntegrationStatus
 }
 
 export function CreatorWorkspace({
@@ -47,6 +49,7 @@ export function CreatorWorkspace({
   campaigns,
   affiliateLinks,
   inboundToken,
+  googleIntegration,
 }: CreatorWorkspaceProps) {
   const [activeTab, setActiveTab] = useState<'campaigns' | 'links' | 'profile' | 'settings'>('campaigns')
 
@@ -134,7 +137,19 @@ export function CreatorWorkspace({
       <div>
         {/* Tab 1: Campaigns */}
         {activeTab === 'campaigns' && (
-          <CampaignsManager campaigns={campaigns} inboundToken={inboundToken} />
+          <div className="space-y-5">
+            <GoogleSyncCard
+              initialStatus={
+                googleIntegration || {
+                  isConnected: false,
+                  emailAddress: null,
+                  lastSyncedAt: null,
+                }
+              }
+              inboundToken={inboundToken}
+            />
+            <CampaignsManager campaigns={campaigns} inboundToken={inboundToken} />
+          </div>
         )}
 
         {/* Tab 2: My Links & Codes */}
@@ -156,8 +171,17 @@ export function CreatorWorkspace({
         {/* Tab 4: Settings & Sync */}
         {activeTab === 'settings' && (
           <div className="space-y-6 max-w-2xl mx-auto">
-            {/* Minimal Email Sync Card */}
-            <EmailSyncOnboardingCard inboundToken={inboundToken} />
+            {/* Google Integration & Inbound Forwarding Card */}
+            <GoogleSyncCard
+              initialStatus={
+                googleIntegration || {
+                  isConnected: false,
+                  emailAddress: null,
+                  lastSyncedAt: null,
+                }
+              }
+              inboundToken={inboundToken}
+            />
 
             {/* Plan Card */}
             <div className="p-5 rounded-2xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">

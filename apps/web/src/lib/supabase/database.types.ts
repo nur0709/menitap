@@ -191,6 +191,7 @@ export type Database = {
           notes: string | null
           product_name: string | null
           raw_source_text: string | null
+          source_message_id: string | null
           source_sender: string | null
           source_subject: string | null
           source_type: string
@@ -209,6 +210,7 @@ export type Database = {
           notes?: string | null
           product_name?: string | null
           raw_source_text?: string | null
+          source_message_id?: string | null
           source_sender?: string | null
           source_subject?: string | null
           source_type?: string
@@ -227,6 +229,7 @@ export type Database = {
           notes?: string | null
           product_name?: string | null
           raw_source_text?: string | null
+          source_message_id?: string | null
           source_sender?: string | null
           source_subject?: string | null
           source_type?: string
@@ -363,12 +366,74 @@ export type Database = {
           },
         ]
       }
+      user_email_integrations: {
+        Row: {
+          access_token: string | null
+          created_at: string | null
+          email_address: string
+          id: string
+          last_synced_at: string | null
+          provider: string
+          refresh_token: string
+          token_expires_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string | null
+          email_address: string
+          id?: string
+          last_synced_at?: string | null
+          provider?: string
+          refresh_token: string
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string | null
+          email_address?: string
+          id?: string
+          last_synced_at?: string | null
+          provider?: string
+          refresh_token?: string
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_email_integrations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       check_user_exists: { Args: { p_email: string }; Returns: boolean }
+      create_inbound_campaign: {
+        Args: {
+          p_brand_logo_url: string
+          p_brand_name: string
+          p_compensation: string
+          p_deadline: string
+          p_deliverables: string
+          p_inbound_token: string
+          p_product_name: string
+          p_raw_source_text: string
+          p_source_sender: string
+          p_source_subject: string
+        }
+        Returns: string
+      }
       remove_user: { Args: never; Returns: undefined }
       request_account_deletion: { Args: never; Returns: undefined }
     }
