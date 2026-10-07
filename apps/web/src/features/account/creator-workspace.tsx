@@ -176,16 +176,15 @@ export function CreatorWorkspace({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto">
+              <div className="shrink-0 self-start sm:self-auto">
                 <Link
                   href="/plans"
-                  className="inline-flex items-center gap-1.5 bg-[#FC801A] hover:bg-[#E66F0D] text-white font-medium text-xs shadow-xs px-3 h-8 rounded-xl transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 bg-[#FC801A] hover:bg-[#E66F0D] text-white font-medium text-xs shadow-xs px-3.5 h-8 rounded-xl transition-colors cursor-pointer"
                 >
                   <Sparkles className="h-3 w-3" />
                   <span>Switch Plan</span>
                   <ArrowRight className="h-3 w-3 ml-0.5" />
                 </Link>
-                <SignOutButton variant="account" />
               </div>
             </div>
 
