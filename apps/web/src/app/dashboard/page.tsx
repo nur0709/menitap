@@ -81,7 +81,6 @@ export default async function DashboardPage() {
   const email = user.email || ''
   const fullName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || ''
   const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || null
-  const inboundToken = profile?.inbound_email_token || null
 
   // 3. Creator Workspace View
   if (role === 'CREATOR') {
@@ -97,7 +96,6 @@ export default async function DashboardPage() {
             profile={profile || {}}
             campaigns={creatorCampaigns}
             affiliateLinks={affiliateLinks}
-            inboundToken={inboundToken}
             googleIntegration={googleIntegration}
           />
         </main>

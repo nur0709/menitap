@@ -4,14 +4,13 @@ import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import { triggerGmailSyncAction, disconnectGoogleAction, GoogleIntegrationStatus } from '../actions'
 import { formatTimeAgo } from '@/features/campaigns/lib/action-helpers'
-import { RefreshCw, CheckCircle2, ArrowRight, ShieldCheck, Mail } from 'lucide-react'
+import { RefreshCw, CheckCircle2, ArrowRight, ShieldCheck } from 'lucide-react'
 
 interface GoogleSyncCardProps {
   initialStatus: GoogleIntegrationStatus
-  inboundToken?: string | null
 }
 
-export function GoogleSyncCard({ initialStatus, inboundToken }: GoogleSyncCardProps) {
+export function GoogleSyncCard({ initialStatus }: GoogleSyncCardProps) {
   const [status, setStatus] = useState<GoogleIntegrationStatus>(initialStatus)
   const [isPending, startTransition] = useTransition()
   const [syncFeedback, setSyncFeedback] = useState<string | null>(null)
@@ -47,10 +46,6 @@ export function GoogleSyncCard({ initialStatus, inboundToken }: GoogleSyncCardPr
       })
     }
   }
-
-  const syncAddress = inboundToken
-    ? `deals-${inboundToken}@in.menitap.com`
-    : 'deals@in.menitap.com'
 
   if (status.isConnected) {
     return (
@@ -138,21 +133,9 @@ export function GoogleSyncCard({ initialStatus, inboundToken }: GoogleSyncCardPr
         </a>
       </div>
 
-      <div className="pt-3 border-t border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-muted-foreground">
-        <div className="flex items-center gap-1.5">
-          <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-          <span>Read-only access. Your personal emails, receipts, and private messages are never touched.</span>
-        </div>
-
-        {inboundToken && (
-          <div className="flex items-center gap-1.5 text-muted-foreground/80">
-            <Mail className="h-3 w-3" />
-            <span>Using Apple Mail? Forward pitches to:</span>
-            <span className="font-mono text-[10px] bg-muted px-1.5 py-0.5 rounded text-foreground select-all">
-              {syncAddress}
-            </span>
-          </div>
-        )}
+      <div className="pt-3 border-t border-border/60 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+        <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+        <span>Read-only access. Your personal emails, receipts, and private messages are never touched.</span>
       </div>
     </div>
   )

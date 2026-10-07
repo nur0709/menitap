@@ -38,7 +38,6 @@ interface CreatorWorkspaceProps {
   }
   campaigns: CreatorCampaign[]
   affiliateLinks: AffiliateLinkItem[]
-  inboundToken: string | null
   googleIntegration?: GoogleIntegrationStatus
 }
 
@@ -48,7 +47,6 @@ export function CreatorWorkspace({
   profile,
   campaigns,
   affiliateLinks,
-  inboundToken,
   googleIntegration,
 }: CreatorWorkspaceProps) {
   const [activeTab, setActiveTab] = useState<'campaigns' | 'links' | 'profile' | 'settings'>('campaigns')
@@ -146,9 +144,8 @@ export function CreatorWorkspace({
                   lastSyncedAt: null,
                 }
               }
-              inboundToken={inboundToken}
             />
-            <CampaignsManager campaigns={campaigns} inboundToken={inboundToken} />
+            <CampaignsManager campaigns={campaigns} />
           </div>
         )}
 
@@ -171,7 +168,7 @@ export function CreatorWorkspace({
         {/* Tab 4: Settings & Sync */}
         {activeTab === 'settings' && (
           <div className="space-y-6 max-w-2xl mx-auto">
-            {/* Google Integration & Inbound Forwarding Card */}
+            {/* Google Integration Card */}
             <GoogleSyncCard
               initialStatus={
                 googleIntegration || {
@@ -180,7 +177,6 @@ export function CreatorWorkspace({
                   lastSyncedAt: null,
                 }
               }
-              inboundToken={inboundToken}
             />
 
             {/* Plan Card */}

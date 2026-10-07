@@ -157,20 +157,3 @@ export async function deleteCampaign(
   revalidatePath('/dashboard')
   return { success: 'Campaign deleted.' }
 }
-
-export async function getUserInboundEmailToken(): Promise<string | null> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) return null
-
-  const { data } = await supabase
-    .from('profiles')
-    .select('inbound_email_token')
-    .eq('id', user.id)
-    .single()
-
-  return data?.inbound_email_token || null
-}
