@@ -4,16 +4,32 @@ import { useState, useMemo } from 'react'
 import { CreatorCampaign, CampaignStatus } from '../types'
 import { CampaignCard } from './campaign-card'
 import { AddCampaignManualModal } from './add-campaign-manual-modal'
-import { Search, Inbox } from 'lucide-react'
+import { Search, Inbox, Mail, Copy, Check } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
 interface CampaignsManagerProps {
   campaigns: CreatorCampaign[]
+  inboundToken?: string | null
 }
 
-export function CampaignsManager({ campaigns }: CampaignsManagerProps) {
+export function CampaignsManager({ campaigns, inboundToken }: CampaignsManagerProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'ALL' | CampaignStatus>('ALL')
+  const [copiedSyncEmail, setCopiedSyncEmail] = useState(false)
+
+  const syncAddress = inboundToken
+    ? `deals+${inboundToken}@in.menitap.com`
+    : 'deals@in.menitap.com'
+
+  const handleCopySyncAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(syncAddress)
+      setCopiedSyncEmail(true)
+      setTimeout(() => setCopiedSyncEmail(false), 2000)
+    } catch {
+      // Fallback
+    }
+  }
 
   // Calculate Quick Stats
   const stats = useMemo(() => {
@@ -72,7 +88,7 @@ export function CampaignsManager({ campaigns }: CampaignsManagerProps) {
     <div className="space-y-5">
       {/* Minimal Header Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-        <div>
+        <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
             <h2 className="text-base font-bold text-foreground">Campaigns</h2>
             <span className="text-xs text-muted-foreground">
@@ -80,6 +96,24 @@ export function CampaignsManager({ campaigns }: CampaignsManagerProps) {
               {stats.paid > 0 && ` • ${stats.paid} paid`}
             </span>
           </div>
+
+          {/* Quick Copy My Inbound Sync Address */}
+          {inboundToken && (
+            <button
+              type="button"
+              onClick={handleCopySyncAddress}
+              title={`Click to copy: ${syncAddress}`}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-muted/40 hover:bg-muted text-[11px] font-mono text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            >
+              <Mail className="h-3 w-3 text-[#08739C] dark:text-[#38BDF8]" />
+              <span className="truncate max-w-[170px]">{syncAddress}</span>
+              {copiedSyncEmail ? (
+                <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              ) : (
+                <Copy className="h-3 w-3 shrink-0" />
+              )}
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2.5">

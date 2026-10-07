@@ -134,7 +134,7 @@ export function CreatorWorkspace({
       <div>
         {/* Tab 1: Campaigns */}
         {activeTab === 'campaigns' && (
-          <CampaignsManager campaigns={campaigns} />
+          <CampaignsManager campaigns={campaigns} inboundToken={inboundToken} />
         )}
 
         {/* Tab 2: My Links & Codes */}

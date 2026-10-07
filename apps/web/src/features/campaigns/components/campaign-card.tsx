@@ -5,13 +5,22 @@ import { CreatorCampaign, CampaignStatus } from '../types'
 import { updateCampaignStatus, deleteCampaign } from '../actions'
 import { CampaignDetailsModal } from './campaign-details-modal'
 import {
+  extractEmailAddress,
+  extractBrandDomain,
+  extractFirstUrl,
+  getGmailComposeUrl,
+} from '../lib/action-helpers'
+import {
   DollarSign,
   Package,
-  FileText,
   Trash2,
   ChevronDown,
   Loader2,
   AlertCircle,
+  Mail,
+  Copy,
+  Check,
+  ExternalLink,
 } from 'lucide-react'
 
 interface CampaignCardProps {
@@ -20,37 +29,31 @@ interface CampaignCardProps {
 
 const STATUS_CONFIG: Record<
   CampaignStatus,
-  { label: string; badgeClass: string; dotClass: string }
+  { label: string; badgeClass: string }
 > = {
   NEW_PITCH: {
     label: 'New Pitch',
     badgeClass: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
-    dotClass: 'bg-purple-500',
   },
   ACCEPTED: {
     label: 'Accepted',
     badgeClass: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20',
-    dotClass: 'bg-sky-500',
   },
   FILMING: {
-    label: 'Filming / Draft',
+    label: 'Filming',
     badgeClass: 'bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30',
-    dotClass: 'bg-[#FC801A]',
   },
   DELIVERED: {
     label: 'Delivered',
     badgeClass: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
-    dotClass: 'bg-blue-500',
   },
   PAID: {
     label: 'Paid ✓',
     badgeClass: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-    dotClass: 'bg-emerald-500',
   },
   DECLINED: {
     label: 'Declined',
     badgeClass: 'bg-muted text-muted-foreground border-border',
-    dotClass: 'bg-muted-foreground',
   },
 }
 
@@ -58,6 +61,30 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [currentStatus, setCurrentStatus] = useState<CampaignStatus>(campaign.status)
+  const [copiedEmail, setCopiedEmail] = useState(false)
+
+  // Action helpers
+  const brandEmail = extractEmailAddress(campaign.source_sender)
+  const brandDomain = extractBrandDomain(brandEmail, campaign.brand_name)
+  const portalUrl = extractFirstUrl(campaign.raw_source_text)
+  const brandWebsiteUrl = portalUrl || (brandDomain ? `https://${brandDomain}` : null)
+  const gmailComposeUrl = brandEmail
+    ? getGmailComposeUrl({
+        toEmail: brandEmail,
+        subject: campaign.source_subject || `${campaign.brand_name} Collaboration`,
+      })
+    : null
+
+  const handleCopyBrandEmail = async () => {
+    if (!brandEmail) return
+    try {
+      await navigator.clipboard.writeText(brandEmail)
+      setCopiedEmail(true)
+      setTimeout(() => setCopiedEmail(false), 2000)
+    } catch {
+      // Fallback
+    }
+  }
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const nextStatus = e.target.value as CampaignStatus
@@ -115,9 +142,9 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
 
   return (
     <>
-      <div className="relative rounded-2xl bg-card border border-border p-4 sm:p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
-        {/* Top: Brand info & Status dropdown */}
+      <div className="relative rounded-2xl bg-card border border-border p-4 sm:p-5 shadow-xs hover:shadow-sm transition-all flex flex-col justify-between group">
         <div>
+          {/* Top Row: Brand Info + Status Selector */}
           <div className="flex items-start justify-between gap-3 mb-3">
             <div className="flex items-center gap-3 min-w-0">
               {campaign.brand_logo_url ? (
@@ -153,7 +180,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
               >
                 <option value="NEW_PITCH">New Pitch</option>
                 <option value="ACCEPTED">Accepted</option>
-                <option value="FILMING">Filming / Draft</option>
+                <option value="FILMING">Filming</option>
                 <option value="DELIVERED">Delivered</option>
                 <option value="PAID">Paid ✓</option>
                 <option value="DECLINED">Declined</option>
@@ -191,30 +218,78 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
           </div>
         </div>
 
-        {/* Bottom Actions */}
-        <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs">
-          <button
-            type="button"
-            onClick={() => setIsDetailsOpen(true)}
-            className="inline-flex items-center gap-1 text-[11px] font-medium text-[#08739C] dark:text-[#38BDF8] hover:underline cursor-pointer"
-          >
-            <FileText className="h-3 w-3" />
-            <span>View Brief & Email</span>
-          </button>
+        {/* Actionable Toolbar */}
+        <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs gap-1.5">
+          <div className="flex items-center gap-1.5">
+            {/* Reply in Gmail */}
+            {gmailComposeUrl ? (
+              <a
+                href={gmailComposeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Reply to ${brandEmail} in Gmail`}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#08739C]/10 text-[#08739C] dark:text-[#38BDF8] hover:bg-[#08739C]/20 font-medium text-[11px] transition-colors"
+              >
+                <Mail className="h-3 w-3" />
+                <span>Reply</span>
+              </a>
+            ) : null}
 
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={isPending}
-            className="text-muted-foreground hover:text-destructive p-1 rounded-md transition-colors cursor-pointer"
-            aria-label="Delete campaign"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
+            {/* Copy Brand Email */}
+            {brandEmail ? (
+              <button
+                type="button"
+                onClick={handleCopyBrandEmail}
+                title={copiedEmail ? 'Copied brand email!' : `Copy ${brandEmail}`}
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                aria-label="Copy brand email"
+              >
+                {copiedEmail ? (
+                  <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" />
+                )}
+              </button>
+            ) : null}
+
+            {/* Visit Platform / Brand Website */}
+            {brandWebsiteUrl ? (
+              <a
+                href={brandWebsiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Open ${brandDomain || campaign.brand_name} link`}
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                aria-label="Open brand website or portal"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            ) : null}
+          </div>
+
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setIsDetailsOpen(true)}
+              className="text-[11px] font-semibold text-muted-foreground hover:text-foreground px-2 py-1 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+            >
+              Brief
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={isPending}
+              className="text-muted-foreground hover:text-destructive p-1 rounded-lg transition-colors cursor-pointer"
+              aria-label="Delete campaign"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Details Modal */}
+      {/* Details Modal with Quick Reply Drafts */}
       <CampaignDetailsModal
         campaign={campaign}
         isOpen={isDetailsOpen}
