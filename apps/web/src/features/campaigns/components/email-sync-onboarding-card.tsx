@@ -77,18 +77,18 @@ export function EmailSyncOnboardingCard({ inboundToken }: EmailSyncOnboardingCar
           </div>
         </div>
 
-        {/* Step 2: Open Gmail Forwarding (Simple, Symmetrical, Orange) */}
+        {/* Step 2: Add Forwarding Address in Gmail */}
         <div className="space-y-2 pt-2 border-t border-border/60">
           <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FC801A] text-white text-[10px] font-bold">
               2
             </span>
-            Add to Gmail Forwarding
+            Add a forwarding address in Gmail
           </label>
 
           <div className="flex items-center gap-2">
-            <div className="flex-1 bg-muted/50 border border-border px-3.5 py-2 rounded-xl text-xs text-muted-foreground truncate">
-              Opens the Forwarding page in your Gmail
+            <div className="flex-1 bg-muted/50 border border-border px-3.5 py-2 rounded-xl text-xs text-foreground truncate">
+              Click &quot;Add a forwarding address&quot; and paste your deal email
             </div>
             <a
               href="https://mail.google.com/mail/#settings/fwdandpop"
@@ -100,10 +100,6 @@ export function EmailSyncOnboardingCard({ inboundToken }: EmailSyncOnboardingCar
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
-
-          <p className="text-[11px] text-muted-foreground pl-1">
-            Click <strong>&quot;Add a forwarding address&quot;</strong> and paste your email. Menitap auto-approves it!
-          </p>
         </div>
 
         {/* Minimal Auto-verify badge */}
