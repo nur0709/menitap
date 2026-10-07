@@ -18,25 +18,6 @@ export function CampaignsManager({ campaigns, googleIntegration }: CampaignsMana
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PITCHES' | CampaignStatus>('ALL')
 
-  // Calculate Quick Stats
-  const stats = useMemo(() => {
-    let pendingCount = 0
-    let paidCount = 0
-
-    campaigns.forEach((c) => {
-      if (c.status === 'PAID') {
-        paidCount++
-      } else if (c.status !== 'DECLINED') {
-        pendingCount++
-      }
-    })
-
-    return {
-      total: campaigns.length,
-      active: pendingCount,
-      paid: paidCount,
-    }
-  }, [campaigns])
 
   // Filtered campaigns
   const filteredCampaigns = useMemo(() => {
@@ -80,14 +61,6 @@ export function CampaignsManager({ campaigns, googleIntegration }: CampaignsMana
       {/* Minimal Header Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2">
-            <h2 className="text-base font-bold text-foreground">Campaigns</h2>
-            <span className="text-xs text-muted-foreground">
-              • {stats.active} active deal{stats.active !== 1 ? 's' : ''}
-              {stats.paid > 0 && ` • ${stats.paid} paid`}
-            </span>
-          </div>
-
           {googleIntegration && (
             <GoogleSyncCard initialStatus={googleIntegration} />
           )}
