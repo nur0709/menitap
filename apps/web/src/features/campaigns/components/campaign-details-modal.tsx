@@ -5,8 +5,7 @@ import { CreatorCampaign } from '../types'
 import { Button } from '@/components/ui/button'
 import {
   extractEmailAddress,
-  extractBrandDomain,
-  extractFirstUrl,
+  extractApplicationFormUrl,
   getGmailComposeUrl,
 } from '../lib/action-helpers'
 import {
@@ -20,6 +19,8 @@ import {
   Check,
   ExternalLink,
   MessageSquare,
+  AlertCircle,
+  Clock,
 } from 'lucide-react'
 
 interface CampaignDetailsModalProps {
@@ -31,33 +32,20 @@ interface CampaignDetailsModalProps {
 export function CampaignDetailsModal({ campaign, isOpen, onClose }: CampaignDetailsModalProps) {
   const [copiedEmail, setCopiedEmail] = useState(false)
   const [copiedReply, setCopiedReply] = useState(false)
-  const [replyTemplate, setReplyTemplate] = useState<'ACCEPT' | 'COUNTER' | 'QUESTIONS'>('ACCEPT')
 
   if (!isOpen) return null
 
   const brandEmail = extractEmailAddress(campaign.source_sender)
-  const brandDomain = extractBrandDomain(brandEmail, campaign.brand_name)
-  const portalUrl = extractFirstUrl(campaign.raw_source_text)
-  const brandWebsiteUrl = portalUrl || (brandDomain ? `https://${brandDomain}` : null)
+  const applicationUrl = extractApplicationFormUrl(campaign.raw_source_text)
 
-  // Smart Pre-written replies
-  const getDraftText = () => {
-    switch (replyTemplate) {
-      case 'ACCEPT':
-        return `Hi there,\n\nThank you for reaching out! I would love to partner with ${campaign.brand_name} on this campaign. The deliverables and compensation sound great.\n\nPlease let me know if you need my shipping address to send out the product!\n\nBest,`
-      case 'COUNTER':
-        return `Hi there,\n\nThank you for thinking of me! I'm a big fan of ${campaign.brand_name} and would love to collaborate. Given the deliverables and ad usage rights, my standard rate for this project would be [Enter Rate]. Let me know if that works within your campaign budget!\n\nBest,`
-      case 'QUESTIONS':
-        return `Hi there,\n\nThanks for reaching out! Could you please share the full creative brief, key talking points, and due date so I can review?\n\nBest,`
-    }
-  }
+  // Single clean, predefined Accept draft as requested by user
+  const acceptDraftText = `Hi there,\n\nThank you for reaching out! I would love to collaborate with ${campaign.brand_name} on this campaign. The deliverables and compensation sound great.\n\nPlease let me know if you need my shipping address or any further details to get started!\n\nBest,`
 
-  const draftText = getDraftText()
   const gmailDraftUrl = brandEmail
     ? getGmailComposeUrl({
         toEmail: brandEmail,
         subject: campaign.source_subject || `${campaign.brand_name} Collaboration`,
-        body: draftText,
+        body: acceptDraftText,
       })
     : null
 
@@ -74,12 +62,55 @@ export function CampaignDetailsModal({ campaign, isOpen, onClose }: CampaignDeta
 
   const handleCopyReply = async () => {
     try {
-      await navigator.clipboard.writeText(draftText)
+      await navigator.clipboard.writeText(acceptDraftText)
       setCopiedReply(true)
       setTimeout(() => setCopiedReply(false), 2000)
     } catch {
       // Fallback
     }
+  }
+
+  // Highlighted Due Date helper
+  const renderHighlightedDeadline = () => {
+    if (!campaign.deadline) return null
+    const due = new Date(campaign.deadline)
+    const now = new Date()
+    const diffDays = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    const formattedDate = due.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+
+    if (diffDays < 0) {
+      return (
+        <span className="text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1">
+          <AlertCircle className="h-3.5 w-3.5" />
+          Overdue ({formattedDate})
+        </span>
+      )
+    }
+    if (diffDays === 0) {
+      return (
+        <span className="text-xs font-bold text-[#FC801A] flex items-center gap-1">
+          <Clock className="h-3.5 w-3.5" />
+          Due Today!
+        </span>
+      )
+    }
+    if (diffDays <= 4) {
+      return (
+        <span className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+          <Calendar className="h-3.5 w-3.5" />
+          Due {formattedDate} ({diffDays}d left)
+        </span>
+      )
+    }
+    return (
+      <span className="text-xs font-semibold text-foreground">
+        Due {formattedDate}
+      </span>
+    )
   }
 
   return (
@@ -112,24 +143,61 @@ export function CampaignDetailsModal({ campaign, isOpen, onClose }: CampaignDeta
             <div className="min-w-0">
               <h3 className="text-base font-bold text-foreground truncate">{campaign.brand_name}</h3>
               {campaign.product_name && (
-                <p className="text-xs text-muted-foreground truncate">{campaign.product_name}</p>
+                <p className="text-xs text-muted-foreground font-medium truncate">{campaign.product_name}</p>
               )}
             </div>
           </div>
 
-          {/* Quick Header Actions */}
-          <div className="flex items-center gap-1.5 shrink-0">
+          {/* Prominent Apply Button (If application form URL exists) */}
+          {applicationUrl ? (
+            <a
+              href={applicationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 bg-[#FC801A] hover:bg-[#E66F0D] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors shrink-0"
+            >
+              <span>Apply to Campaign</span>
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          ) : gmailDraftUrl ? (
+            <a
+              href={gmailDraftUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 bg-[#08739C] hover:bg-[#076184] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors shrink-0"
+            >
+              <Mail className="h-3.5 w-3.5" />
+              <span>Apply via Email</span>
+            </a>
+          ) : null}
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="space-y-4 overflow-y-auto pr-1 text-xs text-foreground flex-1">
+          {/* Brand Representative Email - clearly visible with 1-click copy */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-muted/40 border border-border">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Mail className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0" />
+              <div className="min-w-0">
+                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
+                  Brand Contact / Representative
+                </span>
+                <span className="font-mono text-xs text-foreground font-bold truncate block">
+                  {brandEmail || campaign.source_sender || 'Representative Email'}
+                </span>
+              </div>
+            </div>
+
             {brandEmail && (
               <button
                 type="button"
                 onClick={handleCopyEmail}
-                title={`Copy ${brandEmail}`}
-                className="inline-flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-xl border border-border bg-muted/50 hover:bg-muted text-foreground transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-muted text-foreground transition-colors cursor-pointer self-start sm:self-auto shrink-0 shadow-xs"
               >
                 {copiedEmail ? (
                   <>
                     <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                    <span>Copied</span>
+                    <span>Copied!</span>
                   </>
                 ) : (
                   <>
@@ -139,50 +207,29 @@ export function CampaignDetailsModal({ campaign, isOpen, onClose }: CampaignDeta
                 )}
               </button>
             )}
-
-            {brandWebsiteUrl && (
-              <a
-                href={brandWebsiteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Visit brand website or portal"
-                className="p-1.5 rounded-xl border border-border bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-            )}
           </div>
-        </div>
 
-        {/* Scrollable Content */}
-        <div className="space-y-4 overflow-y-auto pr-1 text-xs text-foreground flex-1">
-          {/* Key Metrics */}
+          {/* Key Metrics: Compensation & Highlighted Due Date */}
           <div className="grid grid-cols-2 gap-2.5">
             {campaign.compensation && (
-              <div className="p-3 rounded-xl bg-muted/40 border border-border flex items-center gap-2.5">
+              <div className="p-3 rounded-xl bg-muted/30 border border-border flex items-center gap-2.5">
                 <DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <div>
                   <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
                     Compensation
                   </span>
-                  <span className="font-semibold text-foreground text-xs">{campaign.compensation}</span>
+                  <span className="font-bold text-foreground text-xs">{campaign.compensation}</span>
                 </div>
               </div>
             )}
             {campaign.deadline && (
-              <div className="p-3 rounded-xl bg-muted/40 border border-border flex items-center gap-2.5">
+              <div className="p-3 rounded-xl bg-muted/30 border border-border flex items-center gap-2.5">
                 <Calendar className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0" />
                 <div>
                   <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
-                    Due Date
+                    Deadline
                   </span>
-                  <span className="font-semibold text-foreground text-xs">
-                    {new Date(campaign.deadline).toLocaleDateString(undefined, {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </span>
+                  <div>{renderHighlightedDeadline()}</div>
                 </div>
               </div>
             )}
@@ -201,47 +248,22 @@ export function CampaignDetailsModal({ campaign, isOpen, onClose }: CampaignDeta
             </div>
           )}
 
-          {/* 1-Click Quick Reply Draft */}
+          {/* Single Pre-written Accept Reply Draft */}
           {brandEmail && (
             <div className="p-3.5 rounded-xl bg-muted/40 border border-border space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-foreground flex items-center gap-1.5">
+                <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
                   <MessageSquare className="h-3.5 w-3.5 text-[#08739C] dark:text-[#38BDF8]" />
-                  Quick Reply to {campaign.brand_name}
+                  Accept Collaboration (Ready-to-Send Reply)
                 </span>
-
-                {/* Template Switcher */}
-                <div className="flex items-center gap-1 bg-background p-0.5 rounded-lg border border-border text-[10px]">
-                  <button
-                    onClick={() => setReplyTemplate('ACCEPT')}
-                    className={`px-2 py-0.5 rounded font-medium cursor-pointer transition-colors ${
-                      replyTemplate === 'ACCEPT' ? 'bg-[#FC801A] text-white font-bold' : 'text-muted-foreground'
-                    }`}
-                  >
-                    Accept
-                  </button>
-                  <button
-                    onClick={() => setReplyTemplate('COUNTER')}
-                    className={`px-2 py-0.5 rounded font-medium cursor-pointer transition-colors ${
-                      replyTemplate === 'COUNTER' ? 'bg-[#FC801A] text-white font-bold' : 'text-muted-foreground'
-                    }`}
-                  >
-                    Counter
-                  </button>
-                  <button
-                    onClick={() => setReplyTemplate('QUESTIONS')}
-                    className={`px-2 py-0.5 rounded font-medium cursor-pointer transition-colors ${
-                      replyTemplate === 'QUESTIONS' ? 'bg-[#FC801A] text-white font-bold' : 'text-muted-foreground'
-                    }`}
-                  >
-                    Ask Brief
-                  </button>
-                </div>
+                <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                  Pre-filled Draft
+                </span>
               </div>
 
               {/* Draft Preview Box */}
-              <div className="p-2.5 rounded-lg bg-background border border-border text-[11px] text-muted-foreground leading-relaxed whitespace-pre-wrap font-sans">
-                {draftText}
+              <div className="p-3 rounded-lg bg-background border border-border text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap font-sans">
+                {acceptDraftText}
               </div>
 
               {/* Action Buttons for Draft */}
@@ -249,16 +271,16 @@ export function CampaignDetailsModal({ campaign, isOpen, onClose }: CampaignDeta
                 <button
                   type="button"
                   onClick={handleCopyReply}
-                  className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-foreground px-2.5 py-1 rounded-lg border border-border bg-card cursor-pointer"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-xl border border-border bg-card cursor-pointer"
                 >
                   {copiedReply ? (
                     <>
-                      <Check className="h-3 w-3 text-emerald-600" />
+                      <Check className="h-3.5 w-3.5 text-emerald-600" />
                       <span>Copied Draft</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="h-3 w-3" />
+                      <Copy className="h-3.5 w-3.5" />
                       <span>Copy Draft</span>
                     </>
                   )}
@@ -269,24 +291,24 @@ export function CampaignDetailsModal({ campaign, isOpen, onClose }: CampaignDeta
                     href={gmailDraftUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-white bg-[#08739C] hover:bg-[#076184] px-3 py-1 rounded-lg transition-colors shadow-xs"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#08739C] hover:bg-[#076184] px-3.5 py-1.5 rounded-xl transition-colors shadow-xs"
                   >
-                    <Mail className="h-3 w-3" />
-                    <span>Open in Gmail Draft ↗</span>
+                    <Mail className="h-3.5 w-3.5" />
+                    <span>Open in Gmail to Reply ↗</span>
                   </a>
                 )}
               </div>
             </div>
           )}
 
-          {/* Raw Email / Brief Text */}
+          {/* Raw Email Text */}
           {campaign.raw_source_text && (
             <div className="space-y-1.5">
               <span className="text-[10px] uppercase font-semibold text-muted-foreground flex items-center gap-1.5">
                 <FileText className="h-3.5 w-3.5" />
-                Original Email / Brief
+                Original Email Content
               </span>
-              <div className="p-3 rounded-xl bg-muted/50 border border-border max-h-40 overflow-y-auto text-[11px] text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed select-text">
+              <div className="p-3 rounded-xl bg-muted/50 border border-border max-h-44 overflow-y-auto text-[11px] text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed select-text">
                 {campaign.raw_source_text}
               </div>
             </div>

@@ -29,10 +29,32 @@ export function extractBrandDomain(senderEmail: string | null, brandName: string
   return null
 }
 
-export function extractFirstUrl(text: string | null | undefined): string | null {
+/**
+ * Specifically finds application form URLs (Google Forms, Typeform, Airtable, etc.)
+ * or any URL following words like "form", "apply", "application"
+ */
+export function extractApplicationFormUrl(text: string | null | undefined): string | null {
   if (!text) return null
+
+  // 1. Look for known form hosts
+  const formHostMatch = text.match(/https?:\/\/(?:forms\.gle|docs\.google\.com\/forms|[\w.-]*typeform\.com|airtable\.com\/app[\w]+|tally\.so)[\w\d\-._~:/?#[\]@!$&'()*+,;=]*/i)
+  if (formHostMatch) {
+    return formHostMatch[0]
+  }
+
+  // 2. Look for URL following "application", "apply", "form"
+  const nearContextMatch = text.match(/(?:application|apply|form|link)[\s\S]{0,100}?(https?:\/\/[^\s<>"')]+)/i)
+  if (nearContextMatch && nearContextMatch[1]) {
+    return nearContextMatch[1]
+  }
+
+  // 3. Fallback to first URL in text
   const urlMatch = text.match(/https?:\/\/[^\s<>"')]+/)
   return urlMatch ? urlMatch[0] : null
+}
+
+export function extractFirstUrl(text: string | null | undefined): string | null {
+  return extractApplicationFormUrl(text)
 }
 
 export function getGmailComposeUrl(params: {
