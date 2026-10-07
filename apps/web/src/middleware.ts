@@ -29,9 +29,14 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // 2. Allow access-gate page and auth callback routes without gatekeeping
+  // 2. Allow access-gate page, auth callback, and API webhook routes without gatekeeping
   const isAccessGateRoute = pathname === '/access-gate'
   const isAuthCallback = pathname.startsWith('/auth/callback')
+  const isApiRoute = pathname.startsWith('/api')
+
+  if (isApiRoute) {
+    return NextResponse.next()
+  }
 
   const currentCookie = request.cookies.get(ACCESS_COOKIE_NAME)?.value
   const hasAccess = currentCookie === expectedCookieValue
