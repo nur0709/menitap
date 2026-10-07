@@ -29,28 +29,61 @@ export function extractBrandDomain(senderEmail: string | null, brandName: string
   return null
 }
 
+function isJunkUrl(url: string): boolean {
+  const lower = url.toLowerCase()
+  return (
+    lower.includes('unsubscribe') ||
+    lower.includes('mail-settings.google.com') ||
+    lower.includes('mail.google.com') ||
+    lower.includes('schema.org') ||
+    lower.includes('w3.org') ||
+    lower.includes('list-manage') ||
+    lower.includes('email-tracking') ||
+    lower.includes('doubleclick') ||
+    lower.includes('google.com/s2/favicons')
+  )
+}
+
 /**
- * Specifically finds application form URLs (Google Forms, Typeform, Airtable, etc.)
+ * Specifically finds application form URLs (Google Forms, Typeform, Airtable, Notion, etc.)
  * or any URL following words like "form", "apply", "application"
  */
 export function extractApplicationFormUrl(text: string | null | undefined): string | null {
   if (!text) return null
 
   // 1. Look for known form hosts
-  const formHostMatch = text.match(/https?:\/\/(?:forms\.gle|docs\.google\.com\/forms|[\w.-]*typeform\.com|airtable\.com\/app[\w]+|tally\.so)[\w\d\-._~:/?#[\]@!$&'()*+,;=]*/i)
-  if (formHostMatch) {
+  const formHostMatch = text.match(
+    /https?:\/\/(?:forms\.gle|docs\.google\.com\/forms|[\w.-]*typeform\.com|airtable\.com\/(?:app|shr)[\w]+|tally\.so|jotform\.com|[\w.-]*notion\.site|surveymonkey\.com)[\w\d\-._~:/?#[\]@!$&'()*+,;=]*/i
+  )
+  if (formHostMatch && !isJunkUrl(formHostMatch[0])) {
     return formHostMatch[0]
   }
 
-  // 2. Look for URL following "application", "apply", "form"
-  const nearContextMatch = text.match(/(?:application|apply|form|link)[\s\S]{0,100}?(https?:\/\/[^\s<>"')]+)/i)
-  if (nearContextMatch && nearContextMatch[1]) {
+  // 2. HTML anchor tag with apply/form keywords
+  const htmlAnchorMatch = text.match(
+    /<a\s+[^>]*href=["'](https?:\/\/[^"'>]+)["'][^>]*>[\s\S]{0,120}?(?:apply|application|form|survey|sign\s*up|register)[\s\S]{0,50}?<\/a>/i
+  )
+  if (htmlAnchorMatch && htmlAnchorMatch[1] && !isJunkUrl(htmlAnchorMatch[1])) {
+    return htmlAnchorMatch[1]
+  }
+
+  // 3. Look for URL following "application", "apply", "form"
+  const nearContextMatch = text.match(
+    /(?:application|apply|form|link|register)[\s\S]{0,120}?(https?:\/\/[^\s<>"')]+)/i
+  )
+  if (nearContextMatch && nearContextMatch[1] && !isJunkUrl(nearContextMatch[1])) {
     return nearContextMatch[1]
   }
 
-  // 3. Fallback to first URL in text
-  const urlMatch = text.match(/https?:\/\/[^\s<>"')]+/)
-  return urlMatch ? urlMatch[0] : null
+  // 4. Fallback to first non-junk URL in text
+  const allUrls = text.matchAll(/https?:\/\/[^\s<>"')]+/g)
+  for (const match of allUrls) {
+    if (!isJunkUrl(match[0])) {
+      return match[0]
+    }
+  }
+
+  return null
 }
 
 export function extractFirstUrl(text: string | null | undefined): string | null {
