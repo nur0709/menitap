@@ -5,21 +5,29 @@ export function getGoogleOAuthRedirectUri(): string {
   return `${appUrl.replace(/\/$/, '')}/api/auth/google/callback`
 }
 
-export function getGoogleAuthUrl(userId: string): string {
+export function getGoogleAuthUrl(userId: string, intent: 'gmail' | 'youtube' = 'gmail'): string {
   const clientId = process.env.GOOGLE_CLIENT_ID || ''
   const redirectUri = getGoogleOAuthRedirectUri()
+
+  const scopes =
+    intent === 'youtube'
+      ? [
+          'https://www.googleapis.com/auth/youtube.readonly',
+          'https://www.googleapis.com/auth/userinfo.email',
+        ]
+      : [
+          'https://www.googleapis.com/auth/gmail.readonly',
+          'https://www.googleapis.com/auth/userinfo.email',
+        ]
 
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: 'code',
-    scope: [
-      'https://www.googleapis.com/auth/gmail.readonly',
-      'https://www.googleapis.com/auth/userinfo.email',
-    ].join(' '),
+    scope: scopes.join(' '),
     access_type: 'offline',
     prompt: 'consent',
-    state: userId,
+    state: intent === 'youtube' ? `${userId}:youtube` : userId,
   })
 
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`

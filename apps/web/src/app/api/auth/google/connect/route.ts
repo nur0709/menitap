@@ -24,6 +24,7 @@ export async function GET(req: Request) {
     )
   }
 
-  const authUrl = getGoogleAuthUrl(user.id)
+  const intent = url.searchParams.get('intent') === 'youtube' ? 'youtube' : 'gmail'
+  const authUrl = getGoogleAuthUrl(user.id, intent)
   return NextResponse.redirect(authUrl)
 }

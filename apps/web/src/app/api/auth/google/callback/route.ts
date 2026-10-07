@@ -7,8 +7,15 @@ export async function GET(req: Request) {
   const url = new URL(req.url)
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || `${url.protocol}//${url.host}`
   const code = url.searchParams.get('code')
-  const stateUserId = url.searchParams.get('state')
+  const rawState = url.searchParams.get('state')
   const errorParam = url.searchParams.get('error')
+
+  let stateUserId = rawState || ''
+  let intent: 'gmail' | 'youtube' = 'gmail'
+  if (rawState?.includes(':youtube')) {
+    stateUserId = rawState.replace(':youtube', '')
+    intent = 'youtube'
+  }
 
   if (errorParam) {
     console.warn('[google/callback] OAuth error param:', errorParam)
@@ -25,9 +32,56 @@ export async function GET(req: Request) {
 
   try {
     const tokens = await exchangeGoogleCode(code)
-    const googleEmail = await fetchGoogleUserEmail(tokens.access_token)
-
     const supabase = await createClient()
+
+    if (intent === 'youtube') {
+      try {
+        const ytRes = await fetch(
+          'https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true',
+          {
+            headers: { Authorization: `Bearer ${tokens.access_token}` },
+          }
+        )
+
+        if (ytRes.ok) {
+          const ytData = await ytRes.json()
+          const item = ytData.items?.[0]
+          if (item) {
+            const customUrl = item.snippet?.customUrl // e.g. "@creator"
+            const channelId = item.id
+            const handle = customUrl || channelId
+            const youtubeUrl = customUrl
+              ? (customUrl.startsWith('@') ? `https://youtube.com/${customUrl}` : `https://youtube.com/@${customUrl}`)
+              : `https://youtube.com/channel/${channelId}`
+
+            await supabase
+              .from('profiles')
+              .update({
+                youtube_url: youtubeUrl,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', stateUserId)
+
+            return NextResponse.redirect(
+              `${appUrl}/dashboard?tab=profile&success=${encodeURIComponent(`YouTube connected: ${handle}`)}`
+            )
+          }
+        } else {
+          const errText = await ytRes.text()
+          console.warn('[google/callback] YouTube API response not ok:', ytRes.status, errText)
+        }
+      } catch (ytErr) {
+        console.error('[google/callback] Failed to fetch YouTube channel:', ytErr)
+      }
+
+      return NextResponse.redirect(
+        `${appUrl}/dashboard?tab=profile&error=${encodeURIComponent(
+          'Could not auto-detect a YouTube channel on this Google account. Please enter your handle manually!'
+        )}`
+      )
+    }
+
+    const googleEmail = await fetchGoogleUserEmail(tokens.access_token)
 
     const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString()
 
