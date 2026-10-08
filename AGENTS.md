@@ -60,7 +60,8 @@ Menitap is an all-in-one platform tailored for user-generated content (UGC) crea
 pnpm dev          # Start dev server
 pnpm build        # Production build
 pnpm lint         # ESLint check
-pnpm typecheck    # TypeScript check (tsc --noEmit)
+pnpm typecheck       # TypeScript check (tsc --noEmit)
+pnpm check:dead-code # Dead code & unused dependency audit (Knip)
 ```
 
 ## AI Session Handoff Protocol

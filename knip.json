@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "workspaces": {
+    ".": {},
+    "apps/web": {
+      "entry": [
+        "src/app/**/{page,layout,route,template,default,error,loading,not-found}.tsx",
+        "src/app/**/{page,layout,route,template,default,error,loading,not-found}.ts",
+        "src/{middleware,proxy}.{ts,tsx}"
+      ],
+      "project": [
+        "src/**/*.{js,jsx,ts,tsx,css}"
+      ],
+      "ignoreIssues": {
+        "src/lib/supabase/database.types.ts": ["exports", "types"]
+      }
+    }
+  }
+}

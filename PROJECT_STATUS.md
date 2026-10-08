@@ -11,7 +11,7 @@
 
 ## Current Phase: Phase 9 — Creator Inbound Campaign Hub & Email Ingestion Pipeline (COMPLETED & LIVE)
 
-## Last Updated: 2026-10-06
+## Last Updated: 2026-10-07
 ## Last Agent: Antigravity
 ## GitHub Repo: https://github.com/nur0709/menitap
 ## Live Production URL: https://menitap.com
@@ -116,6 +116,12 @@ Read `AGENTS.md` for coding standards and conventions.
   - Triage filter tabs: `All`, `Pitches` (encompassing unreviewed & reviewed deals with live pulse indicator), `Accepted`, `Delivered`, `Paid`.
   - Review Modal includes 1-click external form button (Google Forms, Typeform, etc.), pre-written accept reply draft with 1-click Gmail compose, and status selector in footer.
 - [x] **Step 2 Onboarding Component**: Clear instructions on `/dashboard` explaining how to forward pitches to `deals-{token}@in.menitap.com`.
+ 
+### ✅ Tooling & Codebase Hygiene — Knip & Optimization Skill (COMPLETED)
+- [x] **Knip Tooling Setup**: Configured `knip` (v6.40.0) with Next.js 16 App Router entrypoints (`apps/web/src/app/**/{page,layout,route,template,default,error,loading,not-found}.{tsx,ts}`, `apps/web/src/{middleware,proxy}.{ts,tsx}`) and Tailwind CSS v4 in `knip.json`.
+- [x] **Package Script**: Added `"check:dead-code": "knip"` to root `package.json`.
+- [x] **Reusable Skill**: Created `.agents/skills/code-hygiene/SKILL.md` documenting periodic audit cycles, verification workflows, safe pruning checklists (Server Actions, RPC, Supabase types, design system variants), and reporting standards.
+- [x] **Initial Audit Sweep**: Performed full repo scan, categorized dead exports vs protected foundations, and verified 0 build errors (`pnpm --filter web build`).
 
 ### ⬜ Phase 4 — Stripe Subscriptions (Upcoming) — [#3](https://github.com/nur0709/menitap/issues/3)
 - [ ] Stripe product/price creation (Explorer $0, Creator Basic $10, Creator Standard $15)

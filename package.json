@@ -6,9 +6,11 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
-    "typecheck": "turbo typecheck"
+    "typecheck": "turbo typecheck",
+    "check:dead-code": "knip"
   },
   "devDependencies": {
+    "knip": "^6.40.0",
     "turbo": "latest"
   }
 }
