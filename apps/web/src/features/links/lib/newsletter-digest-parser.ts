@@ -3,6 +3,7 @@ import { matchCategory } from '@/lib/category-matcher'
 
 interface ParsedPublicCollab {
   brandName: string
+  productName?: string
   applicationUrl: string
   categoryName?: string
   productsProvided: boolean
@@ -11,6 +12,7 @@ interface ParsedPublicCollab {
   requirements?: string
   deadline?: string | null
   description?: string
+  collabType?: string
   isScamOrPayToPlay: boolean
 }
 
@@ -105,14 +107,16 @@ Respond with STRICT JSON format:
   "campaigns": [
     {
       "brandName": "Exact Brand Name",
+      "productName": "Specific Product Name being promoted/gifted",
       "applicationUrl": "https://airtable.com/... or https://forms.gle/... or https://...typeform.com/...",
-      "categoryName": "TikTok UGC" or "Instagram Reels" or "YouTube Longform",
+      "categoryName": "Beauty & Wellness" or "Tech & Gadgets" or "Fashion & Style",
       "productsProvided": true,
       "compensationDetails": "$250" or "Gifted Product + $100" or "Free PR Box",
       "deliverables": "1x TikTok Video, 3x Stills",
       "requirements": "US creators only, TikTok > 1k followers",
       "deadline": "YYYY-MM-DD" or null,
       "description": "Brief summary of what the brand is looking for",
+      "collabType": "CASTING_BRIEF" or "PR_GIFTING",
       "isScamOrPayToPlay": false
     }
   ]
@@ -279,6 +283,8 @@ export async function ingestNewsletterCollabs(params: {
     // 5. Insert into brand_links
     const { error: insertError } = await supabase.from('brand_links').insert({
       brand_name: campaign.brandName.trim(),
+      product_name: campaign.productName?.trim() || null,
+      collab_type: campaign.collabType || 'CASTING_BRIEF',
       application_url: cleanedUrl,
       category_id: categoryId,
       products_provided: Boolean(campaign.productsProvided),

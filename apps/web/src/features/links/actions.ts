@@ -160,6 +160,7 @@ export async function createBrandLink(
 
 const PublicCampaignSchema = z.object({
   brand_name: z.string().min(2, 'Brand name must be at least 2 characters'),
+  product_name: z.string().nullable().optional(),
   contact_email: z.string().email('Please enter a valid work or brand email'),
   application_url: z.string().url('Please enter a valid brand application or collab URL (including https://)'),
   category_id: z.coerce.number().positive('Please select a category'),
@@ -185,10 +186,12 @@ export async function submitPublicBrandCampaign(
   const comp = (formData.get('compensation_details') as string)?.trim()
   const desc = (formData.get('description') as string)?.trim()
   const brandName = ((formData.get('brand_name') as string) || '').trim()
+  const productName = ((formData.get('product_name') as string) || '').trim()
   const contactEmail = ((formData.get('contact_email') as string) || '').trim()
 
   const rawData = {
     brand_name: brandName,
+    product_name: productName ? productName : null,
     contact_email: contactEmail,
     application_url: formattedUrl,
     category_id: formData.get('category_id'),
@@ -213,6 +216,8 @@ export async function submitPublicBrandCampaign(
     user_id: user?.id || null,
     category_id: validation.data.category_id,
     brand_name: validation.data.brand_name,
+    product_name: validation.data.product_name || null,
+    collab_type: 'CASTING_BRIEF',
     contact_email: validation.data.contact_email,
     application_url: validation.data.application_url,
     description: validation.data.description || null,
@@ -449,7 +454,7 @@ export async function getCampaignLinks(categoryId?: number) {
   let query = supabase
     .from('brand_links')
     .select(
-      'id, user_id, brand_name, application_url, description, image_url, products_provided, compensation_details, deadline, deliverables, requirements, source_platform, is_verified, click_count, created_at, category_id, categories(name, slug), profiles(full_name)'
+      'id, user_id, brand_name, product_name, collab_type, application_url, description, image_url, products_provided, compensation_details, deadline, deliverables, requirements, source_platform, is_verified, click_count, created_at, category_id, categories(name, slug), profiles(full_name)'
     )
     .in('status', ['ACTIVE', 'APPROVED'])
     .order('created_at', { ascending: false })

@@ -83,6 +83,7 @@ export type Database = {
           brand_name: string
           category_id: number
           click_count: number
+          collab_type: string | null
           compensation_details: string | null
           contact_email: string | null
           created_at: string
@@ -93,6 +94,7 @@ export type Database = {
           id: number
           image_url: string | null
           is_verified: boolean
+          product_name: string | null
           products_provided: boolean
           requirements: string | null
           source_platform: string
@@ -107,6 +109,7 @@ export type Database = {
           brand_name: string
           category_id: number
           click_count?: number
+          collab_type?: string | null
           compensation_details?: string | null
           contact_email?: string | null
           created_at?: string
@@ -117,6 +120,7 @@ export type Database = {
           id?: number
           image_url?: string | null
           is_verified?: boolean
+          product_name?: string | null
           products_provided?: boolean
           requirements?: string | null
           source_platform?: string
@@ -131,6 +135,7 @@ export type Database = {
           brand_name?: string
           category_id?: number
           click_count?: number
+          collab_type?: string | null
           compensation_details?: string | null
           contact_email?: string | null
           created_at?: string
@@ -141,6 +146,7 @@ export type Database = {
           id?: number
           image_url?: string | null
           is_verified?: boolean
+          product_name?: string | null
           products_provided?: boolean
           requirements?: string | null
           source_platform?: string
@@ -446,6 +452,7 @@ export type Database = {
     }
     Functions: {
       check_user_exists: { Args: { p_email: string }; Returns: boolean }
+      clean_junk_campaigns: { Args: never; Returns: number }
       create_inbound_campaign: {
         Args: {
           p_brand_logo_url: string
@@ -461,6 +468,7 @@ export type Database = {
         }
         Returns: string
       }
+      purge_expired_links: { Args: never; Returns: undefined }
       remove_user: { Args: never; Returns: undefined }
       request_account_deletion: { Args: never; Returns: undefined }
     }

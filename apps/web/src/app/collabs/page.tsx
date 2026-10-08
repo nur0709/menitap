@@ -162,11 +162,28 @@ export default async function CollabsPage({
                           imageUrl={camp.image_url}
                         />
                         <div className="flex-1 min-w-0">
-                          <CardTitle className="text-base text-foreground font-semibold line-clamp-1 leading-snug">
-                            {camp.brand_name}
-                          </CardTitle>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <CardTitle className="text-base text-foreground font-semibold line-clamp-1 leading-snug">
+                              {camp.brand_name}
+                            </CardTitle>
+                            {camp.collab_type === 'PR_GIFTING' ? (
+                              <span className="text-[10px] font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded">
+                                PR Gifting
+                              </span>
+                            ) : camp.collab_type === 'CASTING_BRIEF' ? (
+                              <span className="text-[10px] font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400 px-1.5 py-0.5 rounded">
+                                Casting Brief
+                              </span>
+                            ) : null}
+                          </div>
+                          {camp.product_name && (
+                            <p className="text-xs font-semibold text-foreground/90 line-clamp-1 pt-0.5">
+                              <span className="text-muted-foreground font-normal">Product: </span>
+                              {camp.product_name}
+                            </p>
+                          )}
                           {camp.description ? (
-                            <p className="text-xs text-muted-foreground line-clamp-4 pt-1 leading-relaxed">
+                            <p className="text-xs text-muted-foreground line-clamp-3 pt-1 leading-relaxed">
                               {camp.description}
                             </p>
                           ) : (

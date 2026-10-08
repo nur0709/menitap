@@ -117,6 +117,7 @@ Respond in STRICT JSON:
 {
   "isLegitimateCollab": true or false,
   "brandName": "Brand or Agency Name",
+  "productName": "Specific Product Name being promoted" or null,
   "categoryName": "Beauty & Wellness" or "Tech & Gadgets" or "Fashion & Style" or "TikTok UGC",
   "applicationUrl": "https://...",
   "compensation": "$250" or "Gifted Product" or "TBD",
@@ -284,6 +285,8 @@ export async function syncCommunityCollabs(): Promise<CommunityScraperResult> {
 
       const { error: insertErr } = await supabase.from('brand_links').insert({
         brand_name: brand,
+        product_name: parsed.productName?.trim() || null,
+        collab_type: 'CASTING_BRIEF',
         application_url: cleanUrl,
         category_id: categoryId,
         products_provided: true,

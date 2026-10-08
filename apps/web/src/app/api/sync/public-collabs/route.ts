@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { syncCommunityCollabs } from '@/features/links/lib/community-scraper'
+import { syncJoinBrandsCollabs } from '@/features/links/lib/joinbrands-scraper'
 import { cleanupExpiredCollabs } from '@/features/links/lib/link-liveness-monitor'
 
 export const dynamic = 'force-dynamic'
@@ -22,10 +23,12 @@ export async function GET(req: NextRequest) {
 
   try {
     let syncResult = null
+    let joinBrandsResult = null
     let cleanupResult = null
 
     if (action === 'sync' || action === 'all') {
       syncResult = await syncCommunityCollabs()
+      joinBrandsResult = await syncJoinBrandsCollabs()
     }
 
     if (action === 'cleanup' || action === 'all') {
@@ -36,6 +39,7 @@ export async function GET(req: NextRequest) {
       success: true,
       timestamp: new Date().toISOString(),
       sync: syncResult,
+      joinBrands: joinBrandsResult,
       cleanup: cleanupResult,
     })
   } catch (error: unknown) {

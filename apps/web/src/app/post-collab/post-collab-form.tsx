@@ -29,6 +29,7 @@ export function PostCollabForm({
   // Form field state for smart autofill
   const [applicationUrl, setApplicationUrl] = useState('')
   const [brandName, setBrandName] = useState('')
+  const [productName, setProductName] = useState('')
   const [contactEmail, setContactEmail] = useState(userEmail || '')
   const [description, setDescription] = useState('')
   const [compensationDetails, setCompensationDetails] = useState('')
@@ -43,6 +44,9 @@ export function PostCollabForm({
     onExtracted: (data, matchedCategory) => {
       if (data.brandName) {
         setBrandName(data.brandName)
+      }
+      if (data.title) {
+        setProductName(data.title)
       }
       if (data.description) {
         setDescription(data.description)
@@ -72,6 +76,7 @@ export function PostCollabForm({
     setError(null)
     const formData = new FormData()
     formData.append('brand_name', brandName)
+    formData.append('product_name', productName)
     formData.append('contact_email', contactEmail)
     formData.append('application_url', applicationUrl)
     formData.append('category_id', categoryId)
@@ -198,7 +203,7 @@ export function PostCollabForm({
           )}
         </div>
 
-        {/* 2-Column: Brand Name + Work Email */}
+        {/* 2-Column: Brand Name + Product Name */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div className="space-y-1.5">
             <Label htmlFor="brand_name" className="text-xs font-medium text-foreground">
@@ -215,6 +220,23 @@ export function PostCollabForm({
             />
           </div>
 
+          <div className="space-y-1.5">
+            <Label htmlFor="product_name" className="text-xs font-medium text-foreground">
+              Specific Product Name (Optional)
+            </Label>
+            <Input
+              id="product_name"
+              name="product_name"
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+              placeholder="e.g. Space One Pro, Jelly Cleanser"
+              className="bg-background border-border text-xs h-9"
+            />
+          </div>
+        </div>
+
+        {/* 2-Column: Contact Email + Category */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label htmlFor="contact_email" className="text-xs font-medium text-foreground">
@@ -237,10 +259,6 @@ export function PostCollabForm({
               className="bg-background border-border text-xs h-9"
             />
           </div>
-        </div>
-
-        {/* 2-Column: Category + Compensation */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div className="space-y-1.5">
             <Label htmlFor="category_id" className="text-xs font-medium text-foreground">
               Category *
