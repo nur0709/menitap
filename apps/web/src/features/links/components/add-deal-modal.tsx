@@ -16,7 +16,15 @@ export type Category = {
   slug: string
 }
 
-export function AddDealModal({ categories }: { categories: Category[] }) {
+export function AddDealModal({
+  categories,
+  buttonLabel = 'Add My Affiliate',
+  className,
+}: {
+  categories: Category[]
+  buttonLabel?: string
+  className?: string
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -101,10 +109,13 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
       <Button
         onClick={() => setIsOpen(true)}
         size="sm"
-        className="bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 font-semibold shadow-xs cursor-pointer text-xs sm:text-sm px-4 h-9"
+        className={
+          className ||
+          'bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 font-semibold shadow-xs cursor-pointer text-xs h-8 sm:h-9 px-3.5 rounded-xl inline-flex items-center gap-1.5'
+        }
       >
-        <Plus className="h-4 w-4 mr-1.5" />
-        Post a Deal
+        <Plus className="h-4 w-4" />
+        <span>{buttonLabel}</span>
       </Button>
 
       {isOpen && (
@@ -125,7 +136,7 @@ export function AddDealModal({ categories }: { categories: Category[] }) {
                 <Tag className="h-4 w-4" />
                 <span className="text-xs font-bold uppercase tracking-wider">Creator Affiliate Link</span>
               </div>
-              <h3 className="text-lg font-bold text-foreground">Post a Deal</h3>
+              <h3 className="text-lg font-bold text-foreground">Add My Affiliate</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Share your affiliate link and discount code with shoppers.
               </p>

@@ -95,7 +95,7 @@ export default async function DealsPage({
                 <CardTitle className="text-base text-foreground">No deals in this category yet</CardTitle>
                 <p className="text-xs text-muted-foreground max-w-xs mx-auto">
                   {isCreatorOrAdmin
-                    ? 'Share an affiliate deal to feature it here.'
+                    ? 'Add your affiliate link to feature it here.'
                     : 'Check back soon for new discounts and promo codes.'}
                 </p>
                 {isCreatorOrAdmin && (

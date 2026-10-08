@@ -9,6 +9,7 @@ import { DeleteAccountSection } from './delete-account-section'
 import { CampaignsManager } from '@/features/campaigns/components/campaigns-manager'
 import { GoogleIntegrationStatus } from '@/features/integrations/google/actions'
 import { CreatorCampaign } from '@/features/campaigns/types'
+import { Category } from '@/features/links/components/add-deal-modal'
 import { SignOutButton } from '@/features/auth/components/sign-out-button'
 import Link from 'next/link'
 import {
@@ -35,6 +36,7 @@ interface CreatorWorkspaceProps {
   }
   campaigns: CreatorCampaign[]
   affiliateLinks: AffiliateLinkItem[]
+  categories?: Category[]
   googleIntegration?: GoogleIntegrationStatus
 }
 
@@ -44,6 +46,7 @@ export function CreatorWorkspace({
   profile,
   campaigns,
   affiliateLinks,
+  categories,
   googleIntegration,
 }: CreatorWorkspaceProps) {
   const [activeTab, setActiveTab] = useState<'campaigns' | 'links' | 'profile'>('campaigns')
@@ -141,8 +144,8 @@ export function CreatorWorkspace({
         {/* Tab 2: My Links & Codes */}
         {activeTab === 'links' && (
           <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-card border border-border">
-              <CreatorLinksManager links={affiliateLinks} />
+            <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border">
+              <CreatorLinksManager links={affiliateLinks} categories={categories} />
             </div>
           </div>
         )}

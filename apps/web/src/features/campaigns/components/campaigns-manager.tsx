@@ -72,7 +72,7 @@ export function CampaignsManager({ campaigns, googleIntegration }: CampaignsMana
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Filter deals..."
+              placeholder="Search campaigns..."
               className="pl-8 bg-background border-border text-xs h-8 rounded-xl"
             />
           </div>
@@ -86,7 +86,7 @@ export function CampaignsManager({ campaigns, googleIntegration }: CampaignsMana
           onClick={() => setStatusFilter('ALL')}
           className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer text-xs whitespace-nowrap ${
             statusFilter === 'ALL'
-              ? 'bg-foreground text-background font-bold'
+              ? 'bg-foreground text-background font-bold shadow-2xs'
               : 'bg-muted/60 text-muted-foreground hover:text-foreground'
           }`}
         >
@@ -96,7 +96,7 @@ export function CampaignsManager({ campaigns, googleIntegration }: CampaignsMana
           onClick={() => setStatusFilter('PITCHES')}
           className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer text-xs whitespace-nowrap flex items-center gap-1.5 ${
             statusFilter === 'PITCHES'
-              ? 'bg-purple-600 text-white font-bold'
+              ? 'bg-foreground text-background font-bold shadow-2xs'
               : 'bg-muted/60 text-muted-foreground hover:text-foreground'
           }`}
         >
@@ -112,7 +112,7 @@ export function CampaignsManager({ campaigns, googleIntegration }: CampaignsMana
           onClick={() => setStatusFilter('ACCEPTED')}
           className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer text-xs whitespace-nowrap ${
             statusFilter === 'ACCEPTED'
-              ? 'bg-sky-600 text-white font-bold'
+              ? 'bg-foreground text-background font-bold shadow-2xs'
               : 'bg-muted/60 text-muted-foreground hover:text-foreground'
           }`}
         >
@@ -122,7 +122,7 @@ export function CampaignsManager({ campaigns, googleIntegration }: CampaignsMana
           onClick={() => setStatusFilter('DELIVERED')}
           className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer text-xs whitespace-nowrap ${
             statusFilter === 'DELIVERED'
-              ? 'bg-blue-600 text-white font-bold'
+              ? 'bg-foreground text-background font-bold shadow-2xs'
               : 'bg-muted/60 text-muted-foreground hover:text-foreground'
           }`}
         >
@@ -132,7 +132,7 @@ export function CampaignsManager({ campaigns, googleIntegration }: CampaignsMana
           onClick={() => setStatusFilter('PAID')}
           className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer text-xs whitespace-nowrap ${
             statusFilter === 'PAID'
-              ? 'bg-emerald-600 text-white font-bold'
+              ? 'bg-foreground text-background font-bold shadow-2xs'
               : 'bg-muted/60 text-muted-foreground hover:text-foreground'
           }`}
         >
@@ -146,13 +146,15 @@ export function CampaignsManager({ campaigns, googleIntegration }: CampaignsMana
           <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground mb-2.5">
             <Inbox className="h-5 w-5" />
           </div>
-          <h4 className="text-xs font-bold text-foreground">No campaigns found</h4>
+          <h4 className="text-xs font-bold text-foreground">
+            {searchQuery ? 'No matching campaigns' : 'No campaigns yet'}
+          </h4>
           <p className="text-xs text-muted-foreground max-w-xs mx-auto mt-0.5 mb-4">
             {searchQuery
-              ? 'Try adjusting your search terms.'
-              : 'Paste a brief or sync your email to start tracking brand deals.'}
+              ? 'Try searching for a different brand name or status.'
+              : 'Connect your inbox or add a brand partnership to start tracking your deals.'}
           </p>
-          <AddCampaignManualModal />
+          {!searchQuery && <AddCampaignManualModal />}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">

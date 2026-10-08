@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createManualCampaign } from '../actions'
-import { Plus, X, Loader2, Sparkles, Building2, DollarSign, Calendar, Package } from 'lucide-react'
+import { Plus, X, Loader2, Building2, DollarSign, Calendar, Package } from 'lucide-react'
 
 export function AddCampaignManualModal() {
   const [isOpen, setIsOpen] = useState(false)
@@ -64,10 +64,10 @@ export function AddCampaignManualModal() {
       <Button
         onClick={() => setIsOpen(true)}
         size="sm"
-        className="bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 font-semibold shadow-xs cursor-pointer text-xs h-9 px-4 rounded-xl"
+        className="bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 font-semibold shadow-xs cursor-pointer text-xs h-8 px-3.5 rounded-xl inline-flex items-center gap-1.5"
       >
-        <Plus className="h-4 w-4 mr-1.5" />
-        Add / Paste Deal
+        <Plus className="h-3.5 w-3.5" />
+        <span>New Campaign</span>
       </Button>
 
       {isOpen && (
@@ -84,13 +84,9 @@ export function AddCampaignManualModal() {
 
             {/* Header */}
             <div className="mb-4">
-              <div className="flex items-center gap-2 text-[#08739C] dark:text-[#38BDF8] mb-1">
-                <Sparkles className="h-4 w-4" />
-                <span className="text-[11px] font-bold uppercase tracking-wider">Creator Deal Card</span>
-              </div>
-              <h3 className="text-lg font-bold text-foreground">Add Incoming Campaign Deal</h3>
+              <h3 className="text-base sm:text-lg font-bold text-foreground">New Campaign</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Quickly add a brand deal or paste raw email/brief notes into your board.
+                Track a brand deal, sponsorship, or deliverables.
               </p>
             </div>
 

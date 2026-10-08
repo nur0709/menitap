@@ -119,10 +119,16 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
   return (
     <>
       <div
-        className={`relative rounded-2xl bg-card border p-4 sm:p-5 shadow-xs hover:shadow-sm transition-all flex flex-col justify-between ${
+        onClick={handleOpenReview}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') handleOpenReview()
+        }}
+        className={`relative rounded-2xl bg-card border p-4 sm:p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20 ${
           isNew
             ? 'border-emerald-500/30 border-l-[3.5px] border-l-emerald-500 dark:border-l-emerald-400'
-            : 'border-border'
+            : 'border-border hover:border-foreground/25'
         }`}
       >
         <div>
@@ -179,7 +185,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
 
           {/* Key Metrics: Compensation & Highlighted Due Date */}
           <div className="space-y-2.5 my-3 pt-2.5 border-t border-border/60">
-            <div className="flex flex-wrap items-center gap-2 text-xs">
+            <div className="flex wrap items-center gap-2 text-xs">
               {campaign.compensation && (
                 <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 flex items-center gap-1 shadow-xs">
                   <DollarSign className="h-3.5 w-3.5" />
@@ -204,7 +210,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
         {/* Clean Bottom Row: Status Toggle + Review button + Delete */}
         <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs gap-2">
           {/* Status Dropdown placed cleanly at bottom */}
-          <div className="relative">
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
             <select
               value={currentStatus === 'NEW_PITCH' ? '' : currentStatus}
               onChange={handleStatusChange}
@@ -231,11 +237,14 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
             {/* Review Button */}
             <button
               type="button"
-              onClick={handleOpenReview}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleOpenReview()
+              }}
               className="text-xs font-bold text-white bg-[#FC801A] hover:bg-[#E66F0D] px-3.5 py-1 rounded-xl shadow-xs transition-colors cursor-pointer"
             >
               Review
@@ -244,7 +253,10 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
             {/* Delete button */}
             <button
               type="button"
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleDelete()
+              }}
               disabled={isPending}
               className="text-muted-foreground hover:text-destructive p-1 rounded-lg transition-colors cursor-pointer"
               aria-label="Delete deal card"

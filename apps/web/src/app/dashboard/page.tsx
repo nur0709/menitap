@@ -16,6 +16,7 @@ import {
   getUserBrandLinks,
   getAllCategories,
   getPendingBrandLinks,
+  getCategories,
 } from '@/features/links/actions'
 import { getUserCampaigns } from '@/features/campaigns/actions'
 import { getGoogleIntegration } from '@/features/integrations/google/actions'
@@ -67,16 +68,23 @@ export default async function DashboardPage() {
   }
 
   // 2. Standard user, creator, or brand account
-  const [{ data: profile }, { affiliateLinks }, { brandLinks }, creatorCampaigns, googleIntegration] =
-    await Promise.all([
-      supabase.from('profiles').select('*').eq('id', user.id).single(),
-      role === 'CREATOR' ? getUserLinks() : Promise.resolve({ affiliateLinks: [] }),
-      role === 'BRAND' ? getUserBrandLinks() : Promise.resolve({ brandLinks: [] }),
-      role === 'CREATOR' ? getUserCampaigns() : Promise.resolve([]),
-      role === 'CREATOR'
-        ? getGoogleIntegration()
-        : Promise.resolve({ isConnected: false, emailAddress: null, lastSyncedAt: null }),
-    ])
+  const [
+    { data: profile },
+    { affiliateLinks },
+    { brandLinks },
+    creatorCampaigns,
+    googleIntegration,
+    categories,
+  ] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', user.id).single(),
+    role === 'CREATOR' ? getUserLinks() : Promise.resolve({ affiliateLinks: [] }),
+    role === 'BRAND' ? getUserBrandLinks() : Promise.resolve({ brandLinks: [] }),
+    role === 'CREATOR' ? getUserCampaigns() : Promise.resolve([]),
+    role === 'CREATOR'
+      ? getGoogleIntegration()
+      : Promise.resolve({ isConnected: false, emailAddress: null, lastSyncedAt: null }),
+    role === 'CREATOR' ? getCategories('DEALS') : Promise.resolve([]),
+  ])
 
   const email = user.email || ''
   const fullName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || ''
@@ -96,6 +104,7 @@ export default async function DashboardPage() {
             profile={profile || {}}
             campaigns={creatorCampaigns}
             affiliateLinks={affiliateLinks}
+            categories={categories}
             googleIntegration={googleIntegration}
           />
         </main>
