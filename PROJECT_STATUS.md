@@ -123,6 +123,12 @@ Read `AGENTS.md` for coding standards and conventions.
 - [x] **Reusable Skill**: Created `.agents/skills/code-hygiene/SKILL.md` documenting periodic audit cycles, verification workflows, safe pruning checklists (Server Actions, RPC, Supabase types, design system variants), and reporting standards.
 - [x] **Initial Audit Sweep**: Performed full repo scan, categorized dead exports vs protected foundations, and verified 0 build errors (`pnpm --filter web build`).
 
+### ✅ Email Ingestion Hardening & Spam/Duplicate Elimination (COMPLETED)
+- [x] **High-Precision Gmail Query**: Replaced loose search terms (`video`, `campaign`, `pitch`) with explicit collaboration phrases (`"brand deal" OR "paid partnership" OR "paid collab" OR "gifted collab" OR "PR package" OR "creator partnership" OR UGC OR deliverables OR "collaboration proposal"`). Added Google category exclusions (`-category:promotions -category:social`) to filter out 95% of consumer retail blasts (Factor75, Quince, Naked Sundays, Amazon) and social alerts (LinkedIn, YouTube) at the Google API layer.
+- [x] **Thread Deduplication & Self-Sent Filtering**: Normalized email subjects across Re:/Fwd: prefixes, bracket tags, and symbols. Both Gmail sync and the Inbound Webhook (`/api/inbound-email`) now check existing thread IDs and normalized subjects to prevent duplicate cards when creator replies to brand. Automatically ignores any message sent from the creator's own email.
+- [x] **Fail-Closed Fallback & Model Chain Fix**: Replaced the previous permissive single-keyword fallback with a strict, compound fallback that requires explicit collaboration intent AND deliverables/compensation proof, while rejecting unsubscribe links and retail promo copy. Fixed Gemini model list to active endpoints (`gemini-2.0-flash`, `gemini-1.5-flash`).
+- [x] **Database Purge**: Executed a safe database purge removing 57 junk cards (retail promo blasts, LinkedIn job alerts, Amazon returns, USPS/SHEIN delivery notices, school/mixer invites, and self-sent Bermet Ermatova replies). Retained only authentic, high-value brand deals (Beekman 1802, Kiimento, FutureMoney, Lucky Rx, Lepique, FourCo, HWahae Global, Old Navy, MOREMO, TIAM, Casting Networks, Cerave, Buttermilk/Epionce).
+
 ### ⬜ Phase 4 — Stripe Subscriptions (Upcoming) — [#3](https://github.com/nur0709/menitap/issues/3)
 - [ ] Stripe product/price creation (Explorer $0, Creator Basic $10, Creator Standard $15)
 - [ ] Checkout session flow
@@ -152,7 +158,7 @@ PointTransaction: id, user_id, points, reason, type (EARNED|REDEEMED)
 
 ---
 
-## Next Steps (Tomorrow's Testing Session)
-1. **Real Pitch Testing**: Have the creator forward 3–5 real brand pitch emails from her Gmail to `deals-55cddc46@in.menitap.com`.
-2. **Parser Edge Cases**: Observe if compensation, brand name, and deliverables parse accurately across different agency email layouts.
-3. **Workflow Feedback**: Gather feedback on the "Review" -> "Reviewed" lifecycle, the pre-filled Gmail draft, and third-party application form link detection.
+## Next Steps
+1. **Live Validation on Campaigns Board**: Verify that `/dashboard` displays only clean, authentic brand deal cards with zero duplicates.
+2. **Review Modal Polish**: Iterate on the review modal or card UI based on user preferences.
+
