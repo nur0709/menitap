@@ -227,6 +227,14 @@ export async function syncCommunityCollabs(): Promise<CommunityScraperResult> {
 
   for (const post of candidatePosts.slice(0, 15)) {
     try {
+      // 1. Fast pre-check: If this post link or its embedded form is already in DB, skip AI call
+      const directFormLinks = extractApplicationLinks(post.content)
+      const primaryUrl = (directFormLinks[0] || post.link).trim().replace(/\/$/, '')
+      if (existingUrls.has(primaryUrl)) {
+        skippedCount++
+        continue
+      }
+
       const parsed = await parseRedditPostWithAI(post)
       if (!parsed || !parsed.isLegitimateCollab || parsed.isScamOrPayToPlay) {
         skippedCount++
