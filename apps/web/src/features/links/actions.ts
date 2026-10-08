@@ -625,4 +625,73 @@ export async function getPublicCreators() {
   return data || []
 }
 
+export async function trackCollabInCrm(
+  collabId: number
+): Promise<{ success?: boolean; error?: string; campaignId?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Please sign in to track this collaboration' }
+  }
+
+  // 1. Fetch collab details
+  const { data: collab, error: collabErr } = await supabase
+    .from('brand_links')
+    .select('*')
+    .eq('id', collabId)
+    .single()
+
+  if (collabErr || !collab) {
+    return { error: 'Collaboration not found' }
+  }
+
+  // 2. Check if already tracked in user's campaigns
+  const { data: existing } = await supabase
+    .from('creator_campaigns')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('brand_name', collab.brand_name)
+    .maybeSingle()
+
+  if (existing) {
+    return { success: true, campaignId: existing.id }
+  }
+
+  // 3. Insert into creator_campaigns
+  const compensation =
+    collab.compensation_details || (collab.products_provided ? 'Gifted Product' : 'TBD')
+  const deliverables = collab.deliverables || 'UGC Video Deliverable'
+
+  const { data: inserted, error: insertErr } = await supabase
+    .from('creator_campaigns')
+    .insert({
+      user_id: user.id,
+      brand_name: collab.brand_name,
+      product_name: collab.description || collab.brand_name,
+      compensation,
+      deliverables,
+      deadline: collab.deadline,
+      status: 'NEW_PITCH',
+      raw_source_text: collab.description || collab.requirements,
+      source_type: 'MANUAL',
+      source_sender: collab.contact_email || collab.brand_name,
+      source_subject: `${collab.brand_name} Brand Collaboration`,
+      notes: `Imported from Public Collabs. Application Link: ${collab.application_url}`,
+    })
+    .select('id')
+    .single()
+
+  if (insertErr) {
+    console.error('Error tracking collab in CRM:', insertErr)
+    return { error: insertErr.message }
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/collabs')
+  return { success: true, campaignId: inserted.id }
+}
+
 

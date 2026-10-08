@@ -8,7 +8,8 @@ import { BrandBorder } from "@/components/brand-border";
 import { AddCampaignModal } from "@/features/links/components/add-campaign-modal";
 import { DeleteCollabButton } from "@/features/links/components/delete-collab-button";
 import { BrandLogoBadge } from "@/features/links/components/brand-logo-badge";
-import { ExternalLink, Building2, Package, Lock, ArrowRight } from "lucide-react";
+import { TrackCollabButton } from "@/features/links/components/track-collab-button";
+import { ExternalLink, Building2, Package, Lock, DollarSign, Calendar, CheckCircle2, ArrowRight } from "lucide-react";
 
 export const dynamic = 'force-dynamic'
 
@@ -175,6 +176,35 @@ export default async function CollabsPage({
                           )}
                         </div>
                       </div>
+
+                      {/* Compensation, Deliverables & Deadline Badges */}
+                      {(camp.compensation_details || camp.deliverables || camp.deadline || camp.is_verified) && (
+                        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                          {camp.compensation_details && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
+                              <DollarSign className="h-2.5 w-2.5" />
+                              {camp.compensation_details}
+                            </span>
+                          )}
+                          {camp.deliverables && (
+                            <span className="text-[10px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
+                              {camp.deliverables}
+                            </span>
+                          )}
+                          {camp.deadline && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md">
+                              <Calendar className="h-2.5 w-2.5" />
+                              Due {new Date(camp.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </span>
+                          )}
+                          {camp.is_verified && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#08739C] dark:text-[#38BDF8] bg-[#08739C]/10 px-1.5 py-0.5 rounded-md">
+                              <CheckCircle2 className="h-2.5 w-2.5" />
+                              Verified
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </CardHeader>
 
                     <CardContent className="p-4 pt-2">
@@ -187,15 +217,18 @@ export default async function CollabsPage({
 
                         <div>
                           {isCreatorOrAdmin ? (
-                            <a
-                              href={camp.application_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#08739C] hover:bg-[#02547A] text-white transition-colors cursor-pointer"
-                            >
-                              Apply
-                              <ExternalLink className="h-3 w-3" />
-                            </a>
+                            <div className="flex items-center gap-2">
+                              <TrackCollabButton collabId={camp.id} />
+                              <a
+                                href={camp.application_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#08739C] hover:bg-[#02547A] text-white transition-colors cursor-pointer"
+                              >
+                                Apply
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            </div>
                           ) : (
                             <Link
                               href="/plans"
