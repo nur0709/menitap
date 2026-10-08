@@ -2,47 +2,95 @@
 
 import { useState, useTransition } from 'react'
 import { CreatorCampaign, CampaignStatus } from '../types'
-import { updateCampaignStatus, deleteCampaign } from '../actions'
+import { updateCampaignStatus, toggleCampaignLiked } from '../actions'
 import { formatTimeAgo, formatExactDateTime } from '../lib/action-helpers'
 import { CampaignDetailsModal } from './campaign-details-modal'
 import {
   DollarSign,
   Calendar,
   Package,
-  Trash2,
   ChevronDown,
   Loader2,
   AlertCircle,
   Clock,
+  Heart,
+  Check,
 } from 'lucide-react'
 
 interface CampaignCardProps {
   campaign: CreatorCampaign
+  isSelectionMode?: boolean
+  isSelected?: boolean
+  onToggleSelect?: () => void
 }
 
-// User requested lifecycle statuses: Reviewed -> Accepted -> Delivered -> Paid -> Declined
+// Actionable creator stages in dropdown — New & Reviewed are view states, not manual choices
 const SELECTABLE_STATUSES: { value: CampaignStatus; label: string }[] = [
-  { value: 'REVIEWED', label: 'Reviewed' },
-  { value: 'ACCEPTED', label: 'Accepted' },
-  { value: 'DELIVERED', label: 'Delivered' },
+  { value: 'APPLIED', label: 'Applied' },
+  { value: 'WAITING_PRODUCT', label: 'Waiting on Product' },
+  { value: 'SUBMITTED', label: 'Draft Submitted' },
+  { value: 'PAYMENT_PENDING', label: 'Payment Pending' },
   { value: 'PAID', label: 'Paid ✓' },
   { value: 'DECLINED', label: 'Declined' },
 ]
 
-const STATUS_BADGE_CLASS: Record<CampaignStatus, string> = {
-  NEW_PITCH: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
-  REVIEWED: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25',
-  ACCEPTED: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20',
-  FILMING: 'bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30',
-  DELIVERED: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
-  PAID: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-  DECLINED: 'bg-muted text-muted-foreground border-border',
+const STATUS_CONFIG: Record<CampaignStatus, { label: string; className: string }> = {
+  NEW_PITCH: {
+    label: 'New',
+    className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25',
+  },
+  REVIEWED: {
+    label: 'Reviewed',
+    className: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25',
+  },
+  APPLIED: {
+    label: 'Applied',
+    className: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/25',
+  },
+  WAITING_PRODUCT: {
+    label: 'Waiting on Product',
+    className: 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30',
+  },
+  SUBMITTED: {
+    label: 'Draft Submitted',
+    className: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/25',
+  },
+  PAYMENT_PENDING: {
+    label: 'Payment Pending',
+    className: 'bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30',
+  },
+  PAID: {
+    label: 'Paid ✓',
+    className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25',
+  },
+  DECLINED: {
+    label: 'Declined',
+    className: 'bg-muted text-muted-foreground border-border',
+  },
+  ACCEPTED: {
+    label: 'Applied',
+    className: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/25',
+  },
+  FILMING: {
+    label: 'Draft Submitted',
+    className: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/25',
+  },
+  DELIVERED: {
+    label: 'Payment Pending',
+    className: 'bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30',
+  },
 }
 
-export function CampaignCard({ campaign }: CampaignCardProps) {
+export function CampaignCard({
+  campaign,
+  isSelectionMode = false,
+  isSelected = false,
+  onToggleSelect,
+}: CampaignCardProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [currentStatus, setCurrentStatus] = useState<CampaignStatus>(campaign.status)
+  const [isLiked, setIsLiked] = useState<boolean>(Boolean(campaign.is_liked))
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const nextStatus = e.target.value as CampaignStatus
@@ -62,12 +110,21 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
     }
   }
 
-  const handleDelete = () => {
-    if (confirm(`Delete ${campaign.brand_name} deal card?`)) {
-      startTransition(async () => {
-        await deleteCampaign(campaign.id)
-      })
+  const handleToggleLike = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    const nextLiked = !isLiked
+    setIsLiked(nextLiked)
+    startTransition(async () => {
+      await toggleCampaignLiked(campaign.id, nextLiked)
+    })
+  }
+
+  const handleCardClick = () => {
+    if (isSelectionMode) {
+      onToggleSelect?.()
+      return
     }
+    handleOpenReview()
   }
 
   // Highlighted Due Date badge
@@ -111,30 +168,46 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
   }
 
   const isNew = currentStatus === 'NEW_PITCH'
-  const badgeClass =
-    currentStatus === 'NEW_PITCH'
-      ? 'bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground border-border'
-      : STATUS_BADGE_CLASS[currentStatus] || STATUS_BADGE_CLASS.DECLINED
+  const statusInfo = STATUS_CONFIG[currentStatus] || STATUS_CONFIG.DECLINED
+
+  // Card border and background states
+  let cardBorderClass = 'border-border hover:border-foreground/25'
+  if (isSelectionMode && isSelected) {
+    cardBorderClass = 'border-[#FC801A] ring-2 ring-[#FC801A]/20 bg-[#FC801A]/[0.03]'
+  } else if (isSelectionMode) {
+    cardBorderClass = 'border-border hover:border-[#FC801A]/60'
+  } else if (isNew) {
+    cardBorderClass = 'border-emerald-500/30 border-l-[3.5px] border-l-emerald-500 dark:border-l-emerald-400 hover:border-foreground/25'
+  }
 
   return (
     <>
       <div
-        onClick={handleOpenReview}
+        onClick={handleCardClick}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') handleOpenReview()
+          if (e.key === 'Enter' || e.key === ' ') handleCardClick()
         }}
-        className={`relative rounded-2xl bg-card border p-4 sm:p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20 ${
-          isNew
-            ? 'border-emerald-500/30 border-l-[3.5px] border-l-emerald-500 dark:border-l-emerald-400'
-            : 'border-border hover:border-foreground/25'
-        }`}
+        className={`relative rounded-2xl bg-card border p-4 sm:p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20 select-none ${cardBorderClass}`}
       >
         <div>
-          {/* Top: Brand & Product header + NEW indicator badge & Relative Time */}
+          {/* Top: Selection checkbox / Logo / Brand header + Heart like button */}
           <div className="flex items-start justify-between gap-3 mb-3">
             <div className="flex items-start gap-3 min-w-0 flex-1">
+              {/* Checkbox only in Selection Mode */}
+              {isSelectionMode && (
+                <div
+                  className={`h-5 w-5 mt-2.5 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
+                    isSelected
+                      ? 'bg-[#FC801A] border-[#FC801A] text-white shadow-xs'
+                      : 'border-border bg-background hover:border-foreground/40'
+                  }`}
+                >
+                  {isSelected && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                </div>
+              )}
+
               {campaign.brand_logo_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -147,6 +220,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
                   {campaign.brand_name.slice(0, 2).toUpperCase()}
                 </div>
               )}
+
               <div className="flex-1 min-w-0">
                 <h4 className="text-sm font-bold text-foreground truncate">{campaign.brand_name}</h4>
                 {campaign.product_name ? (
@@ -159,28 +233,25 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
               </div>
             </div>
 
-            {/* Right: NEW badge + Received Time */}
-            <div className="flex flex-col items-end gap-1 shrink-0">
-              {isNew && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 shadow-xs shrink-0">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  New
-                </span>
-              )}
-              {campaign.created_at && (
-                <span
-                  suppressHydrationWarning
-                  title={formatExactDateTime(campaign.created_at)}
-                  className="text-[11px] font-medium text-muted-foreground/80 flex items-center gap-1 whitespace-nowrap"
-                >
-                  <Clock className="h-3 w-3 opacity-60" />
-                  {formatTimeAgo(campaign.created_at)}
-                </span>
-              )}
-            </div>
+            {/* Top Right: Heart Favorite Toggle */}
+            <button
+              type="button"
+              onClick={handleToggleLike}
+              disabled={isPending}
+              title={isLiked ? 'Remove from favorites' : 'Save to favorites'}
+              aria-label={isLiked ? 'Remove from favorites' : 'Save to favorites'}
+              className={`p-1.5 rounded-full transition-all cursor-pointer shrink-0 ${
+                isLiked
+                  ? 'text-rose-500 hover:text-rose-600 bg-rose-500/10'
+                  : 'text-muted-foreground/50 hover:text-rose-500 hover:bg-muted'
+              }`}
+            >
+              <Heart
+                className={`h-4 w-4 transition-transform active:scale-125 ${
+                  isLiked ? 'fill-rose-500' : ''
+                }`}
+              />
+            </button>
           </div>
 
           {/* Key Metrics: Compensation & Highlighted Due Date */}
@@ -207,20 +278,32 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
           </div>
         </div>
 
-        {/* Clean Bottom Row: Status Toggle + Review button + Delete */}
+        {/* Clean Bottom Row: Status Pill Dropdown (Actionable stages only) + Received Date */}
         <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs gap-2">
-          {/* Status Dropdown placed cleanly at bottom */}
+          {/* Status Dropdown */}
           <div className="relative" onClick={(e) => e.stopPropagation()}>
             <select
-              value={currentStatus === 'NEW_PITCH' ? '' : currentStatus}
+              value={['NEW_PITCH', 'REVIEWED'].includes(currentStatus) ? '' : currentStatus}
               onChange={handleStatusChange}
-              disabled={isPending}
+              disabled={isPending || isSelectionMode}
               aria-label={`Update status for ${campaign.brand_name}`}
-              className={`text-[11px] font-semibold pl-2.5 pr-6 py-1 rounded-full border appearance-none cursor-pointer focus:outline-none transition-colors ${badgeClass}`}
+              className={`text-[11px] font-semibold pl-2.5 pr-6 py-1 rounded-full border appearance-none cursor-pointer focus:outline-none transition-colors ${statusInfo.className}`}
             >
-              <option value="" disabled hidden>
-                Set Status
-              </option>
+              {currentStatus === 'NEW_PITCH' && (
+                <option value="" disabled hidden>
+                  New
+                </option>
+              )}
+              {currentStatus === 'REVIEWED' && (
+                <option value="" disabled hidden>
+                  Reviewed
+                </option>
+              )}
+              {!['NEW_PITCH', 'REVIEWED'].includes(currentStatus) && (
+                <option value="" disabled hidden>
+                  Change Status
+                </option>
+              )}
 
               {SELECTABLE_STATUSES.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -228,6 +311,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
                 </option>
               ))}
             </select>
+
             <div className="pointer-events-none absolute inset-y-0 right-1.5 flex items-center">
               {isPending ? (
                 <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
@@ -237,33 +321,17 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-            {/* Review Button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                handleOpenReview()
-              }}
-              className="text-xs font-bold text-white bg-[#FC801A] hover:bg-[#E66F0D] px-3.5 py-1 rounded-xl shadow-xs transition-colors cursor-pointer"
+          {/* Received Time */}
+          {campaign.created_at && (
+            <span
+              suppressHydrationWarning
+              title={formatExactDateTime(campaign.created_at)}
+              className="text-[11px] font-medium text-muted-foreground/80 flex items-center gap-1 whitespace-nowrap"
             >
-              Review
-            </button>
-
-            {/* Delete button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                handleDelete()
-              }}
-              disabled={isPending}
-              className="text-muted-foreground hover:text-destructive p-1 rounded-lg transition-colors cursor-pointer"
-              aria-label="Delete deal card"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-          </div>
+              <Clock className="h-3 w-3 opacity-60" />
+              {formatTimeAgo(campaign.created_at)}
+            </span>
+          )}
         </div>
       </div>
 

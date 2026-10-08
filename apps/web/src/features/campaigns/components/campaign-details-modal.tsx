@@ -369,9 +369,12 @@ export function CampaignDetailsModal({
                 onChange={(e) => onStatusChange(e.target.value as CampaignStatus)}
                 className="text-xs font-semibold px-2.5 py-1 rounded-xl border border-border bg-background text-foreground cursor-pointer focus:outline-none"
               >
-                <option value="REVIEWED">Reviewed</option>
-                <option value="ACCEPTED">Accepted</option>
-                <option value="DELIVERED">Delivered</option>
+                {status === 'NEW_PITCH' && <option value="NEW_PITCH">New</option>}
+                {status === 'REVIEWED' && <option value="REVIEWED">Reviewed</option>}
+                <option value="APPLIED">Applied</option>
+                <option value="WAITING_PRODUCT">Waiting on Product</option>
+                <option value="SUBMITTED">Draft Submitted</option>
+                <option value="PAYMENT_PENDING">Payment Pending</option>
                 <option value="PAID">Paid ✓</option>
                 <option value="DECLINED">Declined</option>
               </select>

@@ -188,6 +188,7 @@ export type Database = {
           deadline: string | null
           deliverables: string | null
           id: string
+          is_liked: boolean | null
           notes: string | null
           product_name: string | null
           raw_source_text: string | null
@@ -207,6 +208,7 @@ export type Database = {
           deadline?: string | null
           deliverables?: string | null
           id?: string
+          is_liked?: boolean | null
           notes?: string | null
           product_name?: string | null
           raw_source_text?: string | null
@@ -226,6 +228,7 @@ export type Database = {
           deadline?: string | null
           deliverables?: string | null
           id?: string
+          is_liked?: boolean | null
           notes?: string | null
           product_name?: string | null
           raw_source_text?: string | null

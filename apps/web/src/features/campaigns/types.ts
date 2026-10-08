@@ -1,11 +1,15 @@
 export type CampaignStatus =
   | 'NEW_PITCH'
   | 'REVIEWED'
+  | 'APPLIED'
+  | 'WAITING_PRODUCT'
+  | 'SUBMITTED'
+  | 'PAYMENT_PENDING'
+  | 'PAID'
+  | 'DECLINED'
   | 'ACCEPTED'
   | 'FILMING'
   | 'DELIVERED'
-  | 'PAID'
-  | 'DECLINED'
 
 export type CampaignSourceType = 'EMAIL' | 'MANUAL' | 'EXTENSION'
 
@@ -24,6 +28,8 @@ export interface CreatorCampaign {
   source_sender: string | null
   source_subject: string | null
   notes: string | null
+  is_liked?: boolean
   created_at: string
   updated_at: string
 }
+

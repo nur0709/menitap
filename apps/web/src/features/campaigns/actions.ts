@@ -131,8 +131,9 @@ export async function updateCampaignStatus(
   return { success: `Status changed to ${newStatus}` }
 }
 
-export async function deleteCampaign(
-  campaignId: string
+export async function toggleCampaignLiked(
+  campaignId: string,
+  isLiked: boolean
 ): Promise<{ error?: string; success?: string }> {
   const supabase = await createClient()
   const {
@@ -145,15 +146,47 @@ export async function deleteCampaign(
 
   const { error } = await supabase
     .from('creator_campaigns')
-    .delete()
+    .update({ is_liked: isLiked, updated_at: new Date().toISOString() })
     .eq('id', campaignId)
     .eq('user_id', user.id)
 
   if (error) {
-    console.error('Error deleting campaign:', error)
+    console.error('Error toggling campaign like:', error)
     return { error: error.message }
   }
 
   revalidatePath('/dashboard')
-  return { success: 'Campaign deleted.' }
+  return { success: isLiked ? 'Campaign saved to favorites' : 'Removed from favorites' }
 }
+
+export async function bulkDeleteCampaigns(
+  campaignIds: string[]
+): Promise<{ error?: string; success?: string; count?: number }> {
+  if (!campaignIds || campaignIds.length === 0) {
+    return { error: 'No campaigns selected' }
+  }
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  const { error } = await supabase
+    .from('creator_campaigns')
+    .delete()
+    .in('id', campaignIds)
+    .eq('user_id', user.id)
+
+  if (error) {
+    console.error('Error deleting campaigns in bulk:', error)
+    return { error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: `Deleted ${campaignIds.length} campaigns.`, count: campaignIds.length }
+}
+
