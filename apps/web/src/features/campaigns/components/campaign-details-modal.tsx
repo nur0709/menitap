@@ -29,6 +29,8 @@ interface CampaignDetailsModalProps {
   campaign: CreatorCampaign
   currentStatus?: CampaignStatus
   onStatusChange?: (newStatus: CampaignStatus) => void
+  currentDeadline?: string | null
+  onDeadlineChange?: (newDeadline: string | null) => void
   isOpen: boolean
   onClose: () => void
 }
@@ -37,6 +39,8 @@ export function CampaignDetailsModal({
   campaign,
   currentStatus,
   onStatusChange,
+  currentDeadline,
+  onDeadlineChange,
   isOpen,
   onClose,
 }: CampaignDetailsModalProps) {
@@ -44,6 +48,7 @@ export function CampaignDetailsModal({
   const [copiedReply, setCopiedReply] = useState(false)
 
   const status = currentStatus || campaign.status
+  const activeDeadline = currentDeadline !== undefined ? currentDeadline : campaign.deadline
 
   if (!isOpen) return null
 
@@ -83,11 +88,12 @@ export function CampaignDetailsModal({
   }
 
   // Highlighted Due Date helper
-  const renderHighlightedDeadline = () => {
-    if (!campaign.deadline) return null
-    const due = new Date(campaign.deadline)
+  const renderHighlightedDeadline = (dateStr: string) => {
+    const due = new Date(dateStr)
     const now = new Date()
-    const diffDays = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    const dueMidnight = new Date(due.getFullYear(), due.getMonth(), due.getDate())
+    const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const diffDays = Math.round((dueMidnight.getTime() - nowMidnight.getTime()) / (1000 * 60 * 60 * 24))
     const formattedDate = due.toLocaleDateString(undefined, {
       month: 'short',
       day: 'numeric',
@@ -254,7 +260,7 @@ export function CampaignDetailsModal({
           </div>
 
           {/* Key Metrics: Compensation & Highlighted Due Date */}
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {campaign.compensation && (
               <div className="p-3 rounded-xl bg-muted/30 border border-border flex items-center gap-2.5">
                 <DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -266,17 +272,59 @@ export function CampaignDetailsModal({
                 </div>
               </div>
             )}
-            {campaign.deadline && (
-              <div className="p-3 rounded-xl bg-muted/30 border border-border flex items-center gap-2.5">
+
+            {/* Deadline / Due Date Card */}
+            <div className="p-3 rounded-xl bg-muted/30 border border-border flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <Calendar className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0" />
-                <div>
+                <div className="min-w-0">
                   <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
-                    Deadline
+                    Deadline / Due Date
                   </span>
-                  <div>{renderHighlightedDeadline()}</div>
+                  <div className="truncate">
+                    {activeDeadline ? (
+                      renderHighlightedDeadline(activeDeadline)
+                    ) : (
+                      <span className="text-xs text-muted-foreground italic">No deadline set</span>
+                    )}
+                  </div>
                 </div>
               </div>
-            )}
+
+              {/* Set / Change / Clear controls */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="relative">
+                  <button
+                    type="button"
+                    className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-border bg-background hover:bg-muted text-foreground transition-colors cursor-pointer shadow-xs"
+                  >
+                    {activeDeadline ? 'Change' : 'Set Date'}
+                  </button>
+                  <input
+                    type="date"
+                    value={activeDeadline ? activeDeadline.split('T')[0] : ''}
+                    onChange={(e) => {
+                      const newIso = e.target.value ? new Date(e.target.value).toISOString() : null
+                      onDeadlineChange?.(newIso)
+                    }}
+                    title="Choose deadline date"
+                    aria-label="Choose deadline date"
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  />
+                </div>
+                {activeDeadline && (
+                  <button
+                    type="button"
+                    onClick={() => onDeadlineChange?.(null)}
+                    title="Remove deadline"
+                    aria-label="Remove deadline"
+                    className="p-1 text-muted-foreground/60 hover:text-rose-500 rounded-md transition-colors cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Deliverables */}

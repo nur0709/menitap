@@ -159,6 +159,36 @@ export async function toggleCampaignLiked(
   return { success: isLiked ? 'Campaign saved to favorites' : 'Removed from favorites' }
 }
 
+export async function updateCampaignDeadline(
+  campaignId: string,
+  deadline: string | null
+): Promise<{ error?: string; success?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: 'Not authenticated' }
+  }
+
+  const deadlineIso = deadline ? new Date(deadline).toISOString() : null
+
+  const { error } = await supabase
+    .from('creator_campaigns')
+    .update({ deadline: deadlineIso, updated_at: new Date().toISOString() })
+    .eq('id', campaignId)
+    .eq('user_id', user.id)
+
+  if (error) {
+    console.error('Error updating campaign deadline:', error)
+    return { error: error.message }
+  }
+
+  revalidatePath('/dashboard')
+  return { success: 'Deadline updated successfully' }
+}
+
 export async function bulkDeleteCampaigns(
   campaignIds: string[]
 ): Promise<{ error?: string; success?: string; count?: number }> {

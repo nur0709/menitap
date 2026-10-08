@@ -236,6 +236,9 @@ YOUR FIRST AND MOST IMPORTANT TASK: Determine "isCollaboration".
   * An event, mixer, webinar replay, community convening, school, or club notification.
   * A photo gallery delivery, SaaS collaboration notice (Figma, GitHub, Google Docs), or personal email.
   * Spam or automated system notification.
+- Set "deadline": Look for submission deadlines, draft due dates, post dates, video due dates, or campaign timelines (e.g. "submit draft by Oct 24th", "campaign ends Oct 31", "post before Friday").
+  If a date is mentioned, return it as an ISO 8601 date string (YYYY-MM-DD), e.g. "2026-10-24".
+  If no deadline or due date is mentioned in the email, set to null.
 
 RETURN ONLY VALID JSON:
 If "isCollaboration" is false:
@@ -252,7 +255,7 @@ If "isCollaboration" is true:
   "productName": "Product Name",
   "compensation": "$300",
   "deliverables": "1x TikTok Video",
-  "deadline": null,
+  "deadline": "2026-10-24", // or null if no deadline is specified
   "status": "NEW_PITCH"
 }`
 
@@ -364,7 +367,13 @@ function formatParsedCard(
     productName: (parsed.productName as string)?.trim() || null,
     compensation: (parsed.compensation as string)?.trim() || 'Gifted / TBD',
     deliverables: (parsed.deliverables as string)?.trim() || 'UGC Content Review',
-    deadline: (parsed.deadline as string)?.trim() || null,
+    deadline: (() => {
+      if (parsed.deadline && typeof parsed.deadline === 'string' && parsed.deadline.trim()) {
+        const d = new Date(parsed.deadline.trim())
+        return isNaN(d.getTime()) ? null : d.toISOString()
+      }
+      return null
+    })(),
     status,
     cleanSender: sender,
     cleanSubject: subject,
@@ -457,13 +466,26 @@ function fallbackHeuristicParser(
   const payMatch = body.match(/\$\s*(\d{1,4}(?:,\d{3})*)/)
   const compensation = payMatch ? `$${payMatch[1]}` : 'Gifted / TBD'
 
+  // Extract deadline if mentioned
+  let deadline: string | null = null
+  const deadlineMatch = body.match(
+    /(?:due by|deadline:?|submit by|post by|deliver by|live by)\s*([A-Za-z]+ \d{1,2}(?:st|nd|rd|th)?(?:,?\s*\d{4})?|\d{1,2}\/\d{1,2}(?:\/\d{2,4})?|\d{4}-\d{2}-\d{2})/i
+  )
+  if (deadlineMatch && deadlineMatch[1]) {
+    const rawClean = deadlineMatch[1].replace(/(st|nd|rd|th)/i, '')
+    const parsedDate = new Date(rawClean)
+    if (!isNaN(parsedDate.getTime())) {
+      deadline = parsedDate.toISOString()
+    }
+  }
+
   return {
     brandName: derivedBrand,
     brandLogoUrl: null,
     productName: subject.slice(0, 50) || null,
     compensation,
     deliverables: 'UGC Video Deliverables',
-    deadline: null,
+    deadline,
     status: 'NEW_PITCH',
     cleanSender: sender,
     cleanSubject: subject,

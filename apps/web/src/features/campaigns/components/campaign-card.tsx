@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { CreatorCampaign, CampaignStatus } from '../types'
-import { updateCampaignStatus, toggleCampaignLiked } from '../actions'
+import { updateCampaignStatus, toggleCampaignLiked, updateCampaignDeadline } from '../actions'
 import { formatTimeAgo, formatExactDateTime } from '../lib/action-helpers'
 import { CampaignDetailsModal } from './campaign-details-modal'
 import {
@@ -91,12 +91,21 @@ export function CampaignCard({
   const [isPending, startTransition] = useTransition()
   const [currentStatus, setCurrentStatus] = useState<CampaignStatus>(campaign.status)
   const [isLiked, setIsLiked] = useState<boolean>(Boolean(campaign.is_liked))
+  const [currentDeadline, setCurrentDeadline] = useState<string | null>(campaign.deadline)
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const nextStatus = e.target.value as CampaignStatus
     setCurrentStatus(nextStatus)
     startTransition(async () => {
       await updateCampaignStatus(campaign.id, nextStatus)
+    })
+  }
+
+  const handleDeadlineChange = (newDateStr: string) => {
+    const nextDeadline = newDateStr ? new Date(newDateStr).toISOString() : null
+    setCurrentDeadline(nextDeadline)
+    startTransition(async () => {
+      await updateCampaignDeadline(campaign.id, nextDeadline)
     })
   }
 
@@ -127,42 +136,81 @@ export function CampaignCard({
     handleOpenReview()
   }
 
-  // Highlighted Due Date badge
+  // Highlighted Due Date badge (interactive directly on card)
   const renderHighlightedDeadline = () => {
-    if (!campaign.deadline) return null
-    const due = new Date(campaign.deadline)
-    const now = new Date()
-    const diffDays = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-    const formattedDate = due.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+    if (currentDeadline) {
+      const due = new Date(currentDeadline)
+      const now = new Date()
+      const dueMidnight = new Date(due.getFullYear(), due.getMonth(), due.getDate())
+      const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      const diffDays = Math.round((dueMidnight.getTime() - nowMidnight.getTime()) / (1000 * 60 * 60 * 24))
+      const formattedDate = due.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 
-    if (diffDays < 0) {
+      let badgeClasses = 'text-foreground bg-muted/60 border-border hover:border-foreground/30'
+      let icon = <Calendar className="h-3.5 w-3.5 text-[#08739C] dark:text-[#38BDF8] shrink-0" />
+      let text = `Due ${formattedDate}`
+
+      if (diffDays < 0) {
+        badgeClasses = 'text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/25 hover:border-rose-500/50'
+        icon = <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+        text = `Overdue: ${formattedDate}`
+      } else if (diffDays === 0) {
+        badgeClasses = 'text-[#FC801A] bg-[#FC801A]/10 border-[#FC801A]/30 hover:border-[#FC801A]/60'
+        icon = <Clock className="h-3.5 w-3.5 shrink-0" />
+        text = 'Due Today!'
+      } else if (diffDays <= 4) {
+        badgeClasses = 'text-amber-700 dark:text-amber-300 bg-amber-500/15 border-amber-500/30 hover:border-amber-500/60'
+        icon = <Calendar className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+        text = `Due ${formattedDate} (${diffDays}d left)`
+      }
+
       return (
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/25 shadow-xs">
-          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-          <span>Overdue: {formattedDate}</span>
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="relative inline-flex items-center"
+        >
+          <div
+            suppressHydrationWarning
+            title="Click to edit deadline"
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border shadow-xs transition-colors cursor-pointer ${badgeClasses}`}
+          >
+            {icon}
+            <span>{text}</span>
+          </div>
+          <input
+            type="date"
+            value={currentDeadline ? currentDeadline.split('T')[0] : ''}
+            onChange={(e) => handleDeadlineChange(e.target.value)}
+            disabled={isPending || isSelectionMode}
+            title="Click to change deadline"
+            aria-label={`Change deadline for ${campaign.brand_name}`}
+            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full disabled:cursor-not-allowed"
+          />
         </div>
       )
     }
-    if (diffDays === 0) {
-      return (
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-[#FC801A] bg-[#FC801A]/10 border border-[#FC801A]/30 shadow-xs">
-          <Clock className="h-3.5 w-3.5 shrink-0" />
-          <span>Due Today!</span>
-        </div>
-      )
-    }
-    if (diffDays <= 4) {
-      return (
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-500/15 border border-amber-500/30 shadow-xs">
-          <Calendar className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-          <span>Due {formattedDate} ({diffDays}d left)</span>
-        </div>
-      )
-    }
+
     return (
-      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-foreground bg-muted/60 border border-border">
-        <Calendar className="h-3.5 w-3.5 text-[#08739C] dark:text-[#38BDF8] shrink-0" />
-        <span>Due: {formattedDate}</span>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative inline-flex items-center"
+      >
+        <div
+          title="Click to set deadline"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-muted-foreground/75 hover:text-foreground bg-muted/30 hover:bg-muted border border-dashed border-border/80 hover:border-foreground/30 transition-colors cursor-pointer shadow-2xs"
+        >
+          <Calendar className="h-3.5 w-3.5 opacity-60" />
+          <span>+ Due date</span>
+        </div>
+        <input
+          type="date"
+          value=""
+          onChange={(e) => handleDeadlineChange(e.target.value)}
+          disabled={isPending || isSelectionMode}
+          title="Click to set deadline"
+          aria-label={`Set deadline for ${campaign.brand_name}`}
+          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full disabled:cursor-not-allowed"
+        />
       </div>
     )
   }
@@ -343,6 +391,13 @@ export function CampaignCard({
           setCurrentStatus(newStatus)
           startTransition(async () => {
             await updateCampaignStatus(campaign.id, newStatus)
+          })
+        }}
+        currentDeadline={currentDeadline}
+        onDeadlineChange={(newDeadline) => {
+          setCurrentDeadline(newDeadline)
+          startTransition(async () => {
+            await updateCampaignDeadline(campaign.id, newDeadline)
           })
         }}
         isOpen={isDetailsOpen}
