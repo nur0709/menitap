@@ -457,49 +457,32 @@ export function CreatorPublicProfileManager({
         </div>
       )}
 
-      {/* Plan Tag, Switch Plan & Delete Account under Bio & Niche */}
-      <div className="pt-4 border-t border-border flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2.5">
-          <span className="text-xs font-semibold text-muted-foreground">Plan</span>
-          {normalizedPlan === 'STANDARD' ? (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FC801A] text-white shadow-2xs">
-              Standard
-            </span>
-          ) : normalizedPlan === 'BASIC' ? (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border border-[#FC801A]/50 text-[#FC801A] bg-[#FC801A]/5">
-              Basic
-            </span>
-          ) : (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border border-[#08739C]/40 text-[#08739C] dark:text-[#38BDF8] bg-[#08739C]/5">
-              Free
-            </span>
-          )}
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setPlanError(null)
-              setSwitchPlanModalOpen(true)
-            }}
-            className="h-8 px-2.5 text-xs font-medium rounded-lg border-border hover:bg-muted text-foreground cursor-pointer"
-          >
-            Switch Plan
-          </Button>
-        </div>
+      {/* Action Buttons under Bio & Niche */}
+      <div className="pt-4 border-t border-border flex items-center justify-between gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setPlanError(null)
+            setSwitchPlanModalOpen(true)
+          }}
+          className="h-9 px-3.5 text-xs font-semibold rounded-xl border border-border/80 hover:border-foreground/30 hover:bg-muted text-foreground cursor-pointer transition-colors shadow-2xs"
+        >
+          Switch Plan
+        </Button>
 
         <Button
           type="button"
-          variant="ghost"
+          variant="outline"
           size="sm"
           onClick={() => {
             setDeleteError(null)
             setDeleteModalOpen(true)
           }}
-          className="h-8 px-2.5 text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer rounded-lg"
+          className="h-9 px-3.5 text-xs font-semibold rounded-xl border border-destructive/40 text-destructive hover:bg-destructive/10 hover:border-destructive transition-colors cursor-pointer shadow-2xs"
         >
-          <Trash2 className="h-3.5 w-3.5 mr-1" />
+          <Trash2 className="h-3.5 w-3.5 mr-1.5" />
           Delete Account
         </Button>
       </div>
