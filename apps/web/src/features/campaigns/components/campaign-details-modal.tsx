@@ -274,26 +274,26 @@ export function CampaignDetailsModal({
               </div>
             )}
 
-            {/* Deadline / Due Date Card */}
+            {/* Due Date Card */}
             <div className="p-3 rounded-xl bg-muted/30 border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
                 <Calendar className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0" />
                 <div className="min-w-0">
                   <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
-                    Deadline / Due Date
+                    Due
                   </span>
                   <div className="truncate">
                     {activeDeadline ? (
                       renderHighlightedDeadline(activeDeadline)
                     ) : (
-                      <span className="text-xs text-muted-foreground italic">No deadline set</span>
+                      <span className="text-xs text-muted-foreground italic">No due date</span>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Set / Change / Clear controls */}
-              <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+              {/* Native interactive date picker */}
+              <div className="flex items-center shrink-0 self-start sm:self-auto">
                 <input
                   ref={dateInputRef}
                   type="date"
@@ -311,28 +311,10 @@ export function CampaignDetailsModal({
                       ;(e.target as HTMLInputElement).showPicker?.()
                     } catch {}
                   }}
-                  title="Click to choose deadline from calendar"
-                  aria-label="Choose deadline from calendar"
+                  title="Click to choose due date from calendar"
+                  aria-label="Choose due date from calendar"
                   className="h-8 px-2.5 text-xs font-semibold rounded-lg border border-border bg-background hover:bg-muted text-foreground cursor-pointer shadow-xs focus:outline-none focus:ring-1 focus:ring-foreground/20"
                 />
-
-                {activeDeadline && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onDeadlineChange?.(null)
-                      if (dateInputRef.current) {
-                        dateInputRef.current.value = ''
-                      }
-                    }}
-                    title="Remove deadline"
-                    aria-label="Remove deadline"
-                    className="h-8 px-2 rounded-lg border border-border bg-background hover:bg-rose-500/10 hover:text-rose-600 text-muted-foreground text-xs transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                    <span>Clear</span>
-                  </button>
-                )}
               </div>
             </div>
           </div>
