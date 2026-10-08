@@ -130,6 +130,12 @@ Read `AGENTS.md` for coding standards and conventions.
 - [x] **Fail-Closed Fallback & Model Chain Fix**: Replaced the previous permissive single-keyword fallback with a strict, compound fallback that requires explicit collaboration intent AND deliverables/compensation proof, while rejecting unsubscribe links and retail promo copy. Fixed Gemini model list to active endpoints (`gemini-2.0-flash`, `gemini-1.5-flash`).
 - [x] **Database Purge**: Executed a safe database purge removing 57 junk cards (retail promo blasts, LinkedIn job alerts, Amazon returns, USPS/SHEIN delivery notices, school/mixer invites, and self-sent Bermet Ermatova replies). Retained only authentic, high-value brand deals (Beekman 1802, Kiimento, FutureMoney, Lucky Rx, Lepique, FourCo, HWahae Global, Old Navy, MOREMO, TIAM, Casting Networks, Cerave, Buttermilk/Epionce).
 
+### ✅ Campaign Card Redesign & Option A Creator Workflow (COMPLETED)
+- [x] **Card UI Cleanup**: Removed redundant "Review" button (card is 100% clickable surface to open modal) and single trash button.
+- [x] **Heart / Favorite System**: Added interactive heart icon in top-right of each card with `is_liked` persistence in Supabase (`creator_campaigns.is_liked`) and a dedicated **Favorites ♥** filter pill.
+- [x] **Safe Selection Mode**: Added a dedicated `Select` toggle button in the toolbar. Default browsing has 0 checkboxes (zero risk of accidental mis-clicks). When `Select` mode is activated, checkboxes slide in, clicking cards selects them, and a batch action bar appears with `Select All`, `Deselect`, and `Delete (X)` bulk delete action.
+- [x] **Option A Creator Lifecycle Stages**: Cleaned up the status selector so `New` and `Reviewed` are strictly view states, while the dropdown menu only offers actionable stages: `Applied`, `Waiting on Product`, `Draft Submitted`, `Payment Pending`, `Paid ✓`, `Declined`.
+
 ### ⬜ Phase 4 — Stripe Subscriptions (Upcoming) — [#3](https://github.com/nur0709/menitap/issues/3)
 - [ ] Stripe product/price creation (Explorer $0, Creator Basic $10, Creator Standard $15)
 - [ ] Checkout session flow
@@ -149,7 +155,7 @@ Read `AGENTS.md` for coding standards and conventions.
 
 ```
 Profile: id, email, full_name, avatar_url, role (USER|CREATOR|BRAND|ADMIN), inbound_email_token (text unique), created_at, updated_at
-CreatorCampaign: id, user_id, brand_name, brand_logo_url, product_name, compensation, deliverables, deadline, status (NEW_PITCH|REVIEWED|ACCEPTED|FILMING|DELIVERED|PAID|DECLINED), raw_source_text, source_type (EMAIL|MANUAL|EXTENSION), source_sender, source_subject, notes, created_at, updated_at
+CreatorCampaign: id, user_id, brand_name, brand_logo_url, product_name, compensation, deliverables, deadline, status (NEW_PITCH|REVIEWED|APPLIED|WAITING_PRODUCT|SUBMITTED|PAYMENT_PENDING|PAID|DECLINED), is_liked (boolean), raw_source_text, source_type (EMAIL|MANUAL|EXTENSION), source_sender, source_subject, notes, created_at, updated_at
 Subscription: id, user_id, stripe_customer_id, stripe_subscription_id, plan (FREE|BASIC|STANDARD), status (ACTIVE|PAST_DUE|CANCELED|TRIALING), current_period_end
 Category: id, name, slug, description, sort_order, is_active, type ('DEALS'|'CREATORS'|'BRANDS')
 AffiliateLink: id, user_id, category_id, title, url, promo_code, description, product_image_url, discount_percentage, status (ACTIVE|PENDING|APPROVED|REJECTED), click_count
@@ -160,6 +166,6 @@ PointTransaction: id, user_id, points, reason, type (EARNED|REDEEMED)
 ---
 
 ## Next Steps
-1. **Live Validation on Campaigns Board**: Verify that `/dashboard` displays only clean, authentic brand deal cards with zero duplicates.
-2. **Review Modal Polish**: Iterate on the review modal or card UI based on user preferences.
+1. **User Review on Live Dashboard**: Collect user feedback on the new card visuals, favorite heart toggle, and selection mode bulk delete.
+2. **Review Modal Polish**: Refine reply drafts, attachments, or deliverables inside the modal if needed.
 
