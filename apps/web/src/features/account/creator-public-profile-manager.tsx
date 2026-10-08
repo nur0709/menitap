@@ -250,7 +250,7 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
         {/* Minimalist Switch */}
         <label className="inline-flex items-center gap-2.5 cursor-pointer select-none">
           <span className="text-xs font-medium text-muted-foreground">
-            {isPublic ? 'Public on Explore' : 'Hidden from Explore'}
+            {isPublic ? 'On' : 'Off'}
           </span>
           <div className="relative inline-flex items-center">
             <input
@@ -287,7 +287,7 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
       {/* Social Accounts */}
       <div className="space-y-2.5">
         <span className="text-xs font-semibold text-muted-foreground block">
-          Social Accounts
+          Connect Your Social Accounts
         </span>
 
         {/* Clean row of large circular logo buttons with green-on-connected frame and hover tooltips */}
