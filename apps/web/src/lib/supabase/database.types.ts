@@ -86,10 +86,18 @@ export type Database = {
           compensation_details: string | null
           contact_email: string | null
           created_at: string
+          deadline: string | null
+          deliverables: string | null
           description: string | null
+          expires_at: string | null
           id: number
           image_url: string | null
+          is_verified: boolean
           products_provided: boolean
+          requirements: string | null
+          source_platform: string
+          source_raw_text: string | null
+          source_url: string | null
           status: string
           updated_at: string
           user_id: string | null
@@ -102,10 +110,18 @@ export type Database = {
           compensation_details?: string | null
           contact_email?: string | null
           created_at?: string
+          deadline?: string | null
+          deliverables?: string | null
           description?: string | null
+          expires_at?: string | null
           id?: number
           image_url?: string | null
+          is_verified?: boolean
           products_provided?: boolean
+          requirements?: string | null
+          source_platform?: string
+          source_raw_text?: string | null
+          source_url?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -118,10 +134,18 @@ export type Database = {
           compensation_details?: string | null
           contact_email?: string | null
           created_at?: string
+          deadline?: string | null
+          deliverables?: string | null
           description?: string | null
+          expires_at?: string | null
           id?: number
           image_url?: string | null
+          is_verified?: boolean
           products_provided?: boolean
+          requirements?: string | null
+          source_platform?: string
+          source_raw_text?: string | null
+          source_url?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null

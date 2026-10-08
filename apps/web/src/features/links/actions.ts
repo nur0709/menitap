@@ -448,7 +448,9 @@ export async function getCampaignLinks(categoryId?: number) {
 
   let query = supabase
     .from('brand_links')
-    .select('id, user_id, brand_name, application_url, description, image_url, products_provided, click_count, created_at, category_id, categories(name, slug), profiles(full_name)')
+    .select(
+      'id, user_id, brand_name, application_url, description, image_url, products_provided, compensation_details, deadline, deliverables, requirements, source_platform, is_verified, click_count, created_at, category_id, categories(name, slug), profiles(full_name)'
+    )
     .in('status', ['ACTIVE', 'APPROVED'])
     .order('created_at', { ascending: false })
     .limit(100)
