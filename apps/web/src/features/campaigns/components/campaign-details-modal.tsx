@@ -30,6 +30,7 @@ interface CampaignDetailsModalProps {
   onStatusChange?: (newStatus: CampaignStatus) => void
   currentDeadline?: string | null
   onDeadlineChange?: (newDeadline: string | null) => void
+  userName?: string
   isOpen: boolean
   onClose: () => void
 }
@@ -40,6 +41,7 @@ export function CampaignDetailsModal({
   onStatusChange,
   currentDeadline,
   onDeadlineChange,
+  userName,
   isOpen,
   onClose,
 }: CampaignDetailsModalProps) {
@@ -56,7 +58,8 @@ export function CampaignDetailsModal({
   const applicationUrl = extractApplicationFormUrl(campaign.raw_source_text)
 
   // Single clean, predefined Accept draft as requested by user
-  const acceptDraftText = `Hi there,\n\nThank you for reaching out! I would love to collaborate with ${campaign.brand_name} on this campaign. The deliverables and compensation sound great.\n\nPlease let me know if you need my shipping address or any further details to get started!\n\nBest,`
+  const signoff = userName?.trim() ? `Best,\n${userName.trim()}` : 'Best,'
+  const acceptDraftText = `Hi there,\n\nThank you for reaching out! I would love to collaborate with ${campaign.brand_name} on this campaign. The deliverables and compensation sound great.\n\n${signoff}`
 
   const gmailDraftUrl = brandEmail
     ? getGmailComposeUrl({
@@ -275,7 +278,20 @@ export function CampaignDetailsModal({
             </div>
           )}
 
-          {/* Single Pre-written Accept Reply Draft */}
+          {/* Raw Email Text */}
+          {campaign.raw_source_text && (
+            <div className="space-y-1.5">
+              <span className="text-[10px] uppercase font-semibold text-muted-foreground flex items-center gap-1.5">
+                <FileText className="h-3.5 w-3.5" />
+                Original Email Content
+              </span>
+              <div className="p-3 rounded-xl bg-muted/50 border border-border max-h-44 overflow-y-auto text-[11px] text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed select-text">
+                {campaign.raw_source_text}
+              </div>
+            </div>
+          )}
+
+          {/* Single Pre-written Accept Reply Draft (at bottom) */}
           {brandEmail && (
             <div className="p-3.5 rounded-xl bg-muted/40 border border-border space-y-2.5">
               <div className="flex items-center justify-between">
@@ -324,19 +340,6 @@ export function CampaignDetailsModal({
                     <span>Open in Gmail to Reply ↗</span>
                   </a>
                 )}
-              </div>
-            </div>
-          )}
-
-          {/* Raw Email Text */}
-          {campaign.raw_source_text && (
-            <div className="space-y-1.5">
-              <span className="text-[10px] uppercase font-semibold text-muted-foreground flex items-center gap-1.5">
-                <FileText className="h-3.5 w-3.5" />
-                Original Email Content
-              </span>
-              <div className="p-3 rounded-xl bg-muted/50 border border-border max-h-44 overflow-y-auto text-[11px] text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed select-text">
-                {campaign.raw_source_text}
               </div>
             </div>
           )}

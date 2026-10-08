@@ -133,6 +133,7 @@ export function CreatorWorkspace({
           <div className="space-y-4">
             <CampaignsManager
               campaigns={campaigns}
+              userName={user.fullName}
               googleIntegration={
                 googleIntegration || {
                   isConnected: false,

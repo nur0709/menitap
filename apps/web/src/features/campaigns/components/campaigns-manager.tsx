@@ -13,9 +13,14 @@ import { GoogleIntegrationStatus } from '@/features/integrations/google/actions'
 interface CampaignsManagerProps {
   campaigns: CreatorCampaign[]
   googleIntegration?: GoogleIntegrationStatus
+  userName?: string
 }
 
-export function CampaignsManager({ campaigns, googleIntegration }: CampaignsManagerProps) {
+export function CampaignsManager({
+  campaigns,
+  googleIntegration,
+  userName,
+}: CampaignsManagerProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<
     'ALL' | 'FAVORITES' | 'PITCHES' | CampaignStatus
@@ -338,6 +343,7 @@ export function CampaignsManager({ campaigns, googleIntegration }: CampaignsMana
             <CampaignCard
               key={campaign.id}
               campaign={campaign}
+              userName={userName}
               isSelectionMode={isSelectionMode}
               isSelected={selectedIds.has(campaign.id)}
               onToggleSelect={() => handleToggleSelect(campaign.id)}
