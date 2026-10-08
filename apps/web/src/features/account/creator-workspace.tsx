@@ -12,7 +12,6 @@ import { CreatorCampaign } from '@/features/campaigns/types'
 import { SignOutButton } from '@/features/auth/components/sign-out-button'
 import Link from 'next/link'
 import {
-  Sparkles,
   ArrowRight,
   Layers,
   Link as LinkIcon,
@@ -153,39 +152,25 @@ export function CreatorWorkspace({
           <div className="max-w-2xl mx-auto space-y-6">
             <CreatorPublicProfileManager profile={profile} />
 
-            {/* Plan Card */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* Membership / Plan Row */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-xl bg-[#FC801A]/10 flex items-center justify-center text-[#FC801A] shrink-0">
-                  <Sparkles className="h-4.5 w-4.5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-foreground">
-                      {effectivePlan === 'STANDARD' ? 'Creator Standard' : 'Free Plan'}
-                    </span>
-                    <Badge variant="outline" className="text-[10px] py-0 px-1.5 font-normal">
-                      Active
-                    </Badge>
-                  </div>
-                  <span className="text-[11px] text-muted-foreground">
-                    {effectivePlan === 'STANDARD'
-                      ? 'Full campaign pipeline & automated brand deal sync'
-                      : 'Explore directory and basic deal tracking'}
-                  </span>
-                </div>
+                <span className="text-xs font-semibold text-muted-foreground">Membership</span>
+                <span className="text-xs font-bold text-foreground">
+                  {effectivePlan === 'STANDARD' ? 'Creator Standard' : 'Free Plan'}
+                </span>
+                <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                  Active
+                </span>
               </div>
 
-              <div className="shrink-0 self-start sm:self-auto">
-                <Link
-                  href="/plans"
-                  className="inline-flex items-center gap-1.5 bg-[#FC801A] hover:bg-[#E66F0D] text-white font-medium text-xs shadow-xs px-3.5 h-8 rounded-xl transition-colors cursor-pointer"
-                >
-                  <Sparkles className="h-3 w-3" />
-                  <span>Switch Plan</span>
-                  <ArrowRight className="h-3 w-3 ml-0.5" />
-                </Link>
-              </div>
+              <Link
+                href="/plans"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
+                <span>Switch plan</span>
+                <ArrowRight className="h-3 w-3" />
+              </Link>
             </div>
 
             {/* Danger Zone */}

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { InstagramLogo, TikTokLogo, YouTubeLogo } from '@/components/social-icons'
-import { Check, Loader2, Sparkles, AlertCircle, X, ExternalLink } from 'lucide-react'
+import { Check, Loader2, AlertCircle, X, ExternalLink } from 'lucide-react'
 
 interface CreatorProfileData {
   is_public_profile?: boolean | null
@@ -240,40 +240,19 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
   const currentModalConnected = Boolean(currentModalUrl && currentModalUrl.trim())
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs space-y-6 text-left">
-      {/* Header with Integrated Public Toggle */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-[#FC801A]" />
-            <h3 className="text-sm sm:text-base font-bold text-foreground">
-              Public Creator Profile & Socials
-            </h3>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Display your portfolio and social handles on Menitap Explore for brand deals.
-          </p>
-        </div>
+    <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs space-y-5 text-left">
+      {/* Clean Header with Simple Toggle */}
+      <div className="flex items-center justify-between gap-4 pb-4 border-b border-border">
+        <h3 className="text-sm sm:text-base font-bold text-foreground">
+          Public Profile
+        </h3>
 
-        {/* Compact Toggle Pill */}
-        <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto bg-muted/40 px-3 py-1.5 rounded-xl border border-border">
-          <div className="text-right">
-            <div className="text-xs font-semibold text-foreground flex items-center justify-end gap-1.5">
-              {isPublic ? (
-                <>
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Public</span>
-                </>
-              ) : (
-                <span>Hidden</span>
-              )}
-            </div>
-            <span className="text-[10px] text-muted-foreground block">
-              {isPublic ? 'Visible on Explore' : 'Private'}
-            </span>
-          </div>
-
-          <label className="relative inline-flex items-center cursor-pointer shrink-0">
+        {/* Minimalist Switch */}
+        <label className="inline-flex items-center gap-2.5 cursor-pointer select-none">
+          <span className="text-xs font-medium text-muted-foreground">
+            {isPublic ? 'Public on Explore' : 'Hidden from Explore'}
+          </span>
+          <div className="relative inline-flex items-center">
             <input
               id="public-profile-toggle"
               type="checkbox"
@@ -282,42 +261,37 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
               onChange={(e) => handleToggle(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-10 h-5.5 bg-muted-foreground/30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-emerald-500" />
-          </label>
+            <div className="w-9 h-5 bg-muted-foreground/25 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500" />
+          </div>
           {isToggling && <Loader2 className="h-3.5 w-3.5 animate-spin text-[#FC801A]" />}
-        </div>
+        </label>
       </div>
 
       {toggleFeedback && (
         <div
-          className={`p-3 rounded-xl text-xs font-medium flex items-center gap-2 animate-in fade-in ${
+          className={`p-2.5 rounded-xl text-xs font-medium flex items-center gap-2 animate-in fade-in ${
             toggleFeedback.type === 'error'
               ? 'bg-destructive/10 text-destructive border border-destructive/20'
               : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
           }`}
         >
           {toggleFeedback.type === 'error' ? (
-            <AlertCircle className="h-4 w-4 shrink-0" />
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
           ) : (
-            <Check className="h-4 w-4 shrink-0" />
+            <Check className="h-3.5 w-3.5 shrink-0" />
           )}
           <span>{toggleFeedback.message}</span>
         </div>
       )}
 
-      {/* ----------------- Social Media Accounts: Large Standalone Circular Buttons ----------------- */}
-      <div className="space-y-3">
-        <div>
-          <Label className="text-xs font-bold text-foreground uppercase tracking-wider block">
-            Connected Social Accounts
-          </Label>
-          <span className="text-[11px] text-muted-foreground">
-            Connect your social channels to display on your public creator card
-          </span>
-        </div>
+      {/* Social Accounts */}
+      <div className="space-y-2.5">
+        <span className="text-xs font-semibold text-muted-foreground block">
+          Social Accounts
+        </span>
 
         {/* Clean row of large circular logo buttons with green-on-connected frame and hover tooltips */}
-        <div className="flex items-center gap-3.5 sm:gap-4 flex-wrap pt-1">
+        <div className="flex items-center gap-3.5 sm:gap-4 flex-wrap">
           {socialButtons.map((platform) => {
             const isConnected = Boolean(platform.url && platform.url.trim())
             const handle = extractHandle(platform.url)
@@ -375,21 +349,19 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
       </div>
 
       {/* Bio Field */}
-      <div className="space-y-2 pt-2 border-t border-border">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="creator-bio" className="text-xs font-semibold text-foreground">
-            Creator Bio / Niche
-          </Label>
-          <span className="text-[11px] text-muted-foreground">
-            Appears on your Explore card
-          </span>
-        </div>
+      <div className="space-y-2 pt-3 border-t border-border">
+        <Label htmlFor="creator-bio" className="text-xs font-semibold text-muted-foreground block">
+          Bio & Niche
+        </Label>
         <div className="flex items-center gap-2">
           <Input
             id="creator-bio"
             value={bio}
             onChange={(e) => setBio(e.target.value)}
-            placeholder="e.g. Beauty & Skincare UGC Creator based in NY"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSaveBio()
+            }}
+            placeholder="Short bio or niche (e.g. Beauty & UGC Creator)"
             className="h-9 text-xs bg-background border-border"
           />
           <Button
@@ -397,25 +369,25 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
             size="sm"
             onClick={handleSaveBio}
             disabled={isSaving}
-            className="h-9 px-3.5 text-xs bg-[#FC801A] hover:bg-[#E66F0D] text-white shrink-0 cursor-pointer"
+            className="h-9 px-3.5 text-xs bg-foreground hover:bg-foreground/90 text-background font-medium shrink-0 cursor-pointer"
           >
-            {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Save Bio'}
+            {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Save'}
           </Button>
         </div>
       </div>
 
       {saveFeedback && (
         <div
-          className={`p-3 rounded-xl text-xs font-medium flex items-center gap-2 animate-in fade-in ${
+          className={`p-2.5 rounded-xl text-xs font-medium flex items-center gap-2 animate-in fade-in ${
             saveFeedback.type === 'error'
               ? 'bg-destructive/10 text-destructive border border-destructive/20'
               : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
           }`}
         >
           {saveFeedback.type === 'error' ? (
-            <AlertCircle className="h-4 w-4 shrink-0" />
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
           ) : (
-            <Check className="h-4 w-4 shrink-0" />
+            <Check className="h-3.5 w-3.5 shrink-0" />
           )}
           <span>{saveFeedback.message}</span>
         </div>
