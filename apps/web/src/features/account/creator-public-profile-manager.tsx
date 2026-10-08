@@ -1,12 +1,20 @@
 'use client'
 
 import React, { useState, useTransition } from 'react'
-import { setPublicProfileVisibility, updateCreatorLinks } from './actions'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import {
+  setPublicProfileVisibility,
+  updateCreatorLinks,
+  upgradeToCreator,
+  downgradeToConsumer,
+  deleteUserAccount,
+} from './actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { InstagramLogo, TikTokLogo, YouTubeLogo } from '@/components/social-icons'
-import { Check, Loader2, AlertCircle, X, ExternalLink } from 'lucide-react'
+import { Check, Loader2, AlertCircle, X, ExternalLink, Trash2, AlertTriangle, ArrowRight } from 'lucide-react'
 
 interface CreatorProfileData {
   is_public_profile?: boolean | null
@@ -43,11 +51,67 @@ function formatSocialUrl(handleOrUrl: string, platform: 'instagram' | 'tiktok' |
   return trimmed
 }
 
-export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfileData }) {
+interface CreatorPublicProfileManagerProps {
+  profile: CreatorProfileData
+  effectivePlan?: string
+}
+
+export function CreatorPublicProfileManager({
+  profile,
+  effectivePlan = 'FREE',
+}: CreatorPublicProfileManagerProps) {
+  const normalizedPlan = (effectivePlan || 'FREE').toUpperCase()
+
   // Public toggle state
   const [isPublic, setIsPublic] = useState(Boolean(profile.is_public_profile))
   const [isToggling, startToggleTransition] = useTransition()
   const [toggleFeedback, setToggleFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null)
+
+  // Switch Plan modal state
+  const [switchPlanModalOpen, setSwitchPlanModalOpen] = useState(false)
+  const [planActionPending, startPlanTransition] = useTransition()
+  const [planError, setPlanError] = useState<string | null>(null)
+
+  // Delete Account modal state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [deletePending, startDeleteTransition] = useTransition()
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+
+  const router = useRouter()
+
+  // Handle switching membership plan
+  const handleSwitchPlan = (targetPlan: 'FREE' | 'BASIC' | 'STANDARD') => {
+    setPlanError(null)
+    startPlanTransition(async () => {
+      let res: { error?: string; success?: string }
+      if (targetPlan === 'FREE') {
+        res = await downgradeToConsumer()
+      } else {
+        res = await upgradeToCreator(targetPlan)
+      }
+
+      if (res.error) {
+        setPlanError(res.error)
+      } else {
+        setSwitchPlanModalOpen(false)
+        router.refresh()
+      }
+    })
+  }
+
+  // Handle permanent account deletion
+  const handleDeleteAccount = () => {
+    setDeleteError(null)
+    startDeleteTransition(async () => {
+      const res = await deleteUserAccount()
+      if (res.error) {
+        setDeleteError(res.error)
+      } else {
+        router.push('/')
+        router.refresh()
+      }
+    })
+  }
 
   // Current links state
   const [instagram, setInstagram] = useState(profile.instagram_url || '')
@@ -393,6 +457,53 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
         </div>
       )}
 
+      {/* Plan Tag, Switch Plan & Delete Account under Bio & Niche */}
+      <div className="pt-4 border-t border-border flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2.5">
+          <span className="text-xs font-semibold text-muted-foreground">Plan</span>
+          {normalizedPlan === 'STANDARD' ? (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FC801A] text-white shadow-2xs">
+              Standard
+            </span>
+          ) : normalizedPlan === 'BASIC' ? (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border border-[#FC801A]/50 text-[#FC801A] bg-[#FC801A]/5">
+              Basic
+            </span>
+          ) : (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border border-[#08739C]/40 text-[#08739C] dark:text-[#38BDF8] bg-[#08739C]/5">
+              Free
+            </span>
+          )}
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setPlanError(null)
+              setSwitchPlanModalOpen(true)
+            }}
+            className="h-8 px-2.5 text-xs font-medium rounded-lg border-border hover:bg-muted text-foreground cursor-pointer"
+          >
+            Switch Plan
+          </Button>
+        </div>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            setDeleteError(null)
+            setDeleteModalOpen(true)
+          }}
+          className="h-8 px-2.5 text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer rounded-lg"
+        >
+          <Trash2 className="h-3.5 w-3.5 mr-1" />
+          Delete Account
+        </Button>
+      </div>
+
       {/* ===================== POP-UP MODAL FOR ENTERING PROFILE NAME ===================== */}
       {modalPlatform && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
@@ -533,6 +644,242 @@ export function CreatorPublicProfileManager({ profile }: { profile: CreatorProfi
                   Save
                 </Button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================== POP-UP MODAL FOR SWITCHING PLAN ===================== */}
+      {switchPlanModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div
+            className="w-full max-w-md rounded-2xl bg-card border border-border p-5 sm:p-6 shadow-2xl space-y-4 text-left animate-in zoom-in-95 duration-150"
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div>
+                <h4 className="text-sm sm:text-base font-bold text-foreground">
+                  Switch Plan
+                </h4>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Select your desired membership tier
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => !planActionPending && setSwitchPlanModalOpen(false)}
+                className="h-7 w-7 rounded-lg text-muted-foreground hover:text-foreground flex items-center justify-center cursor-pointer transition-colors"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {planError && (
+              <div className="p-2.5 rounded-lg text-xs font-medium bg-destructive/10 text-destructive border border-destructive/20 flex items-center gap-2">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                <span>{planError}</span>
+              </div>
+            )}
+
+            {/* Plan Options */}
+            <div className="space-y-2.5">
+              {/* Free Tier */}
+              <div
+                className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-colors ${
+                  normalizedPlan === 'FREE'
+                    ? 'border-border bg-muted/40'
+                    : 'border-border hover:border-[#08739C]/40 bg-card'
+                }`}
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold border border-[#08739C]/40 text-[#08739C] dark:text-[#38BDF8] bg-[#08739C]/5">
+                      Free
+                    </span>
+                    <span className="text-xs font-extrabold text-foreground">
+                      $0<span className="text-[10px] font-normal text-muted-foreground">/mo</span>
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">Browse verified brand deals & creator codes</p>
+                </div>
+
+                {normalizedPlan === 'FREE' ? (
+                  <span className="text-[11px] font-semibold text-muted-foreground px-2.5 py-1 rounded-md bg-muted border border-border">
+                    Current
+                  </span>
+                ) : (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={planActionPending}
+                    onClick={() => handleSwitchPlan('FREE')}
+                    className="h-7 text-xs font-medium rounded-lg border-border hover:bg-muted text-foreground cursor-pointer shrink-0"
+                  >
+                    {planActionPending ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Select'}
+                  </Button>
+                )}
+              </div>
+
+              {/* Basic Tier */}
+              <div
+                className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-colors ${
+                  normalizedPlan === 'BASIC'
+                    ? 'border-[#FC801A]/40 bg-[#FC801A]/5'
+                    : 'border-border hover:border-[#FC801A]/40 bg-card'
+                }`}
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold border border-[#FC801A]/50 text-[#FC801A] bg-[#FC801A]/5">
+                      Basic
+                    </span>
+                    <span className="text-xs font-extrabold text-foreground">
+                      $10<span className="text-[10px] font-normal text-muted-foreground">/mo</span>
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">Collabs pipeline & share affiliate links</p>
+                </div>
+
+                {normalizedPlan === 'BASIC' ? (
+                  <span className="text-[11px] font-semibold text-[#FC801A] px-2.5 py-1 rounded-md bg-[#FC801A]/10 border border-[#FC801A]/20">
+                    Current
+                  </span>
+                ) : (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={planActionPending}
+                    onClick={() => handleSwitchPlan('BASIC')}
+                    className="h-7 text-xs font-medium rounded-lg border-[#FC801A]/40 text-[#FC801A] hover:bg-[#FC801A]/10 cursor-pointer shrink-0"
+                  >
+                    {planActionPending ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Select'}
+                  </Button>
+                )}
+              </div>
+
+              {/* Standard Tier */}
+              <div
+                className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-colors ${
+                  normalizedPlan === 'STANDARD'
+                    ? 'border-[#FC801A]/60 bg-[#FC801A]/5 ring-1 ring-[#FC801A]/25'
+                    : 'border-border hover:border-[#FC801A]/50 bg-card'
+                }`}
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FC801A] text-white shadow-2xs">
+                      Standard
+                    </span>
+                    <span className="text-xs font-extrabold text-foreground">
+                      $15<span className="text-[10px] font-normal text-muted-foreground">/mo</span>
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">Public Explore portfolio & connected social links</p>
+                </div>
+
+                {normalizedPlan === 'STANDARD' ? (
+                  <span className="text-[11px] font-semibold text-[#FC801A] px-2.5 py-1 rounded-md bg-[#FC801A]/10 border border-[#FC801A]/20">
+                    Current
+                  </span>
+                ) : (
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={planActionPending}
+                    onClick={() => handleSwitchPlan('STANDARD')}
+                    className="h-7 text-xs font-medium rounded-lg bg-[#FC801A] hover:bg-[#E66F0D] text-white cursor-pointer shrink-0 border-0"
+                  >
+                    {planActionPending ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Select'}
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer link */}
+            <div className="pt-2 flex items-center justify-between text-xs text-muted-foreground border-t border-border">
+              <Link
+                href="/plans"
+                onClick={() => setSwitchPlanModalOpen(false)}
+                className="hover:text-foreground inline-flex items-center gap-1 transition-colors"
+              >
+                <span>View full plan breakdown</span>
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setSwitchPlanModalOpen(false)}
+                className="h-7 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================== POP-UP MODAL FOR DELETING ACCOUNT ===================== */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div
+            className="w-full max-w-md rounded-2xl bg-card border border-border p-6 shadow-2xl space-y-4 text-left animate-in zoom-in-95 duration-150"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-start gap-3">
+              <div className="h-10 w-10 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center shrink-0">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-base font-bold text-foreground">Delete Account</h4>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Are you sure you want to delete your account? This action is permanent and cannot be undone. All your campaigns, affiliate links, and creator profile will be permanently removed.
+                </p>
+              </div>
+            </div>
+
+            {deleteError && (
+              <div className="p-2.5 rounded-lg text-xs font-medium bg-destructive/10 text-destructive border border-destructive/20 flex items-center gap-2">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                <span>{deleteError}</span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={deletePending}
+                onClick={() => setDeleteModalOpen(false)}
+                className="text-xs cursor-pointer text-muted-foreground hover:text-foreground"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                disabled={deletePending}
+                onClick={handleDeleteAccount}
+                className="text-xs cursor-pointer"
+              >
+                {deletePending ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Permanently Delete'
+                )}
+              </Button>
             </div>
           </div>
         </div>

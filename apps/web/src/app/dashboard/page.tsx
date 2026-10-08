@@ -179,13 +179,9 @@ export default async function DashboardPage() {
             <UserAvatar user={{ email, fullName, avatarUrl }} size="lg" />
             <div className="space-y-2">
               <div className="flex justify-center">
-                <Badge
-                  variant="outline"
-                  className="text-xs px-3 py-1 font-semibold flex items-center gap-1.5 bg-[#08739C]/10 text-[#08739C] dark:text-[#38BDF8] border-[#08739C]/30"
-                >
-                  <ShoppingBag className="h-3.5 w-3.5" />
-                  <span>Explorer</span>
-                </Badge>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border border-[#08739C]/40 text-[#08739C] dark:text-[#38BDF8] bg-[#08739C]/5">
+                  Free
+                </span>
               </div>
               {fullName && <p className="text-base font-medium text-foreground">{fullName}</p>}
               {email && <p className="text-xs text-muted-foreground">{email}</p>}

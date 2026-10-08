@@ -1,19 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { Badge } from '@/components/ui/badge'
 import { UserAvatar } from '@/components/user-avatar'
 import { CreatorLinksManager, AffiliateLinkItem } from './creator-links-manager'
 import { CreatorPublicProfileManager } from './creator-public-profile-manager'
-import { DeleteAccountSection } from './delete-account-section'
 import { CampaignsManager } from '@/features/campaigns/components/campaigns-manager'
 import { GoogleIntegrationStatus } from '@/features/integrations/google/actions'
 import { CreatorCampaign } from '@/features/campaigns/types'
 import { Category } from '@/features/links/components/add-deal-modal'
 import { SignOutButton } from '@/features/auth/components/sign-out-button'
-import Link from 'next/link'
 import {
-  ArrowRight,
   Layers,
   Link as LinkIcon,
   User,
@@ -62,12 +58,19 @@ export function CreatorWorkspace({
               <h1 className="text-base sm:text-lg font-bold text-foreground">
                 {user.fullName || 'Creator Workspace'}
               </h1>
-              <Badge
-                variant="outline"
-                className="bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30 text-[10px] font-semibold py-0"
-              >
-                {effectivePlan === 'STANDARD' ? 'Standard' : 'Creator'}
-              </Badge>
+              {effectivePlan === 'STANDARD' ? (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FC801A] text-white shadow-2xs">
+                  Standard
+                </span>
+              ) : effectivePlan === 'BASIC' ? (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border border-[#FC801A]/50 text-[#FC801A] bg-[#FC801A]/5">
+                  Basic
+                </span>
+              ) : (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border border-[#08739C]/40 text-[#08739C] dark:text-[#38BDF8] bg-[#08739C]/5">
+                  Free
+                </span>
+              )}
             </div>
             <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
@@ -152,34 +155,8 @@ export function CreatorWorkspace({
 
         {/* Tab 3: Profile & Settings */}
         {activeTab === 'profile' && (
-          <div className="max-w-2xl mx-auto space-y-6">
-            <CreatorPublicProfileManager profile={profile} />
-
-            {/* Membership / Plan Row */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-semibold text-muted-foreground">Membership</span>
-                <span className="text-xs font-bold text-foreground">
-                  {effectivePlan === 'STANDARD' ? 'Standard' : effectivePlan === 'BASIC' ? 'Basic' : 'Free'}
-                </span>
-                <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                  Active
-                </span>
-              </div>
-
-              <Link
-                href="/plans"
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-              >
-                <span>Switch plan</span>
-                <ArrowRight className="h-3 w-3" />
-              </Link>
-            </div>
-
-            {/* Danger Zone */}
-            <div className="p-5 rounded-2xl bg-card border border-border">
-              <DeleteAccountSection />
-            </div>
+          <div className="max-w-2xl mx-auto">
+            <CreatorPublicProfileManager profile={profile} effectivePlan={effectivePlan} />
           </div>
         )}
       </div>
