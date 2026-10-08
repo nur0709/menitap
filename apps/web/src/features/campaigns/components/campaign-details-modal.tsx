@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import {
   extractEmailAddress,
   extractApplicationFormUrl,
+  getGmailThreadUrl,
   getGmailComposeUrl,
   formatTimeAgo,
   formatExactDateTime,
@@ -47,6 +48,7 @@ export function CampaignDetailsModal({
 }: CampaignDetailsModalProps) {
   const [copiedEmail, setCopiedEmail] = useState(false)
   const [copiedReply, setCopiedReply] = useState(false)
+  const [copiedForGmail, setCopiedForGmail] = useState(false)
 
   const status = currentStatus || campaign.status
   const activeDeadline = currentDeadline !== undefined ? currentDeadline : campaign.deadline
@@ -61,7 +63,16 @@ export function CampaignDetailsModal({
   const signoff = userName?.trim() ? `Best,\n${userName.trim()}` : 'Best,'
   const acceptDraftText = `Hi there,\n\nThank you for reaching out! I would love to collaborate with ${campaign.brand_name} on this campaign. The deliverables and compensation sound great.\n\n${signoff}`
 
-  const gmailDraftUrl = brandEmail
+  const gmailThreadUrl = brandEmail
+    ? getGmailThreadUrl({
+        sourceMessageId: campaign.source_message_id,
+        fromEmail: brandEmail,
+        subject: campaign.source_subject,
+        brandName: campaign.brand_name,
+      })
+    : null
+
+  const gmailComposeUrl = brandEmail
     ? getGmailComposeUrl({
         toEmail: brandEmail,
         subject: campaign.source_subject || `${campaign.brand_name} Collaboration`,
@@ -88,6 +99,26 @@ export function CampaignDetailsModal({
     } catch {
       // Fallback
     }
+  }
+
+  const handleOpenInGmail = () => {
+    if (!gmailThreadUrl) return
+
+    // 1. Copy draft to clipboard so user can simply paste into thread reply
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(acceptDraftText)
+        .then(() => {
+          setCopiedForGmail(true)
+          setTimeout(() => setCopiedForGmail(false), 3000)
+        })
+        .catch(() => {
+          // Fallback
+        })
+    }
+
+    // 2. Open the main email thread directly in Gmail
+    window.open(gmailThreadUrl, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -168,16 +199,15 @@ export function CampaignDetailsModal({
               <span>Apply to Campaign</span>
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
-          ) : gmailDraftUrl ? (
-            <a
-              href={gmailDraftUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 bg-[#08739C] hover:bg-[#076184] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors shrink-0"
+          ) : gmailThreadUrl ? (
+            <button
+              type="button"
+              onClick={handleOpenInGmail}
+              className="inline-flex items-center gap-1.5 bg-[#08739C] hover:bg-[#076184] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors shrink-0 cursor-pointer"
             >
               <Mail className="h-3.5 w-3.5" />
-              <span>Apply via Email</span>
-            </a>
+              <span>{copiedForGmail ? 'Opening in Gmail...' : 'Reply in Gmail ↗'}</span>
+            </button>
           ) : null}
         </div>
 
@@ -310,36 +340,63 @@ export function CampaignDetailsModal({
               </div>
 
               {/* Action Buttons for Draft */}
-              <div className="flex items-center justify-end gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={handleCopyReply}
-                  className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-xl border border-border bg-card cursor-pointer"
-                >
-                  {copiedReply ? (
-                    <>
-                      <Check className="h-3.5 w-3.5 text-emerald-600" />
-                      <span>Copied Draft</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3.5 w-3.5" />
-                      <span>Copy Draft</span>
-                    </>
-                  )}
-                </button>
-
-                {gmailDraftUrl && (
-                  <a
-                    href={gmailDraftUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#08739C] hover:bg-[#076184] px-3.5 py-1.5 rounded-xl transition-colors shadow-xs"
+              <div className="flex flex-col gap-2 pt-1">
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyReply}
+                    className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-xl border border-border bg-card cursor-pointer transition-colors"
                   >
-                    <Mail className="h-3.5 w-3.5" />
-                    <span>Open in Gmail to Reply ↗</span>
-                  </a>
-                )}
+                    {copiedReply ? (
+                      <>
+                        <Check className="h-3.5 w-3.5 text-emerald-600" />
+                        <span>Copied Draft</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3.5 w-3.5" />
+                        <span>Copy Draft</span>
+                      </>
+                    )}
+                  </button>
+
+                  {gmailThreadUrl && (
+                    <button
+                      type="button"
+                      onClick={handleOpenInGmail}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#08739C] hover:bg-[#076184] px-3.5 py-1.5 rounded-xl transition-colors shadow-xs cursor-pointer"
+                    >
+                      {copiedForGmail ? (
+                        <>
+                          <Check className="h-3.5 w-3.5 text-emerald-300" />
+                          <span>Draft Copied & Opening Gmail...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="h-3.5 w-3.5" />
+                          <span>Open in Gmail to Reply ↗</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground px-0.5">
+                  <span className="leading-tight">
+                    💡 Opens the email thread in Gmail & copies draft to clipboard. Hit Reply & paste (⌘V)!
+                  </span>
+                  {gmailComposeUrl && (
+                    <a
+                      href={gmailComposeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-muted-foreground hover:text-foreground underline decoration-dotted shrink-0 ml-2"
+                      title="Open standalone compose window instead"
+                    >
+                      Open blank compose
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           )}

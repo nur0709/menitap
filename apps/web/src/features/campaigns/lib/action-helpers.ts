@@ -65,13 +65,50 @@ export function extractApplicationFormUrl(text: string | null | undefined): stri
   return null
 }
 
+export function getGmailThreadUrl(params: {
+  sourceMessageId?: string | null
+  fromEmail?: string | null
+  subject?: string | null
+  brandName?: string | null
+}): string {
+  const trimmedId = params.sourceMessageId?.trim()
+
+  // 1. If we have a valid Gmail thread or message hex ID (e.g. '1a116ee8b813d3aa')
+  if (trimmedId && /^[a-f0-9]+$/i.test(trimmedId)) {
+    return `https://mail.google.com/mail/#all/${trimmedId}`
+  }
+
+  // 2. If it's an RFC822 Message-ID (e.g. '<xyz@mail.gmail.com>')
+  if (trimmedId && (trimmedId.includes('@') || trimmedId.startsWith('<'))) {
+    const cleanRfcId = trimmedId.replace(/[<>]/g, '').trim()
+    return `https://mail.google.com/mail/#search/${encodeURIComponent(`rfc822msgid:${cleanRfcId}`)}`
+  }
+
+  // 3. Fallback: Search for the email directly in Gmail by sender and subject
+  const queryParts: string[] = []
+  if (params.fromEmail) {
+    queryParts.push(`from:${params.fromEmail}`)
+  }
+  if (params.subject) {
+    const cleanSubj = params.subject.replace(/^(re|fwd):\s*/i, '').trim()
+    if (cleanSubj) {
+      queryParts.push(`"${cleanSubj}"`)
+    }
+  } else if (params.brandName) {
+    queryParts.push(`"${params.brandName}"`)
+  }
+
+  const query = queryParts.length > 0 ? queryParts.join(' ') : 'in:inbox'
+  return `https://mail.google.com/mail/#search/${encodeURIComponent(query)}`
+}
+
 export function getGmailComposeUrl(params: {
   toEmail: string
   subject: string
   body?: string
 }): string {
   const su = params.subject.startsWith('Re:') ? params.subject : `Re: ${params.subject}`
-  const base = 'https://mail.google.com/mail/?view=cm&fs=1'
+  const base = 'https://mail.google.com/mail/?view=cm'
   const to = `&to=${encodeURIComponent(params.toEmail)}`
   const subjectParam = `&su=${encodeURIComponent(su)}`
   const bodyParam = params.body ? `&body=${encodeURIComponent(params.body)}` : ''

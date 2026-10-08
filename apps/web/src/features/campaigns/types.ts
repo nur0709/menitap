@@ -27,6 +27,7 @@ export interface CreatorCampaign {
   source_type: CampaignSourceType
   source_sender: string | null
   source_subject: string | null
+  source_message_id?: string | null
   notes: string | null
   is_liked?: boolean
   created_at: string
