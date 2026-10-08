@@ -5,6 +5,10 @@ import {
   isObviouslyNotCollaboration,
   normalizeCampaignSubject,
 } from '@/features/campaigns/lib/email-card-parser'
+import {
+  isCastingNewsletter,
+  ingestNewsletterCollabs,
+} from '@/features/links/lib/newsletter-digest-parser'
 
 export async function POST(req: NextRequest) {
   try {
@@ -94,6 +98,34 @@ export async function POST(req: NextRequest) {
         status: 'verified_google_forwarding',
         verifiedUrl: verificationMatch?.[0] || null,
       })
+    }
+
+    // 2.5 Check if this is a Public Casting Calls Newsletter (e.g. Brands Meet Creators, UGC Club)
+    const isPublicNewsletter =
+      toList.some(
+        (r) =>
+          r.toLowerCase().includes('collabs') ||
+          r.toLowerCase().includes('public') ||
+          r.toLowerCase().includes('casting')
+      ) || isCastingNewsletter(from, subject, textBody)
+
+    if (isPublicNewsletter) {
+      console.log(`[inbound-email] Detected public casting newsletter: "${subject}" from "${from}"`)
+      const digestResult = await ingestNewsletterCollabs({
+        sender: from,
+        subject,
+        bodyText: textBody,
+        rawSource: textBody,
+      })
+
+      if (digestResult.isDigest) {
+        return NextResponse.json({
+          status: 'ingested_public_casting_newsletter',
+          ingestedCount: digestResult.ingestedCount,
+          skippedCount: digestResult.skippedCount,
+          errors: digestResult.errors,
+        })
+      }
     }
 
     // 3. Extract User Inbound Token from Recipient (e.g. deals-55cddc46@in.menitap.com)
