@@ -130,7 +130,7 @@ export async function signOut() {
   redirect('/')
 }
 
-export const getCurrentUser = cache(async () => {
+const getCurrentUser = cache(async () => {
   const supabase = await createClient()
   const {
     data: { user },

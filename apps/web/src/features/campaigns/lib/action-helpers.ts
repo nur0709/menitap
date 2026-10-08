@@ -8,27 +8,6 @@ export function extractEmailAddress(sender: string | null | undefined): string |
   return match ? match[1].trim() : null
 }
 
-export function extractBrandDomain(senderEmail: string | null, brandName: string): string | null {
-  if (senderEmail) {
-    const domainMatch = senderEmail.match(/@([a-zA-Z0-9.-]+)/)
-    if (domainMatch && domainMatch[1]) {
-      const domain = domainMatch[1].toLowerCase()
-      // Exclude generic providers
-      if (!['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com'].includes(domain)) {
-        return domain
-      }
-    }
-  }
-
-  // Fallback: slugify brand name
-  if (brandName) {
-    const clean = brandName.toLowerCase().replace(/[^a-z0-9]/g, '')
-    if (clean) return `${clean}.com`
-  }
-
-  return null
-}
-
 function isJunkUrl(url: string): boolean {
   const lower = url.toLowerCase()
   return (
@@ -84,10 +63,6 @@ export function extractApplicationFormUrl(text: string | null | undefined): stri
   }
 
   return null
-}
-
-export function extractFirstUrl(text: string | null | undefined): string | null {
-  return extractApplicationFormUrl(text)
 }
 
 export function getGmailComposeUrl(params: {

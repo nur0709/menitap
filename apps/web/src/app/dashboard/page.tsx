@@ -21,7 +21,7 @@ import {
 import { getUserCampaigns } from '@/features/campaigns/actions'
 import { getGoogleIntegration } from '@/features/integrations/google/actions'
 import { SignOutButton } from '@/features/auth/components/sign-out-button'
-import { Building2, ArrowRight, Sparkles, ShoppingBag } from 'lucide-react'
+import { Building2, ArrowRight, Sparkles } from 'lucide-react'
 
 export const metadata = {
   title: 'My Account & Campaigns | Menitap',

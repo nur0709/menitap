@@ -11,8 +11,13 @@
       "project": [
         "src/**/*.{js,jsx,ts,tsx,css}"
       ],
+      "ignore": [
+        "src/lib/supabase/client.ts"
+      ],
       "ignoreIssues": {
-        "src/lib/supabase/database.types.ts": ["exports", "types"]
+        "src/lib/supabase/database.types.ts": ["exports", "types"],
+        "src/components/ui/**": ["exports"],
+        "src/features/campaigns/types.ts": ["types"]
       }
     }
   }

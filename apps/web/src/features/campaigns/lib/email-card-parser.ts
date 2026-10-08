@@ -15,7 +15,7 @@ export interface ParsedEmailCard {
 /**
  * Parses forwarded email headers (e.g. Gmail / Apple Mail forwarded blocks)
  */
-export function extractOriginalEmailDetails(rawText: string, defaultSender: string, defaultSubject: string) {
+function extractOriginalEmailDetails(rawText: string, defaultSender: string, defaultSubject: string) {
   let sender = defaultSender
   let subject = defaultSubject
   let cleanBody = rawText

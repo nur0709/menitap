@@ -91,18 +91,3 @@ export function YouTubeLogo({ className = 'h-4 w-4' }: { className?: string }) {
     </svg>
   )
 }
-
-/**
- * Backwards-compatible Monochrome SVGs
- */
-export function InstagramIcon({ className = 'h-4 w-4' }: { className?: string }) {
-  return <InstagramLogo className={className} />
-}
-
-export function TikTokIcon({ className = 'h-4 w-4' }: { className?: string }) {
-  return <TikTokLogo className={className} />
-}
-
-export function YouTubeIcon({ className = 'h-4 w-4' }: { className?: string }) {
-  return <YouTubeLogo className={className} />
-}

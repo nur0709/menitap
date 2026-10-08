@@ -14,7 +14,7 @@ export interface ParsedLinkMetadata {
 /**
  * 1. OpenGraph / HTML Fallback Parser (Zero-cost, 100% reliable)
  */
-export async function extractOpenGraphMetadata(targetUrl: string): Promise<ParsedLinkMetadata> {
+async function extractOpenGraphMetadata(targetUrl: string): Promise<ParsedLinkMetadata> {
   try {
     const res = await fetch(targetUrl, {
       headers: {

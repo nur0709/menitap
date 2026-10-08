@@ -1,7 +1,7 @@
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { Check, Sparkles } from "lucide-react";
+import { Check } from "lucide-react";
 import { PlanCtaButton, type PlanId } from "./plan-cta-button";
 import { getEffectiveUserContext } from "@/features/auth/actions";
 

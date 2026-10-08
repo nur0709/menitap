@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 
-export function getGoogleOAuthRedirectUri(): string {
+function getGoogleOAuthRedirectUri(): string {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://menitap.com'
   return `${appUrl.replace(/\/$/, '')}/api/auth/google/callback`
 }
@@ -79,7 +79,7 @@ export async function fetchGoogleUserEmail(accessToken: string): Promise<string>
   return data.email as string
 }
 
-export async function refreshGoogleAccessToken(refreshToken: string): Promise<{
+async function refreshGoogleAccessToken(refreshToken: string): Promise<{
   access_token: string
   expires_in: number
 }> {
