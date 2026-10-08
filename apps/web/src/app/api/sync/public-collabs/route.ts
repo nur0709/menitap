@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { syncCommunityCollabs } from '@/features/links/lib/community-scraper'
+import { cleanupExpiredCollabs } from '@/features/links/lib/link-liveness-monitor'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,12 +17,26 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  const { searchParams } = new URL(req.url)
+  const action = searchParams.get('action') || 'all'
+
   try {
-    const result = await syncCommunityCollabs()
+    let syncResult = null
+    let cleanupResult = null
+
+    if (action === 'sync' || action === 'all') {
+      syncResult = await syncCommunityCollabs()
+    }
+
+    if (action === 'cleanup' || action === 'all') {
+      cleanupResult = await cleanupExpiredCollabs()
+    }
+
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
-      result,
+      sync: syncResult,
+      cleanup: cleanupResult,
     })
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error'
