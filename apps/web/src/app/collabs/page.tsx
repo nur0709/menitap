@@ -4,7 +4,7 @@ import { getCategories, getCampaignLinks } from "@/features/links/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { BrandBorder } from "@/components/brand-border";
 import { AddCampaignModal } from "@/features/links/components/add-campaign-modal";
 import { DeleteCollabButton } from "@/features/links/components/delete-collab-button";
 import { BrandLogoBadge } from "@/features/links/components/brand-logo-badge";
@@ -216,7 +216,7 @@ export default async function CollabsPage({
         </div>
       </main>
 
-      <SiteFooter />
+      <BrandBorder position="bottom" height="h-7 sm:h-9" />
     </div>
   );
 }

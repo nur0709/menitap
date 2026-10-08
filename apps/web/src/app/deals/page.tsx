@@ -3,7 +3,7 @@ import { getEffectiveUserContext } from "@/features/auth/actions";
 import { getCategories, getExploreDeals } from "@/features/links/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { BrandBorder } from "@/components/brand-border";
 import { AddDealModal } from "@/features/links/components/add-deal-modal";
 import { DeleteDealButton } from "@/features/links/components/delete-deal-button";
 import { PromoCodeBadge } from "@/features/links/components/promo-code-badge";
@@ -175,7 +175,7 @@ export default async function DealsPage({
         </div>
       </main>
 
-      <SiteFooter />
+      <BrandBorder position="bottom" height="h-7 sm:h-9" />
     </div>
   );
 }

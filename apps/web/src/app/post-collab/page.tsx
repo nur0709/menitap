@@ -1,5 +1,5 @@
 import { SiteHeader } from '@/components/site-header'
-import { SiteFooter } from '@/components/site-footer'
+import { BrandBorder } from '@/components/brand-border'
 import { getCategories } from '@/features/links/actions'
 import { createClient } from '@/lib/supabase/server'
 import { PostCollabForm } from './post-collab-form'
@@ -47,7 +47,7 @@ export default async function PostCollabPage({ searchParams }: PostCollabPagePro
         </div>
       </main>
 
-      <SiteFooter />
+      <BrandBorder position="bottom" height="h-7 sm:h-9" />
     </div>
   )
 }

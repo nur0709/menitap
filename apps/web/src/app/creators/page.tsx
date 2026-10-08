@@ -3,7 +3,7 @@ import { getPublicCreators } from "@/features/links/actions";
 import { getEffectiveUserContext } from "@/features/auth/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { BrandBorder } from "@/components/brand-border";
 import { UserAvatar } from "@/components/user-avatar";
 import { InstagramLogo, TikTokLogo, YouTubeLogo } from "@/components/social-icons";
 import { Users, Sparkles, ArrowRight, Check } from "lucide-react";
@@ -173,7 +173,7 @@ export default async function CreatorsPage() {
         </div>
       </main>
 
-      <SiteFooter />
+      <BrandBorder position="bottom" height="h-7 sm:h-9" />
     </div>
   );
 }
