@@ -4,6 +4,7 @@ export interface CleanupResult {
   checkedCount: number
   expiredCount: number
   archivedIds: number[]
+  purgedCount: number
 }
 
 /**
@@ -52,11 +53,13 @@ async function checkFormUrlLiveness(url: string): Promise<boolean> {
 }
 
 /**
- * Scans active brand_links, archives expired deadlines, and checks form liveness.
+ * Scans active brand_links, archives expired deadlines, checks form liveness,
+ * and permanently purges dead/expired listings older than 30 days to keep the database lean.
  */
-export async function cleanupExpiredCollabs(): Promise<CleanupResult> {
+export async function cleanupExpiredCollabs(retentionDays = 30): Promise<CleanupResult> {
   const supabase = await createClient()
   const nowIso = new Date().toISOString()
+  const purgeCutoffIso = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000).toISOString()
 
   // 1. Fetch campaigns that are ACTIVE and have expired by date
   const { data: dateExpired } = await supabase
@@ -69,7 +72,10 @@ export async function cleanupExpiredCollabs(): Promise<CleanupResult> {
 
   if (dateExpired && dateExpired.length > 0) {
     const ids = dateExpired.map((d) => d.id)
-    await supabase.from('brand_links').update({ status: 'EXPIRED' }).in('id', ids)
+    await supabase
+      .from('brand_links')
+      .update({ status: 'EXPIRED', updated_at: nowIso })
+      .in('id', ids)
     archivedIds.push(...ids)
   }
 
@@ -89,16 +95,31 @@ export async function cleanupExpiredCollabs(): Promise<CleanupResult> {
       checkedCount++
       const isLive = await checkFormUrlLiveness(link.application_url)
       if (!isLive) {
-        await supabase.from('brand_links').update({ status: 'EXPIRED' }).eq('id', link.id)
+        await supabase
+          .from('brand_links')
+          .update({ status: 'EXPIRED', updated_at: nowIso })
+          .eq('id', link.id)
         archivedIds.push(link.id)
         expiredCount++
       }
     }
   }
 
+  // 3. AUTO-PURGE: Permanently hard-delete dead links (EXPIRED or REJECTED) older than retention period (30 days)
+  // This ensures the database never accumulates trash over time.
+  const { data: purgedRecords } = await supabase
+    .from('brand_links')
+    .delete()
+    .in('status', ['EXPIRED', 'REJECTED'])
+    .or(`updated_at.lt.${purgeCutoffIso},created_at.lt.${purgeCutoffIso}`)
+    .select('id')
+
+  const purgedCount = purgedRecords?.length || 0
+
   return {
     checkedCount,
     expiredCount,
     archivedIds,
+    purgedCount,
   }
 }

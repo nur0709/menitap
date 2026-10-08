@@ -222,10 +222,12 @@ export async function ingestNewsletterCollabs(params: {
 
   const defaultCategory = creatorCategories?.[0]?.id || 7 // Fallback to TikTok UGC (id 7)
 
-  // Fetch existing application URLs to avoid duplicate inserts
+  // Fetch existing application URLs from the last 60 days to avoid duplicate inserts
+  const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()
   const { data: existingLinks } = await supabase
     .from('brand_links')
     .select('application_url, brand_name')
+    .gt('created_at', sixtyDaysAgo)
 
   const existingUrls = new Set(
     (existingLinks || []).map((l) => cleanUrl(l.application_url)).filter(Boolean)

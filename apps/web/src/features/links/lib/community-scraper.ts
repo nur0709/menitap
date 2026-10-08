@@ -215,8 +215,12 @@ export async function syncCommunityCollabs(): Promise<CommunityScraperResult> {
     return formUrls.length > 0 || hasCollabKeywords
   })
 
-  // Fetch existing application links to deduplicate
-  const { data: existingLinks } = await supabase.from('brand_links').select('application_url')
+  // Fetch existing application links from the last 60 days to deduplicate efficiently
+  const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()
+  const { data: existingLinks } = await supabase
+    .from('brand_links')
+    .select('application_url')
+    .gt('created_at', sixtyDaysAgo)
   const existingUrls = new Set(
     (existingLinks || []).map((l) => l.application_url.trim().replace(/\/$/, '')).filter(Boolean)
   )
