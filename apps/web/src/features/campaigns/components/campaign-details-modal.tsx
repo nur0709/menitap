@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react'
 import { CreatorCampaign, CampaignStatus } from '../types'
-import { Button } from '@/components/ui/button'
 import {
   extractEmailAddress,
   extractApplicationFormUrl,
@@ -28,7 +27,6 @@ import {
 interface CampaignDetailsModalProps {
   campaign: CreatorCampaign
   currentStatus?: CampaignStatus
-  onStatusChange?: (newStatus: CampaignStatus) => void
   currentDeadline?: string | null
   onDeadlineChange?: (newDeadline: string | null) => void
   userName?: string
@@ -39,7 +37,6 @@ interface CampaignDetailsModalProps {
 export function CampaignDetailsModal({
   campaign,
   currentStatus,
-  onStatusChange,
   currentDeadline,
   onDeadlineChange,
   userName,
@@ -400,41 +397,6 @@ export function CampaignDetailsModal({
               </div>
             </div>
           )}
-        </div>
-
-        {/* Footer */}
-        <div className="pt-3 border-t border-border mt-3 flex items-center justify-between gap-3">
-          {onStatusChange ? (
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-medium text-muted-foreground">Status:</span>
-              <select
-                value={status}
-                onChange={(e) => onStatusChange(e.target.value as CampaignStatus)}
-                className="text-xs font-semibold px-2.5 py-1 rounded-xl border border-border bg-background text-foreground cursor-pointer focus:outline-none"
-              >
-                {status === 'NEW_PITCH' && <option value="NEW_PITCH">New</option>}
-                {status === 'REVIEWED' && <option value="REVIEWED">Reviewed</option>}
-                <option value="APPLIED">Applied</option>
-                <option value="WAITING_PRODUCT">Waiting on Product</option>
-                <option value="SUBMITTED">Draft Submitted</option>
-                <option value="PAYMENT_PENDING">Payment Pending</option>
-                <option value="PAID">Paid ✓</option>
-                <option value="DECLINED">Declined</option>
-              </select>
-            </div>
-          ) : (
-            <div />
-          )}
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onClose}
-            className="text-xs h-8 rounded-xl cursor-pointer"
-          >
-            Close
-          </Button>
         </div>
       </div>
     </div>

@@ -364,12 +364,6 @@ export function CampaignCard({
       <CampaignDetailsModal
         campaign={campaign}
         currentStatus={currentStatus}
-        onStatusChange={(newStatus) => {
-          setCurrentStatus(newStatus)
-          startTransition(async () => {
-            await updateCampaignStatus(campaign.id, newStatus)
-          })
-        }}
         currentDeadline={currentDeadline}
         onDeadlineChange={handleDeadlineChange}
         userName={userName}
