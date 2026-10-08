@@ -1,0 +1,60 @@
+name: Public Collabs Autopilot (Ingestion & Cleanup)
+
+on:
+  schedule:
+    # Runs every 6 hours on autopilot (00:00, 06:00, 12:00, 18:00 UTC)
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - sync
+          - cleanup
+
+jobs:
+  sync:
+    name: Sync Community Feeds & Purge Expired Collabs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Public Collabs Endpoint
+        run: |
+          ACTION="${{ github.event.inputs.action || 'all' }}"
+          BASE_URL="${{ secrets.APP_URL || secrets.NEXT_PUBLIC_APP_URL || 'https://menitap.com' }}"
+          # Remove trailing slash if present
+          BASE_URL="${BASE_URL%/}"
+          CRON_SECRET="${{ secrets.CRON_SECRET }}"
+
+          TARGET_URL="${BASE_URL}/api/sync/public-collabs?action=${ACTION}"
+          echo "Triggering Public Collabs Autopilot at: ${TARGET_URL}"
+
+          HEADER_AUTH=()
+          if [ -n "$CRON_SECRET" ]; then
+            HEADER_AUTH=(-H "Authorization: Bearer $CRON_SECRET")
+          fi
+
+          # Call endpoint with redirect following and 120s timeout for scraping + AI processing
+          HTTP_RESPONSE=$(curl -sSL -w "\n%{http_code}" \
+            -X GET \
+            -H "Content-Type: application/json" \
+            "${HEADER_AUTH[@]}" \
+            --max-time 120 \
+            --retry 2 \
+            "$TARGET_URL")
+
+          HTTP_BODY=$(echo "$HTTP_RESPONSE" | sed '$d')
+          HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tail -n 1)
+
+          echo "HTTP Status Code: $HTTP_STATUS"
+          echo "Response Payload: $HTTP_BODY"
+
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "::error::Public collabs sync failed with status $HTTP_STATUS"
+            exit 1
+          fi
+
+          echo "Public Collabs Autopilot executed successfully!"

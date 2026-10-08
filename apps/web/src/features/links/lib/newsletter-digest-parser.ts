@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { matchCategory } from '@/lib/category-matcher'
 
 interface ParsedPublicCollab {
   brandName: string
@@ -256,13 +257,12 @@ export async function ingestNewsletterCollabs(params: {
       continue
     }
 
-    // 3. Resolve category_id
+    // 3. Resolve category_id with synonym matching
     let categoryId = defaultCategory
-    if (campaign.categoryName && creatorCategories) {
-      const match = creatorCategories.find(
-        (c) =>
-          c.name.toLowerCase().includes(campaign.categoryName!.toLowerCase()) ||
-          campaign.categoryName!.toLowerCase().includes(c.name.toLowerCase())
+    if (creatorCategories && creatorCategories.length > 0) {
+      const match = matchCategory(
+        campaign.categoryName || `${campaign.brandName} ${campaign.description || ''}`,
+        creatorCategories
       )
       if (match) categoryId = match.id
     }

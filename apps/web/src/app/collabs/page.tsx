@@ -94,7 +94,7 @@ export default async function CollabsPage({
                   : 'bg-muted text-muted-foreground hover:text-foreground'
               }`}
             >
-              All ({campaigns.length})
+              All {!selectedCategorySlug ? `(${campaigns.length})` : ''}
             </Link>
             {categories.map((cat) => {
               const isSelected = selectedCategorySlug === cat.slug

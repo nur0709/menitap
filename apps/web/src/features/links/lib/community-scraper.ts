@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { matchCategory } from '@/lib/category-matcher'
 
 interface RedditPostItem {
   id: string
@@ -99,6 +100,7 @@ async function parseRedditPostWithAI(post: RedditPostItem): Promise<{
   requirements?: string
   deadline?: string | null
   description?: string
+  categoryName?: string
   isScamOrPayToPlay: boolean
 } | null> {
   const geminiApiKey = process.env.GEMINI_API_KEY
@@ -115,6 +117,7 @@ Respond in STRICT JSON:
 {
   "isLegitimateCollab": true or false,
   "brandName": "Brand or Agency Name",
+  "categoryName": "Beauty & Wellness" or "Tech & Gadgets" or "Fashion & Style" or "TikTok UGC",
   "applicationUrl": "https://...",
   "compensation": "$250" or "Gifted Product" or "TBD",
   "deliverables": "1x TikTok Video" or "UGC Review",
@@ -126,7 +129,8 @@ Respond in STRICT JSON:
 
 Rules:
 - If this is just a creator asking a question, discussing rates, or venting, set "isLegitimateCollab": false.
-- If it requires creators to pay upfront fees or buy products without reimbursement, set "isScamOrPayToPlay": true.`
+- If it requires creators to pay upfront fees or buy products without reimbursement, set "isScamOrPayToPlay": true.
+- If brand is beauty/skincare/hair/cosmetics, set categoryName: "Beauty & Wellness". If tech/gadgets/apps/software, set "Tech & Gadgets". If fashion/apparel/clothing/shoes, set "Fashion & Style". Otherwise set "TikTok UGC".`
 
   if (geminiApiKey) {
     try {
@@ -215,6 +219,15 @@ export async function syncCommunityCollabs(): Promise<CommunityScraperResult> {
     return formUrls.length > 0 || hasCollabKeywords
   })
 
+  // Fetch active categories for CREATORS to map category_id dynamically
+  const { data: creatorCategories } = await supabase
+    .from('categories')
+    .select('id, name, slug')
+    .eq('type', 'CREATORS')
+    .eq('is_active', true)
+
+  const defaultCategory = 7 // Default to TikTok UGC if unmatched
+
   // Fetch existing application links from the last 60 days to deduplicate efficiently
   const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()
   const { data: existingLinks } = await supabase
@@ -259,10 +272,20 @@ export async function syncCommunityCollabs(): Promise<CommunityScraperResult> {
         ? new Date(parsed.deadline).toISOString()
         : new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString()
 
+      // Dynamically resolve category (Beauty & Wellness, Tech & Gadgets, Fashion & Style, etc.)
+      let categoryId = defaultCategory
+      if (creatorCategories && creatorCategories.length > 0) {
+        const matched = matchCategory(
+          parsed.categoryName || `${parsed.brandName || ''} ${post.title} ${post.content}`,
+          creatorCategories
+        )
+        if (matched) categoryId = matched.id
+      }
+
       const { error: insertErr } = await supabase.from('brand_links').insert({
         brand_name: brand,
         application_url: cleanUrl,
-        category_id: 7, // Default to TikTok UGC
+        category_id: categoryId,
         products_provided: true,
         compensation_details: parsed.compensation || 'Gifted / TBD',
         deliverables: parsed.deliverables || 'UGC Video Deliverable',
