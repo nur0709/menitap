@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { parseEmailToCampaignCard } from '@/features/campaigns/lib/email-card-parser'
+import {
+  parseEmailToCampaignCard,
+  isObviouslyNotCollaboration,
+  normalizeCampaignSubject,
+} from '@/features/campaigns/lib/email-card-parser'
 
 export async function POST(req: NextRequest) {
   try {
@@ -112,11 +116,67 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Fast pre-filter against known non-collab patterns (newsletters, receipts, job alerts)
+    if (isObviouslyNotCollaboration(from, subject, textBody)) {
+      console.log(`[inbound-email] Fast-filtered non-collab email: "${subject}" from "${from}"`)
+      return NextResponse.json({
+        status: 'fast_filtered_not_a_collaboration',
+        subject,
+        sender: from,
+      })
+    }
+
+    // Connect to Supabase to verify user token and prevent self-replies / duplicates
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+    const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+    // Lookup user profile by token
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, email')
+      .eq('inbound_email_token', extractedToken)
+      .single()
+
+    if (!profile) {
+      console.warn('[inbound-email] Invalid inbound token:', extractedToken)
+      return NextResponse.json({ error: 'Invalid inbound token' }, { status: 404 })
+    }
+
+    // Skip self-sent emails from the user themselves
+    if (profile.email && from.toLowerCase().includes(profile.email.toLowerCase())) {
+      console.log(`[inbound-email] Skipped self-sent email from "${from}"`)
+      return NextResponse.json({ status: 'ignored_self_sent_email' })
+    }
+
+    // Deduplicate by normalized subject so replies in the same thread don't spawn duplicate cards
+    const normSubject = normalizeCampaignSubject(subject)
+    const { data: existingCampaigns } = await supabase
+      .from('creator_campaigns')
+      .select('id, source_subject, brand_name')
+      .eq('user_id', profile.id)
+
+    const existingMatch = existingCampaigns?.find(
+      (c) => c.source_subject && normalizeCampaignSubject(c.source_subject) === normSubject
+    )
+
+    if (existingMatch) {
+      console.log(
+        `[inbound-email] Deduped existing campaign for subject "${subject}" (id: ${existingMatch.id})`
+      )
+      return NextResponse.json({
+        success: true,
+        status: 'deduplicated_existing_campaign',
+        campaignId: existingMatch.id,
+      })
+    }
+
     // 4. Run AI Card Extraction on Email
     const extractedCard = await parseEmailToCampaignCard({
       text: textBody,
       sender: from,
       subject,
+      userEmail: profile.email || undefined,
     })
 
     if (!extractedCard) {
@@ -129,11 +189,6 @@ export async function POST(req: NextRequest) {
         sender: from,
       })
     }
-
-    // 5. Connect to Supabase and execute Security Definer RPC
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
     const deadlineIso = extractedCard.deadline
       ? new Date(extractedCard.deadline).toISOString()

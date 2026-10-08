@@ -48,23 +48,40 @@ export function extractOriginalEmailDetails(rawText: string, defaultSender: stri
 }
 
 /**
- * Fast regex pre-filter to instantly reject obvious non-collaboration / system noise
+ * Normalizes email subject line for campaign deduplication
+ * Strips Re:, Fwd:, brackets, emojis, and normalizes spacing
  */
-export function isObviouslyNotCollaboration(sender: string, subject: string): boolean {
-  const senderLower = sender.toLowerCase()
-  const subjectLower = subject.toLowerCase()
+export function normalizeCampaignSubject(subject: string): string {
+  if (!subject) return ''
+  return subject
+    .replace(/^(\s*(re|fwd|fw)\s*:\s*)+/i, '') // strip Re:, Fwd: prefixes
+    .replace(/\[[^\]]+\]/g, '') // strip bracket tags like [Lepique]
+    .replace(/【[^】]+】/g, '')
+    .replace(/[^\w\s]/gi, ' ') // strip punctuation and symbols
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+}
+
+/**
+ * Fast regex pre-filter to instantly reject non-collaboration emails, retail newsletters, and system noise
+ */
+export function isObviouslyNotCollaboration(sender: string, subject: string, bodyText?: string): boolean {
+  const senderLower = sender.toLowerCase().trim()
+  const subjectLower = subject.toLowerCase().trim()
+  const bodyLower = (bodyText || '').toLowerCase()
 
   // 1. Obvious automated system / non-collab senders
   const nonCollabSenders = [
-    'messages-noreply@linkedin.com',
-    'notifications@linkedin.com',
+    '@linkedin.com',
+    'jobalerts',
+    'smartrecruiters.app',
+    'backstage.com',
     'uspsinformeddelivery@',
-    'order2@shein.com',
+    'shein.com',
     'orders@',
     'order@',
-    'support@vipis.com',
-    'noreply@backstage.com',
-    'campaigns@sr.smartrecruiters.app',
+    'order2@',
     'billing@',
     'receipts@',
     'receipt@',
@@ -72,29 +89,99 @@ export function isObviouslyNotCollaboration(sender: string, subject: string): bo
     'security@',
     'notifications@',
     'digest@',
+    'support@vipis.com',
+    'news@g.factor75.com',
+    'hello@mail.quince.com',
+    'info@nakedsundays.com',
+    'hello@pitchlo.com',
+    'clientservices@lightfolio.com',
+    'tkile@kcsd96.org',
+    'mcastro@casacentral.org',
+    'david@welcome.facecardhq.com',
+    'zoom.us',
+    'youtube.com',
+    'loom.com',
+    'vimeo.com',
+    'github.com',
+    'figma.com',
+    'notion.so',
+    'slack.com',
+    'spotify.com',
   ]
   if (nonCollabSenders.some((s) => senderLower.includes(s))) {
+    return true
+  }
+
+  // School and education domains
+  if (senderLower.includes('.k12.') || senderLower.includes('.schools.') || senderLower.includes('@kcsd96.org')) {
     return true
   }
 
   // 2. High-confidence transactional / personal / automated subject lines
   const nonCollabSubjects = [
     'daily digest',
+    'weekly digest',
+    'creator pulse',
     'order delivery notification',
     'order confirmation',
     'shipping confirmation',
+    'your order has shipped',
     'viewed your profile',
     'job recommendations',
+    'job alert',
+    'actively hiring',
     'sports photos are ready',
     'last meet + sectional',
+    'sectional roster',
     'rsvp for our',
     'someone you may know',
     'security alert',
     'password reset',
-    'your order has shipped',
     'explore 1,500+ roles',
+    'want 10% off',
+    '10% off your next order',
+    'cashmere is on sale today',
+    'zero strings attached',
+    'delicious routines',
+    'you\'re in - one thing first',
+    'creative mixer invite',
+    'convening on',
+    'watch the roomer pro recording',
+    'missed it? watch the',
+    'super brand day',
+    'prime deals are here',
+    'the slippers everyone',
+    'photo gallery',
+    'invitation to collaborate on',
+    'shared a document with you',
   ]
   if (nonCollabSubjects.some((s) => subjectLower.includes(s))) {
+    return true
+  }
+
+  // 3. Discount / coupon / promo codes in subject
+  if (
+    subjectLower.includes('% off') ||
+    subjectLower.includes('promo code') ||
+    subjectLower.includes('coupon') ||
+    subjectLower.includes('sale today') ||
+    subjectLower.includes('flash sale')
+  ) {
+    return true
+  }
+
+  // 4. If newsletter markers are prominent in body and sender is generic info/news
+  if (
+    (senderLower.startsWith('news@') ||
+      senderLower.startsWith('newsletter@') ||
+      senderLower.startsWith('marketing@') ||
+      senderLower.startsWith('info@')) &&
+    bodyLower.includes('unsubscribe') &&
+    (bodyLower.includes('view in browser') || bodyLower.includes('privacy policy') || bodyLower.includes('cart')) &&
+    !bodyLower.includes('deliverable') &&
+    !bodyLower.includes('paid partnership') &&
+    !bodyLower.includes('gifting')
+  ) {
     return true
   }
 
@@ -108,6 +195,7 @@ export async function parseEmailToCampaignCard(params: {
   text: string
   sender: string
   subject: string
+  userEmail?: string
 }): Promise<ParsedEmailCard | null> {
   const { sender, subject, cleanBody } = extractOriginalEmailDetails(
     params.text,
@@ -116,8 +204,14 @@ export async function parseEmailToCampaignCard(params: {
   )
 
   // 1. Fast pre-filter check
-  if (isObviouslyNotCollaboration(sender, subject)) {
+  if (isObviouslyNotCollaboration(sender, subject, cleanBody)) {
     console.log(`[parseEmailToCampaignCard] Fast-filtered non-collab email: "${subject}" from "${sender}"`)
+    return null
+  }
+
+  // Skip self-sent emails if userEmail provided
+  if (params.userEmail && sender.toLowerCase().includes(params.userEmail.toLowerCase())) {
+    console.log(`[parseEmailToCampaignCard] Skipped self-sent email from "${sender}"`)
     return null
   }
 
@@ -133,14 +227,15 @@ Email Content:
 ${cleanBody.slice(0, 3000)}
 
 YOUR FIRST AND MOST IMPORTANT TASK: Determine "isCollaboration".
-- Set "isCollaboration": true ONLY if this email is an authentic brand collaboration pitch, paid sponsorship, PR gifting / seeding offer, UGC video inquiry, casting invitation, or follow-up regarding creator deliverables/videos.
+- Set "isCollaboration": true ONLY if this email is an authentic, direct brand collaboration pitch, paid sponsorship offer, PR gifting/product seeding offer, UGC video brief, or follow-up from a brand or PR agency regarding creator video deliverables.
 - Set "isCollaboration": false if this email is:
-  * A retail/store sales newsletter or promotional blast ("Cashmere is on sale today", 20% off promos, consumer marketing).
-  * An e-commerce purchase receipt, shipping update, or tracking notification (SHEIN, Amazon, USPS, etc.).
-  * A personal, school, family, sports club, or community message.
-  * A job board digest, general recruiter message, or employment alert (LinkedIn, Backstage, SmartRecruiters, Indeed).
-  * A social media notification ("X people viewed your profile").
-  * Spam or administrative notifications.
+  * A retail store sales blast, marketing promotional newsletter, discount coupon, or consumer marketing (e.g. Factor75, Quince, Naked Sundays, SHEIN, Zara).
+  * An affiliate-only program without guaranteed compensation or gifting (e.g. "join our affiliate program and earn 10% commission on links").
+  * An e-commerce purchase receipt, tracking email, or shipping update.
+  * A job alert, job board digest, general recruiter message, or employment email (LinkedIn, Backstage, SmartRecruiters, Indeed).
+  * An event, mixer, webinar replay, community convening, school, or club notification.
+  * A photo gallery delivery, SaaS collaboration notice (Figma, GitHub, Google Docs), or personal email.
+  * Spam or automated system notification.
 
 RETURN ONLY VALID JSON:
 If "isCollaboration" is false:
@@ -163,7 +258,7 @@ If "isCollaboration" is true:
 
   // 1. Try Gemini
   if (geminiApiKey) {
-    const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash']
+    const models = ['gemini-2.0-flash', 'gemini-1.5-flash']
     for (const model of models) {
       try {
         const res = await fetch(
@@ -227,7 +322,7 @@ If "isCollaboration" is true:
     }
   }
 
-  // 3. Fallback Heuristics (Rule-based)
+  // 3. Fallback Heuristics (Safe-by-default, fail-closed)
   return fallbackHeuristicParser(cleanBody, sender, subject)
 }
 
@@ -276,6 +371,11 @@ function formatParsedCard(
   }
 }
 
+/**
+ * Strict, fail-closed heuristic fallback.
+ * Only accepts emails that have clear compound proof of an authentic brand sponsorship pitch.
+ * When in doubt, returns null to avoid spamming the creator's board.
+ */
 function fallbackHeuristicParser(
   body: string,
   sender: string,
@@ -283,46 +383,69 @@ function fallbackHeuristicParser(
 ): ParsedEmailCard | null {
   const combined = (subject + ' ' + body).toLowerCase()
 
-  // Must have clear collaboration signals
-  const collabKeywords = [
-    'collab',
-    'collaboration',
-    'ugc',
-    'creator',
-    'gifted',
-    'partnership',
-    'sponsor',
-    'sponsorship',
-    'pr package',
-    'seeding',
-    'deliverables',
-    'rate card',
-    'reels',
-    'tiktok',
-    'campaign',
-  ]
-
-  const hasCollabKeyword = collabKeywords.some((k) => combined.includes(k))
-  if (!hasCollabKeyword) {
-    return null
-  }
-
-  // Reject general retail marketing newsletter
+  // 1. Instant rejection of retail promotional emails & newsletters
   if (
-    combined.includes('unsubscribe') &&
-    (combined.includes('sale today') || combined.includes('off entire order') || combined.includes('shop now')) &&
-    !combined.includes('deliverable') &&
-    !combined.includes('gifted') &&
-    !combined.includes('collaboration')
+    combined.includes('unsubscribe') ||
+    combined.includes('view in browser') ||
+    combined.includes('manage your preferences') ||
+    combined.includes('% off') ||
+    combined.includes('coupon code') ||
+    combined.includes('shop now') ||
+    combined.includes('cart') ||
+    combined.includes('order number') ||
+    combined.includes('shipping tracking')
   ) {
     return null
   }
 
-  // Extract brand from subject or sender
+  // 2. Must contain high-confidence explicit collaboration intent phrases
+  const highConfidenceIntent = [
+    'paid partnership',
+    'paid collaboration',
+    'paid tiktok collaboration',
+    'paid instagram collaboration',
+    'pr package',
+    'gifted collaboration',
+    'product seeding',
+    'collaboration proposal',
+    'sponsorship proposal',
+    'ugc creator opportunity',
+    'send you our product',
+    'send you free product',
+    'rate for a video',
+    'rate for 1 reel',
+  ]
+
+  const hasIntent = highConfidenceIntent.some((phrase) => combined.includes(phrase))
+  if (!hasIntent) {
+    return null
+  }
+
+  // 3. Must ALSO contain compensation or deliverables signal
+  const compensationSignal =
+    /\$\s*\d{2,4}/.test(combined) ||
+    combined.includes('budget') ||
+    combined.includes('rate card') ||
+    combined.includes('compensation') ||
+    combined.includes('gifted') ||
+    combined.includes('free product')
+
+  const deliverablesSignal =
+    combined.includes('deliverable') ||
+    combined.includes('tiktok') ||
+    combined.includes('reel') ||
+    combined.includes('video') ||
+    combined.includes('post')
+
+  if (!compensationSignal || !deliverablesSignal) {
+    return null
+  }
+
+  // Derive brand name cleanly
   let derivedBrand = 'Brand Partner'
   const domainMatch = sender.match(/@([a-zA-Z0-9.-]+)/)
   if (domainMatch && domainMatch[1]) {
-    const raw = domainMatch[1].replace(/\.(com|co|io|net|org|app|us)$/i, '')
+    const raw = domainMatch[1].replace(/\.(com|co|io|net|org|app|us|kr)$/i, '')
     const parts = raw.split('.')
     const name = parts[parts.length - 1] || 'Brand'
     if (!['gmail', 'yahoo', 'hotmail', 'outlook', 'icloud'].includes(name.toLowerCase())) {
@@ -330,19 +453,20 @@ function fallbackHeuristicParser(
     }
   }
 
-  // Extract pay
+  // Extract pay if present
   const payMatch = body.match(/\$\s*(\d{1,4}(?:,\d{3})*)/)
   const compensation = payMatch ? `$${payMatch[1]}` : 'Gifted / TBD'
 
   return {
     brandName: derivedBrand,
     brandLogoUrl: null,
-    productName: subject.slice(0, 40) || null,
+    productName: subject.slice(0, 50) || null,
     compensation,
-    deliverables: '1x UGC Video / Social Post',
+    deliverables: 'UGC Video Deliverables',
     deadline: null,
     status: 'NEW_PITCH',
     cleanSender: sender,
     cleanSubject: subject,
   }
 }
+

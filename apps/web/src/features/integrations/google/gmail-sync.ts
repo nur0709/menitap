@@ -1,6 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { getValidGoogleAccessToken } from './oauth'
-import { parseEmailToCampaignCard } from '@/features/campaigns/lib/email-card-parser'
+import {
+  parseEmailToCampaignCard,
+  normalizeCampaignSubject,
+  isObviouslyNotCollaboration,
+} from '@/features/campaigns/lib/email-card-parser'
 
 interface GmailHeader {
   name: string
@@ -108,23 +112,23 @@ export async function syncUserGmailCampaigns(userId: string): Promise<SyncResult
 
   const supabase = await createClient()
 
-  // 1. Targeted query for brand collaborations / UGC / pitches (excluding self-sent emails)
+  // 1. High-precision query for brand collaborations / sponsorships / PR gifting
+  // Explicitly excludes emails sent by the user, and uses Google categories to ignore marketing promos & social digests
   const query = [
-    'collab',
-    'collaboration',
-    'UGC',
     '"brand deal"',
     '"paid partnership"',
-    '"gifted"',
+    '"paid collab"',
+    '"gifted collab"',
     '"PR package"',
-    '"deliverables"',
-    'pitch',
-    'video',
-    'campaign',
+    '"creator partnership"',
+    'UGC',
+    'deliverables',
+    '"sponsorship proposal"',
+    '"collaboration proposal"',
   ].join(' OR ')
 
   const listUrl = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${encodeURIComponent(
-    `-from:me (${query})`
+    `-from:me -category:promotions -category:social (${query})`
   )}&maxResults=30`
 
   const listRes = await fetch(listUrl, {
@@ -158,10 +162,10 @@ export async function syncUserGmailCampaigns(userId: string): Promise<SyncResult
     .single()
   const userEmail = userIntegration?.email_address?.toLowerCase() || ''
 
-  // 2. Fetch existing campaigns to avoid duplicate threads/messages
+  // 2. Fetch existing campaigns to avoid duplicate threads/messages or duplicate subject lines
   const { data: existingCampaigns } = await supabase
     .from('creator_campaigns')
-    .select('source_message_id')
+    .select('id, source_message_id, source_subject, brand_name')
     .eq('user_id', userId)
 
   const existingSet = new Set((existingCampaigns || []).map((c) => c.source_message_id).filter(Boolean))
@@ -192,25 +196,35 @@ export async function syncUserGmailCampaigns(userId: string): Promise<SyncResult
       // Skip self-sent emails
       if (userEmail && from.toLowerCase().includes(userEmail)) continue
 
-      // Skip automated notifications
-      const lowerFrom = from.toLowerCase()
-      if (
-        lowerFrom.includes('messages-noreply@linkedin.com') ||
-        lowerFrom.includes('notifications@') ||
-        lowerFrom.includes('invitations@linkedin.com')
-      ) {
-        continue
-      }
+      // Fast pre-filter against known non-collab patterns
+      if (isObviouslyNotCollaboration(from, subject, bodyText)) continue
 
-      // Deduplicate by thread ID if available, so 1 thread = 1 campaign card
+      // Deduplicate by thread ID or normalized subject so 1 conversation = 1 card
       const dedupeKey = msg.threadId || messageId
       if (existingSet.has(dedupeKey)) continue
+
+      const normSubject = normalizeCampaignSubject(subject)
+      const existingMatch = existingCampaigns?.find((c) => {
+        if (c.source_message_id && (c.source_message_id === msg.threadId || c.source_message_id === messageId)) {
+          return true
+        }
+        if (c.source_subject && normalizeCampaignSubject(c.source_subject) === normSubject) {
+          return true
+        }
+        return false
+      })
+
+      if (existingMatch) {
+        // Already tracked under this campaign thread
+        continue
+      }
 
       // 4. Run AI Gatekeeper & Campaign Extractor
       const parsedCard = await parseEmailToCampaignCard({
         text: bodyText || subject,
         sender: from,
         subject,
+        userEmail,
       })
 
       // If classified as not a collaboration, skip
