@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { CreatorCampaign, CampaignStatus } from '../types'
 import { Button } from '@/components/ui/button'
 import {
@@ -49,6 +49,7 @@ export function CampaignDetailsModal({
 
   const status = currentStatus || campaign.status
   const activeDeadline = currentDeadline !== undefined ? currentDeadline : campaign.deadline
+  const dateInputRef = useRef<HTMLInputElement>(null)
 
   if (!isOpen) return null
 
@@ -274,7 +275,7 @@ export function CampaignDetailsModal({
             )}
 
             {/* Deadline / Due Date Card */}
-            <div className="p-3 rounded-xl bg-muted/30 border border-border flex items-center justify-between gap-2">
+            <div className="p-3 rounded-xl bg-muted/30 border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
                 <Calendar className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0" />
                 <div className="min-w-0">
@@ -292,35 +293,44 @@ export function CampaignDetailsModal({
               </div>
 
               {/* Set / Change / Clear controls */}
-              <div className="flex items-center gap-1.5 shrink-0">
-                <div className="relative">
-                  <button
-                    type="button"
-                    className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-border bg-background hover:bg-muted text-foreground transition-colors cursor-pointer shadow-xs"
-                  >
-                    {activeDeadline ? 'Change' : 'Set Date'}
-                  </button>
-                  <input
-                    type="date"
-                    value={activeDeadline ? activeDeadline.split('T')[0] : ''}
-                    onChange={(e) => {
-                      const newIso = e.target.value ? new Date(e.target.value).toISOString() : null
-                      onDeadlineChange?.(newIso)
-                    }}
-                    title="Choose deadline date"
-                    aria-label="Choose deadline date"
-                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                  />
-                </div>
+              <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+                <input
+                  ref={dateInputRef}
+                  type="date"
+                  value={activeDeadline ? activeDeadline.split('T')[0] : ''}
+                  onChange={(e) => {
+                    if (!e.target.value) {
+                      onDeadlineChange?.(null)
+                      return
+                    }
+                    const newIso = new Date(`${e.target.value}T23:59:59Z`).toISOString()
+                    onDeadlineChange?.(newIso)
+                  }}
+                  onClick={(e) => {
+                    try {
+                      ;(e.target as HTMLInputElement).showPicker?.()
+                    } catch {}
+                  }}
+                  title="Click to choose deadline from calendar"
+                  aria-label="Choose deadline from calendar"
+                  className="h-8 px-2.5 text-xs font-semibold rounded-lg border border-border bg-background hover:bg-muted text-foreground cursor-pointer shadow-xs focus:outline-none focus:ring-1 focus:ring-foreground/20"
+                />
+
                 {activeDeadline && (
                   <button
                     type="button"
-                    onClick={() => onDeadlineChange?.(null)}
+                    onClick={() => {
+                      onDeadlineChange?.(null)
+                      if (dateInputRef.current) {
+                        dateInputRef.current.value = ''
+                      }
+                    }}
                     title="Remove deadline"
                     aria-label="Remove deadline"
-                    className="p-1 text-muted-foreground/60 hover:text-rose-500 rounded-md transition-colors cursor-pointer"
+                    className="h-8 px-2 rounded-lg border border-border bg-background hover:bg-rose-500/10 hover:text-rose-600 text-muted-foreground text-xs transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
                   >
                     <X className="h-3.5 w-3.5" />
+                    <span>Clear</span>
                   </button>
                 )}
               </div>
