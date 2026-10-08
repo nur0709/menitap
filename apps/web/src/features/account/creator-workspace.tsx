@@ -160,7 +160,7 @@ export function CreatorWorkspace({
               <div className="flex items-center gap-3">
                 <span className="text-xs font-semibold text-muted-foreground">Membership</span>
                 <span className="text-xs font-bold text-foreground">
-                  {effectivePlan === 'STANDARD' ? 'Creator Standard' : 'Free Plan'}
+                  {effectivePlan === 'STANDARD' ? 'Standard' : effectivePlan === 'BASIC' ? 'Basic' : 'Free'}
                 </span>
                 <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
                   Active

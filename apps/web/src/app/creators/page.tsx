@@ -65,7 +65,7 @@ export default async function CreatorsPage() {
                 href="/plans"
                 className="shrink-0 font-semibold text-[#FC801A] hover:underline inline-flex items-center gap-1"
               >
-                <span>Creator Standard ($15/mo)</span>
+                <span>Standard ($15/mo)</span>
                 <ArrowRight className="h-3 w-3" />
               </Link>
             </div>

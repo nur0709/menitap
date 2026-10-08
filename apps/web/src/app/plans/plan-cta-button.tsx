@@ -49,11 +49,11 @@ export function PlanCtaButton({
         type="button"
         disabled
         className={cn(
-          'w-full h-11 rounded-xl text-sm font-semibold opacity-80 cursor-default border',
+          'w-full h-10 rounded-xl text-xs sm:text-sm font-semibold opacity-80 cursor-default border',
           targetPlan === 'STANDARD'
-            ? 'bg-[#FC801A]/20 text-[#FC801A] border-[#FC801A]/40'
+            ? 'bg-[#FC801A]/15 text-[#FC801A] border-[#FC801A]/30'
             : targetPlan === 'BASIC'
-            ? 'bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30'
+            ? 'bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/25'
             : 'bg-muted text-muted-foreground border-border'
         )}
       >
@@ -98,9 +98,9 @@ export function PlanCtaButton({
   // Determine dynamic modal copy
   const isDowngrade = targetPlan === 'FREE' || (userPlan === 'STANDARD' && targetPlan === 'BASIC')
   const planNames: Record<PlanId, string> = {
-    FREE: 'Explorer (Free)',
-    BASIC: 'Creator Basic ($10/mo)',
-    STANDARD: 'Creator Standard ($15/mo)',
+    FREE: 'Free',
+    BASIC: 'Basic ($10/mo)',
+    STANDARD: 'Standard ($15/mo)',
   }
 
   return (
@@ -188,12 +188,12 @@ export function PlanCtaButton({
                 disabled={isPending}
                 onClick={handleConfirmAction}
                 className={cn(
-                  'text-white border-0 font-medium text-xs shadow-xs cursor-pointer px-4',
+                  'font-medium text-xs shadow-xs cursor-pointer px-4',
                   targetPlan === 'STANDARD'
-                    ? 'bg-[#FC801A] hover:bg-[#E66F0D]'
+                    ? 'bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0'
                     : isDowngrade
-                    ? 'bg-[#08739C] hover:bg-[#02547A]'
-                    : 'bg-[#FC801A] hover:bg-[#E66F0D]'
+                    ? 'bg-foreground text-background hover:bg-foreground/90 border-0'
+                    : 'bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0'
                 )}
               >
                 {isPending ? (

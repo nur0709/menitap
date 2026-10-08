@@ -16,79 +16,85 @@ export default async function PlansPage() {
   let currentPlanId: PlanId | null = null;
   if (user) {
     if (role === 'CREATOR' || role === 'ADMIN') {
-      currentPlanId = (effectivePlan === 'STANDARD' ? 'STANDARD' : 'BASIC') as PlanId;
+      if (effectivePlan === 'STANDARD') {
+        currentPlanId = 'STANDARD';
+      } else if (effectivePlan === 'BASIC') {
+        currentPlanId = 'BASIC';
+      } else {
+        currentPlanId = 'FREE';
+      }
     } else {
       currentPlanId = 'FREE';
     }
   }
 
-  const explorerButtonText = !currentPlanId
+  const freeButtonText = !currentPlanId
     ? "Start Free"
     : currentPlanId === "FREE"
     ? "Current Plan"
     : "Downgrade to Free";
 
   const basicButtonText = !currentPlanId
-    ? "Join Basic"
+    ? "Get Basic"
     : currentPlanId === "BASIC"
     ? "Current Plan"
     : currentPlanId === "FREE"
-    ? "Switch to Basic ($10/mo)"
-    : "Downgrade to Basic ($10/mo)";
+    ? "Switch to Basic"
+    : "Downgrade to Basic";
 
   const standardButtonText = !currentPlanId
-    ? "Join Standard"
+    ? "Get Standard"
     : currentPlanId === "STANDARD"
     ? "Current Plan"
-    : currentPlanId === "FREE"
-    ? "Switch to Standard ($15/mo)"
-    : "Upgrade to Standard ($15/mo)";
+    : "Upgrade to Standard";
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-[#FC801A]/30 selection:text-foreground">
       <SiteHeader currentPath="/plans" />
 
-      <main className="flex-1 py-10 sm:py-14">
+      <main className="flex-1 py-8 sm:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
           {/* Minimalist Title */}
-          <div className="text-center max-w-xl mx-auto mb-10">
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+          <div className="text-center max-w-xl mx-auto mb-8 sm:mb-10">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
               Plans
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Choose the tier that fits your goals. Upgrade or cancel anytime.
+            <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+              Choose the plan that fits your goals. Upgrade or cancel anytime.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch max-w-4xl mx-auto">
-            {/* Explorer ($0) */}
-            <Card className="bg-card border-border flex flex-col h-full shadow-xs hover:border-[#08739C]/40 transition-colors">
-              <CardHeader className="p-5 pb-3">
-                <CardTitle className="text-xl font-bold text-[#08739C] dark:text-[#38BDF8]">
-                  Explorer
-                </CardTitle>
-                <div className="mt-1 flex items-baseline text-2xl sm:text-3xl font-extrabold text-foreground">
-                  $0
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
+            {/* Free ($0/mo) */}
+            <Card className="bg-card border-border flex flex-col h-full rounded-2xl shadow-xs hover:border-[#08739C]/40 transition-colors">
+              <CardHeader className="p-5 sm:p-6 pb-4 border-b border-border/60">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border border-[#08739C]/40 text-[#08739C] dark:text-[#38BDF8] bg-[#08739C]/5">
+                    Free
+                  </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">For shoppers and beginners</p>
+                <div className="mt-3 flex items-baseline text-2xl sm:text-3xl font-extrabold text-foreground">
+                  $0<span className="text-xs font-normal text-muted-foreground ml-1">/mo</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">For shoppers & deal hunters</p>
               </CardHeader>
-              <CardContent className="p-5 pt-2 flex-1">
-                <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
-                  <li className="flex gap-2">
+              <CardContent className="p-5 sm:p-6 pt-5 flex-1">
+                <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
+                  <li className="flex gap-2.5">
                     <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Browse all creator deals</span>
+                    <span>Browse verified brand deals</span>
                   </li>
-                  <li className="flex gap-2">
+                  <li className="flex gap-2.5">
                     <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Free UGC beginner lessons</span>
+                    <span>Access creator discount codes</span>
                   </li>
-                  <li className="flex gap-2">
+                  <li className="flex gap-2.5">
                     <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
                     <span>Save favorite deals</span>
                   </li>
                 </ul>
               </CardContent>
-              <CardFooter className="p-5 pt-0">
+              <CardFooter className="p-5 sm:p-6 pt-0">
                 <PlanCtaButton
                   targetPlan="FREE"
                   userPlan={currentPlanId}
@@ -96,43 +102,45 @@ export default async function PlansPage() {
                   variant="outline"
                   className="h-10 rounded-xl border-border hover:bg-accent text-foreground text-xs sm:text-sm font-semibold"
                 >
-                  {explorerButtonText}
+                  {freeButtonText}
                 </PlanCtaButton>
               </CardFooter>
             </Card>
 
-            {/* Creator Basic ($10/mo) */}
-            <Card className="bg-card border-border flex flex-col h-full shadow-xs hover:border-[#FC801A]/40 transition-colors">
-              <CardHeader className="p-5 pb-3">
-                <CardTitle className="text-xl font-bold text-[#FC801A]">
-                  Creator Basic
-                </CardTitle>
-                <div className="mt-1 flex items-baseline text-2xl sm:text-3xl font-extrabold text-foreground">
-                  $10<span className="text-xs font-normal text-muted-foreground">/mo</span>
+            {/* Basic ($10/mo) */}
+            <Card className="bg-card border-border flex flex-col h-full rounded-2xl shadow-xs hover:border-[#FC801A]/40 transition-colors">
+              <CardHeader className="p-5 sm:p-6 pb-4 border-b border-border/60">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border border-[#FC801A]/50 text-[#FC801A] bg-[#FC801A]/5">
+                    Basic
+                  </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">For active UGC creators</p>
+                <div className="mt-3 flex items-baseline text-2xl sm:text-3xl font-extrabold text-foreground">
+                  $10<span className="text-xs font-normal text-muted-foreground ml-1">/mo</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">For active UGC creators</p>
               </CardHeader>
-              <CardContent className="p-5 pt-2 flex-1">
-                <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
-                  <li className="flex gap-2 font-medium text-foreground">
+              <CardContent className="p-5 sm:p-6 pt-5 flex-1">
+                <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
+                  <li className="flex gap-2.5 font-medium text-foreground">
                     <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
-                    <span>Everything in Explorer</span>
+                    <span>Everything in Free</span>
                   </li>
-                  <li className="flex gap-2">
-                    <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Direct brand collab links</span>
+                  <li className="flex gap-2.5">
+                    <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
+                    <span>Apply to brand collabs (gifted & paid)</span>
                   </li>
-                  <li className="flex gap-2">
-                    <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Free products to test & keep</span>
+                  <li className="flex gap-2.5">
+                    <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
+                    <span>Track deals in campaign pipeline</span>
                   </li>
-                  <li className="flex gap-2">
-                    <Check className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0 mt-0.5" />
-                    <span>Publish affiliate deals</span>
+                  <li className="flex gap-2.5">
+                    <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
+                    <span>Share affiliate links & promo codes</span>
                   </li>
                 </ul>
               </CardContent>
-              <CardFooter className="p-5 pt-0">
+              <CardFooter className="p-5 sm:p-6 pt-0">
                 <PlanCtaButton
                   targetPlan="BASIC"
                   userPlan={currentPlanId}
@@ -145,38 +153,43 @@ export default async function PlansPage() {
               </CardFooter>
             </Card>
 
-            {/* Creator Standard ($15/mo) */}
-            <Card className="bg-card border-[#FC801A] shadow-md flex flex-col h-full ring-1 ring-[#FC801A]/30">
-              <CardHeader className="p-5 pb-3">
-                <CardTitle className="text-xl font-bold text-[#FC801A]">
-                  Creator Standard
-                </CardTitle>
-                <div className="mt-1 flex items-baseline text-2xl sm:text-3xl font-extrabold text-foreground">
-                  $15<span className="text-xs font-normal text-muted-foreground">/mo</span>
+            {/* Standard ($15/mo) */}
+            <Card className="bg-card border-[#FC801A]/60 shadow-md flex flex-col h-full rounded-2xl ring-1 ring-[#FC801A]/25 hover:border-[#FC801A] transition-colors">
+              <CardHeader className="p-5 sm:p-6 pb-4 border-b border-border/60">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#FC801A] text-white shadow-2xs">
+                    Standard
+                  </span>
+                  <span className="text-[11px] font-semibold text-[#FC801A] bg-[#FC801A]/10 px-2 py-0.5 rounded-full">
+                    Recommended
+                  </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">Public creator showcase</p>
+                <div className="mt-3 flex items-baseline text-2xl sm:text-3xl font-extrabold text-foreground">
+                  $15<span className="text-xs font-normal text-muted-foreground ml-1">/mo</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Public portfolio showcase</p>
               </CardHeader>
-              <CardContent className="p-5 pt-2 flex-1">
-                <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
-                  <li className="flex gap-2 font-medium text-foreground">
+              <CardContent className="p-5 sm:p-6 pt-5 flex-1">
+                <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
+                  <li className="flex gap-2.5 font-medium text-foreground">
                     <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
                     <span>Everything in Basic</span>
                   </li>
-                  <li className="flex gap-2">
-                    <Sparkles className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
-                    <span className="font-medium text-foreground">Public creator portfolio</span>
-                  </li>
-                  <li className="flex gap-2">
+                  <li className="flex gap-2.5">
                     <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
-                    <span>Featured in creator directory</span>
+                    <span className="font-medium text-foreground">Public creator profile on Explore</span>
                   </li>
-                  <li className="flex gap-2">
+                  <li className="flex gap-2.5">
                     <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
-                    <span>Showcase social channels</span>
+                    <span>Connected social links (IG, TikTok, YT)</span>
+                  </li>
+                  <li className="flex gap-2.5">
+                    <Check className="h-4 w-4 text-[#FC801A] shrink-0 mt-0.5" />
+                    <span>Custom bio & niche for brand discovery</span>
                   </li>
                 </ul>
               </CardContent>
-              <CardFooter className="p-5 pt-0">
+              <CardFooter className="p-5 sm:p-6 pt-0">
                 <PlanCtaButton
                   targetPlan="STANDARD"
                   userPlan={currentPlanId}
