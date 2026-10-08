@@ -467,7 +467,7 @@ export function CreatorPublicProfileManager({
             setPlanError(null)
             setSwitchPlanModalOpen(true)
           }}
-          className="h-9 px-3.5 text-xs font-semibold rounded-xl border border-border/80 hover:border-foreground/30 hover:bg-muted text-foreground cursor-pointer transition-colors shadow-2xs"
+          className="h-9 px-3.5 text-xs font-semibold rounded-xl border border-zinc-400 hover:border-foreground dark:border-zinc-600 dark:hover:border-zinc-300 text-foreground bg-card hover:bg-muted cursor-pointer transition-colors shadow-2xs"
         >
           Switch Plan
         </Button>
@@ -480,7 +480,7 @@ export function CreatorPublicProfileManager({
             setDeleteError(null)
             setDeleteModalOpen(true)
           }}
-          className="h-9 px-3.5 text-xs font-semibold rounded-xl border border-destructive/40 text-destructive hover:bg-destructive/10 hover:border-destructive transition-colors cursor-pointer shadow-2xs"
+          className="h-9 px-3.5 text-xs font-semibold rounded-xl border border-destructive/50 text-destructive hover:bg-destructive/10 hover:border-destructive cursor-pointer transition-colors shadow-2xs"
         >
           <Trash2 className="h-3.5 w-3.5 mr-1.5" />
           Delete Account
