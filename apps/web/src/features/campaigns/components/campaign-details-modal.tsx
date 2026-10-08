@@ -21,7 +21,6 @@ import {
   Check,
   ExternalLink,
   MessageSquare,
-  AlertCircle,
   Clock,
 } from 'lucide-react'
 
@@ -86,50 +85,6 @@ export function CampaignDetailsModal({
     } catch {
       // Fallback
     }
-  }
-
-  // Highlighted Due Date helper
-  const renderHighlightedDeadline = (dateStr: string) => {
-    const due = new Date(dateStr)
-    const now = new Date()
-    const dueMidnight = new Date(due.getFullYear(), due.getMonth(), due.getDate())
-    const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    const diffDays = Math.round((dueMidnight.getTime() - nowMidnight.getTime()) / (1000 * 60 * 60 * 24))
-    const formattedDate = due.toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    })
-
-    if (diffDays < 0) {
-      return (
-        <span className="text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1">
-          <AlertCircle className="h-3.5 w-3.5" />
-          Overdue ({formattedDate})
-        </span>
-      )
-    }
-    if (diffDays === 0) {
-      return (
-        <span className="text-xs font-bold text-[#FC801A] flex items-center gap-1">
-          <Clock className="h-3.5 w-3.5" />
-          Due Today!
-        </span>
-      )
-    }
-    if (diffDays <= 4) {
-      return (
-        <span className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
-          <Calendar className="h-3.5 w-3.5" />
-          Due {formattedDate} ({diffDays}d left)
-        </span>
-      )
-    }
-    return (
-      <span className="text-xs font-semibold text-foreground">
-        Due {formattedDate}
-      </span>
-    )
   }
 
   return (
@@ -275,47 +230,35 @@ export function CampaignDetailsModal({
             )}
 
             {/* Due Date Card */}
-            <div className="p-3 rounded-xl bg-muted/30 border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-3 rounded-xl bg-muted/30 border border-border flex items-center justify-between gap-2.5">
               <div className="flex items-center gap-2.5 min-w-0">
                 <Calendar className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0" />
-                <div className="min-w-0">
-                  <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
-                    Due
-                  </span>
-                  <div className="truncate">
-                    {activeDeadline ? (
-                      renderHighlightedDeadline(activeDeadline)
-                    ) : (
-                      <span className="text-xs text-muted-foreground italic">No due date</span>
-                    )}
-                  </div>
-                </div>
+                <span className="text-[10px] uppercase font-semibold text-muted-foreground block truncate">
+                  Due Date
+                </span>
               </div>
 
-              {/* Native interactive date picker */}
-              <div className="flex items-center shrink-0 self-start sm:self-auto">
-                <input
-                  ref={dateInputRef}
-                  type="date"
-                  value={activeDeadline ? activeDeadline.split('T')[0] : ''}
-                  onChange={(e) => {
-                    if (!e.target.value) {
-                      onDeadlineChange?.(null)
-                      return
-                    }
-                    const newIso = new Date(`${e.target.value}T23:59:59Z`).toISOString()
-                    onDeadlineChange?.(newIso)
-                  }}
-                  onClick={(e) => {
-                    try {
-                      ;(e.target as HTMLInputElement).showPicker?.()
-                    } catch {}
-                  }}
-                  title="Click to choose due date from calendar"
-                  aria-label="Choose due date from calendar"
-                  className="h-8 px-2.5 text-xs font-semibold rounded-lg border border-border bg-background hover:bg-muted text-foreground cursor-pointer shadow-xs focus:outline-none focus:ring-1 focus:ring-foreground/20"
-                />
-              </div>
+              <input
+                ref={dateInputRef}
+                type="date"
+                value={activeDeadline ? activeDeadline.split('T')[0] : ''}
+                onChange={(e) => {
+                  if (!e.target.value) {
+                    onDeadlineChange?.(null)
+                    return
+                  }
+                  const newIso = new Date(`${e.target.value}T23:59:59Z`).toISOString()
+                  onDeadlineChange?.(newIso)
+                }}
+                onClick={(e) => {
+                  try {
+                    ;(e.target as HTMLInputElement).showPicker?.()
+                  } catch {}
+                }}
+                title="Click to choose due date from calendar"
+                aria-label="Choose due date from calendar"
+                className="h-8 px-2.5 text-xs font-semibold rounded-lg border border-border bg-background hover:bg-muted text-foreground cursor-pointer shadow-xs focus:outline-none focus:ring-1 focus:ring-foreground/20 shrink-0"
+              />
             </div>
           </div>
 
