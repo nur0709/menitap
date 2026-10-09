@@ -191,12 +191,26 @@ export function CampaignDetailsModal({
             )}
 
             {/* Due Date Card */}
-            <div className="p-3 rounded-xl bg-muted/30 border border-border flex items-center justify-between gap-2.5">
+            <div
+              onClick={() => {
+                try {
+                  dateInputRef.current?.showPicker()
+                } catch {
+                  dateInputRef.current?.focus()
+                }
+              }}
+              className="p-3 rounded-xl bg-muted/30 hover:bg-muted/50 border border-border flex items-center justify-between gap-2.5 cursor-pointer transition-colors"
+            >
               <div className="flex items-center gap-2.5 min-w-0">
-                <Calendar className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0" />
-                <span className="text-[10px] uppercase font-semibold text-muted-foreground block truncate">
-                  Due Date
-                </span>
+                <Calendar className="h-4 w-4 text-[#FC801A] shrink-0" />
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase font-semibold text-muted-foreground block truncate">
+                    Due Date
+                  </span>
+                  <span className="text-[10px] text-muted-foreground/80 block leading-tight">
+                    Set manually
+                  </span>
+                </div>
               </div>
 
               <input
@@ -212,13 +226,14 @@ export function CampaignDetailsModal({
                   onDeadlineChange?.(newIso)
                 }}
                 onClick={(e) => {
+                  e.stopPropagation()
                   try {
                     ;(e.target as HTMLInputElement).showPicker?.()
                   } catch {}
                 }}
                 title="Click to choose due date from calendar"
                 aria-label="Choose due date from calendar"
-                className="h-8 px-2.5 text-xs font-semibold rounded-lg border border-border bg-background hover:bg-muted text-foreground cursor-pointer shadow-xs focus:outline-none focus:ring-1 focus:ring-foreground/20 shrink-0"
+                className="h-8 px-2.5 text-xs font-bold rounded-lg border border-[#FC801A]/30 bg-[#FC801A]/10 hover:bg-[#FC801A]/20 text-[#FC801A] cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-[#FC801A]/40 transition-colors shrink-0 accent-[#FC801A]"
               />
             </div>
           </div>
