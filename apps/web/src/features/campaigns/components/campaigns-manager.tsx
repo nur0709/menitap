@@ -1,7 +1,11 @@
 'use client'
 
 import { useState, useMemo, useTransition } from 'react'
-import { CreatorCampaign, CampaignStatus } from '../types'
+import {
+  CreatorCampaign,
+  CanonicalCampaignStatus,
+  normalizeCampaignStatus,
+} from '../types'
 import { CampaignCard } from './campaign-card'
 import { AddCampaignManualModal } from './add-campaign-manual-modal'
 import { bulkDeleteCampaigns } from '../actions'
@@ -25,7 +29,7 @@ export function CampaignsManager({
 }: CampaignsManagerProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<
-    'ALL' | 'FAVORITES' | CampaignStatus
+    'ALL' | 'FAVORITES' | CanonicalCampaignStatus
   >('ALL')
 
   // Multiselect state
@@ -39,31 +43,10 @@ export function CampaignsManager({
       // Favorites filter
       if (statusFilter === 'FAVORITES') {
         if (!c.is_liked) return false
-      } else if (statusFilter === 'APPLIED') {
-        if (c.status !== 'APPLIED' && c.status !== 'ACCEPTED') return false
-      } else if (statusFilter === 'WAITING_PRODUCT') {
-        if (c.status !== 'WAITING_PRODUCT' && (c.status as string) !== 'PRODUCT_RECEIVED')
+      } else if (statusFilter !== 'ALL') {
+        if (normalizeCampaignStatus(c.status) !== statusFilter) {
           return false
-      } else if (statusFilter === 'SUBMITTED') {
-        if (
-          c.status !== 'SUBMITTED' &&
-          (c.status as string) !== 'CONTENT_SUBMITTED' &&
-          c.status !== 'FILMING'
-        )
-          return false
-      } else if (statusFilter === 'PAYMENT_PENDING') {
-        if (
-          c.status !== 'PAYMENT_PENDING' &&
-          (c.status as string) !== 'WAITING_PAYMENT' &&
-          c.status !== 'DELIVERED'
-        )
-          return false
-      } else if (statusFilter === 'PAID') {
-        if (c.status !== 'PAID') return false
-      } else if (statusFilter === 'DECLINED') {
-        if (c.status !== 'DECLINED') return false
-      } else if (statusFilter !== 'ALL' && c.status !== statusFilter) {
-        return false
+        }
       }
 
       // Search query
@@ -82,28 +65,26 @@ export function CampaignsManager({
 
   // Filter counts
   const filterCounts = useMemo(() => {
-    return {
+    const counts = {
       ALL: campaigns.length,
-      FAVORITES: campaigns.filter((c) => c.is_liked).length,
-      APPLIED: campaigns.filter((c) => c.status === 'APPLIED' || c.status === 'ACCEPTED').length,
-      WAITING_PRODUCT: campaigns.filter(
-        (c) => c.status === 'WAITING_PRODUCT' || (c.status as string) === 'PRODUCT_RECEIVED'
-      ).length,
-      SUBMITTED: campaigns.filter(
-        (c) =>
-          c.status === 'SUBMITTED' ||
-          (c.status as string) === 'CONTENT_SUBMITTED' ||
-          c.status === 'FILMING'
-      ).length,
-      PAYMENT_PENDING: campaigns.filter(
-        (c) =>
-          c.status === 'PAYMENT_PENDING' ||
-          (c.status as string) === 'WAITING_PAYMENT' ||
-          c.status === 'DELIVERED'
-      ).length,
-      PAID: campaigns.filter((c) => c.status === 'PAID').length,
-      DECLINED: campaigns.filter((c) => c.status === 'DECLINED').length,
+      FAVORITES: 0,
+      APPLIED: 0,
+      WAITING_PRODUCT: 0,
+      SUBMITTED: 0,
+      PAYMENT_PENDING: 0,
+      PAID: 0,
+      DECLINED: 0,
     }
+
+    for (const c of campaigns) {
+      if (c.is_liked) counts.FAVORITES++
+      const norm = normalizeCampaignStatus(c.status)
+      if (norm in counts) {
+        counts[norm as keyof typeof counts]++
+      }
+    }
+
+    return counts
   }, [campaigns])
 
   // Multiselect handlers

@@ -139,8 +139,14 @@ export function CampaignDetailsModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="relative w-full max-w-xl rounded-2xl bg-card border border-border p-5 sm:p-6 shadow-2xl text-left max-h-[92vh] flex flex-col">
+    <div
+      onClick={handleRequestClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-150"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-xl rounded-2xl bg-card border border-border p-5 sm:p-6 shadow-2xl text-left max-h-[92vh] flex flex-col"
+      >
         {/* Close Button */}
         <button
           onClick={handleRequestClose}
@@ -291,8 +297,14 @@ export function CampaignDetailsModal({
 
         {/* Change Status Prompt Modal (when closing after interacting with Apply, Send, or Open Email) */}
         {showStatusPrompt && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-background/60 backdrop-blur-xs animate-in fade-in duration-150">
-            <div className="relative w-full max-w-sm rounded-2xl bg-card border border-border p-5 shadow-2xl space-y-4 text-left">
+          <div
+            onClick={handleDismissStatusPrompt}
+            className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-background/60 backdrop-blur-xs animate-in fade-in duration-150"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-sm rounded-2xl bg-card border border-border p-5 shadow-2xl space-y-4 text-left"
+            >
               <button
                 type="button"
                 onClick={handleDismissStatusPrompt}

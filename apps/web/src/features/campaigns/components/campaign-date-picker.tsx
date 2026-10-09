@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface CampaignDatePickerProps {
@@ -42,6 +42,7 @@ const DAY_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
 export function CampaignDatePicker({ value, onChange }: CampaignDatePickerProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // Parse YYYY-MM-DD safely without timezone shifts
   const parsedDate = useMemo(() => {
@@ -70,6 +71,33 @@ export function CampaignDatePicker({ value, onChange }: CampaignDatePickerProps)
 
   const [viewYear, setViewYear] = useState<number>(() => parsedDate?.year ?? today.year)
   const [viewMonth, setViewMonth] = useState<number>(() => parsedDate?.month ?? today.month)
+
+  // Close when clicking outside or pressing Escape
+  useEffect(() => {
+    if (!isOpen) return
+
+    function handlePointerDown(event: MouseEvent | TouchEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('touchstart', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('touchstart', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen])
 
   const handleToggleOpen = () => {
     if (!isOpen) {
@@ -134,7 +162,10 @@ export function CampaignDatePicker({ value, onChange }: CampaignDatePickerProps)
     : 'Set date'
 
   return (
-    <div className="p-3 rounded-xl bg-muted/30 border border-border space-y-2.5 transition-colors">
+    <div
+      ref={containerRef}
+      className="p-3 rounded-xl bg-muted/30 border border-border space-y-2.5 transition-colors"
+    >
       {/* Header row: Due Date on left, Outlined Calendar Button on right */}
       <div
         onClick={handleToggleOpen}
@@ -150,6 +181,8 @@ export function CampaignDatePicker({ value, onChange }: CampaignDatePickerProps)
         {/* Outlined calendar trigger button */}
         <button
           type="button"
+          aria-expanded={isOpen}
+          aria-label={parsedDate ? `Due date: ${buttonText}` : 'Set due date'}
           onClick={(e) => {
             e.stopPropagation()
             handleToggleOpen()

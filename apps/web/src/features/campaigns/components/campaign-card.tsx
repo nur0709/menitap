@@ -1,7 +1,12 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { CreatorCampaign, CampaignStatus } from '../types'
+import {
+  CreatorCampaign,
+  CampaignStatus,
+  CanonicalCampaignStatus,
+  normalizeCampaignStatus,
+} from '../types'
 import { updateCampaignStatus, toggleCampaignLiked, updateCampaignDeadline } from '../actions'
 import { formatTimeAgo, formatExactDateTime } from '../lib/action-helpers'
 import { CampaignDetailsModal } from './campaign-details-modal'
@@ -27,7 +32,7 @@ interface CampaignCardProps {
 }
 
 // Actionable creator stages in dropdown — New & Reviewed are view states, not manual choices
-const SELECTABLE_STATUSES: { value: CampaignStatus; label: string }[] = [
+const SELECTABLE_STATUSES: { value: CanonicalCampaignStatus; label: string }[] = [
   { value: 'APPLIED', label: 'Applied' },
   { value: 'WAITING_PRODUCT', label: 'Product received' },
   { value: 'SUBMITTED', label: 'Content submitted' },
@@ -36,7 +41,7 @@ const SELECTABLE_STATUSES: { value: CampaignStatus; label: string }[] = [
   { value: 'DECLINED', label: 'Declined' },
 ]
 
-const STATUS_CONFIG: Record<CampaignStatus, { label: string; className: string }> = {
+const STATUS_CONFIG: Record<CanonicalCampaignStatus, { label: string; className: string }> = {
   NEW_PITCH: {
     label: 'New',
     className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25',
@@ -68,18 +73,6 @@ const STATUS_CONFIG: Record<CampaignStatus, { label: string; className: string }
   DECLINED: {
     label: 'Declined',
     className: 'bg-muted text-muted-foreground border-border',
-  },
-  ACCEPTED: {
-    label: 'Applied',
-    className: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/25',
-  },
-  FILMING: {
-    label: 'Content submitted',
-    className: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/25',
-  },
-  DELIVERED: {
-    label: 'Waiting payment',
-    className: 'bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30',
   },
 }
 
@@ -195,15 +188,8 @@ export function CampaignCard({
   }
 
   const isNew = currentStatus === 'NEW_PITCH'
-  const normalizedStatus =
-    currentStatus === 'ACCEPTED'
-      ? 'APPLIED'
-      : currentStatus === 'FILMING'
-        ? 'SUBMITTED'
-        : currentStatus === 'DELIVERED'
-          ? 'PAYMENT_PENDING'
-          : currentStatus
-  const statusInfo = STATUS_CONFIG[normalizedStatus] || STATUS_CONFIG.DECLINED
+  const normalizedStatus = normalizeCampaignStatus(currentStatus)
+  const statusInfo = STATUS_CONFIG[normalizedStatus]
 
   // Card border and background states
   let cardBorderClass = 'border-border hover:border-foreground/25'

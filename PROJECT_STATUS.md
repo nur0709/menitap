@@ -9,9 +9,9 @@
 
 ---
 
-## Current Phase: Phase 9 — Creator Inbound Campaign Hub & Email Ingestion Pipeline (COMPLETED & LIVE)
+## Current Phase: Phase 9.5 — Creator Campaign CRM Polish, Date Picker & Workflow Pipeline (COMPLETED & LIVE)
 
-## Last Updated: 2026-10-07
+## Last Updated: 2026-10-09
 ## Last Agent: Antigravity
 ## GitHub Repo: https://github.com/nur0709/menitap
 ## Live Production URL: https://menitap.com
@@ -130,11 +130,25 @@ Read `AGENTS.md` for coding standards and conventions.
 - [x] **Fail-Closed Fallback & Model Chain Fix**: Replaced the previous permissive single-keyword fallback with a strict, compound fallback that requires explicit collaboration intent AND deliverables/compensation proof, while rejecting unsubscribe links and retail promo copy. Fixed Gemini model list to active endpoints (`gemini-2.0-flash`, `gemini-1.5-flash`).
 - [x] **Database Purge**: Executed a safe database purge removing 57 junk cards (retail promo blasts, LinkedIn job alerts, Amazon returns, USPS/SHEIN delivery notices, school/mixer invites, and self-sent Bermet Ermatova replies). Retained only authentic, high-value brand deals (Beekman 1802, Kiimento, FutureMoney, Lucky Rx, Lepique, FourCo, HWahae Global, Old Navy, MOREMO, TIAM, Casting Networks, Cerave, Buttermilk/Epionce).
 
-### ✅ Campaign Card Redesign & Option A Creator Workflow (COMPLETED)
-- [x] **Card UI Cleanup**: Removed redundant "Review" button (card is 100% clickable surface to open modal) and single trash button.
-- [x] **Heart / Favorite System**: Added interactive heart icon in top-right of each card with `is_liked` persistence in Supabase (`creator_campaigns.is_liked`) and a dedicated **Favorites ♥** filter pill.
-- [x] **Safe Selection Mode**: Added a dedicated `Select` toggle button in the toolbar. Default browsing has 0 checkboxes (zero risk of accidental mis-clicks). When `Select` mode is activated, checkboxes slide in, clicking cards selects them, and a batch action bar appears with `Select All`, `Deselect`, and `Delete (X)` bulk delete action.
-- [x] **Option A Creator Lifecycle Stages**: Cleaned up the status selector so `New` and `Reviewed` are strictly view states, while the dropdown menu only offers actionable stages: `Applied`, `Waiting on Product`, `Draft Submitted`, `Payment Pending`, `Paid ✓`, `Declined`.
+### ✅ Phase 9.5 — Campaign CRM Polish, Date Picker & Workflow Pipeline (COMPLETED & LIVE)
+- [x] **Canonical Status Workflow & Unified Order**:
+  - Filter pills and card dropdowns unified in exact order: `Applied` -> `Product received` -> `Content submitted` -> `Waiting payment` -> `Paid` -> `Declined`.
+  - Removed obsolete `Pitches` filter tag.
+  - Added centralized `normalizeCampaignStatus` utility and updated Postgres database check constraint `chk_campaign_status` with full alias support (`ACCEPTED` -> `APPLIED`, `FILMING` -> `SUBMITTED`, `DELIVERED` -> `PAYMENT_PENDING`).
+  - Filter counts and card filtering synchronized 1:1 with O(N) single-pass aggregation.
+- [x] **Custom Inline Date Picker**:
+  - Replaced native browser `<input type="date">` and its disruptive OS modal pop-ups with an inline expandable custom calendar.
+  - Removed "Set manually" subtitle text. Outlined button dynamically shows "Set date" when empty or formatted date when set (e.g. `Oct 25, 2026`).
+  - Added dedicated, unified action buttons: **"Clear"** and **"Today"** on both mobile and web.
+  - "Clear" reliably resets the deadline to `null` across all devices (solving Android/iOS native reset bugs).
+  - Click-outside and Escape key detection smoothly closes the inline calendar.
+- [x] **Direct Gmail Account Routing**:
+  - `getGmailThreadUrl` and `getGmailComposeUrl` use canonical `/u/0/` with explicit `authuser` query parameter, ensuring links route directly to the creator's connected Google account without getting lost in multi-account collisions.
+  - Fixed 301 hash drop and cleaned search queries of emojis that broke quoted Gmail searches.
+- [x] **Smart Status Prompt Modal**:
+  - Prompts creator to change status to `Applied` or `Declined` upon closing with `X` only if they interacted with `Apply`, `Send` (reply), or `Open Email`.
+  - Interacting with Due Date never triggers the status prompt.
+  - Backdrop clicks and Escape key smoothly dismiss modals.
 
 ### ⬜ Phase 4 — Stripe Subscriptions (Upcoming) — [#3](https://github.com/nur0709/menitap/issues/3)
 - [ ] Stripe product/price creation (Explorer $0, Creator Basic $10, Creator Standard $15)
