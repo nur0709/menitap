@@ -17,7 +17,6 @@ import {
   Calendar,
   DollarSign,
   Package,
-  Copy,
   Check,
   ExternalLink,
   MessageSquare,
@@ -43,8 +42,6 @@ export function CampaignDetailsModal({
   isOpen,
   onClose,
 }: CampaignDetailsModalProps) {
-  const [copiedReply, setCopiedReply] = useState(false)
-  const [copiedForGmail, setCopiedForGmail] = useState(false)
   const [copiedForAccept, setCopiedForAccept] = useState(false)
   const activeDeadline = currentDeadline !== undefined ? currentDeadline : campaign.deadline
   const dateInputRef = useRef<HTMLInputElement>(null)
@@ -64,8 +61,6 @@ export function CampaignDetailsModal({
     subject: campaign.source_subject,
     brandName: campaign.brand_name,
   })
-
-  const gmailThreadUrl = emailUrl
 
   const gmailComposeUrl = brandEmail
     ? getGmailComposeUrl({
@@ -91,36 +86,6 @@ export function CampaignDetailsModal({
         })
         .catch(() => {})
     }
-  }
-
-  const handleCopyReply = async () => {
-    try {
-      await navigator.clipboard.writeText(acceptDraftText)
-      setCopiedReply(true)
-      setTimeout(() => setCopiedReply(false), 2000)
-    } catch {
-      // Fallback
-    }
-  }
-
-  const handleOpenInGmail = () => {
-    if (!gmailThreadUrl) return
-
-    // 1. Copy draft to clipboard so user can simply paste into thread reply
-    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-      navigator.clipboard
-        .writeText(acceptDraftText)
-        .then(() => {
-          setCopiedForGmail(true)
-          setTimeout(() => setCopiedForGmail(false), 3000)
-        })
-        .catch(() => {
-          // Fallback
-        })
-    }
-
-    // 2. Open the main email thread directly in Gmail
-    window.open(gmailThreadUrl, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -172,7 +137,7 @@ export function CampaignDetailsModal({
           </div>
 
           {/* Prominent Apply Button (If application form URL exists) */}
-          {applicationUrl ? (
+          {applicationUrl && (
             <a
               href={applicationUrl}
               target="_blank"
@@ -182,16 +147,7 @@ export function CampaignDetailsModal({
               <span>Apply to Campaign</span>
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
-          ) : gmailThreadUrl ? (
-            <button
-              type="button"
-              onClick={handleOpenInGmail}
-              className="inline-flex items-center gap-1.5 bg-[#08739C] hover:bg-[#076184] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors shrink-0 cursor-pointer"
-            >
-              <Mail className="h-3.5 w-3.5" />
-              <span>{copiedForGmail ? 'Opening in Gmail...' : 'Reply in Gmail ↗'}</span>
-            </button>
-          ) : null}
+          )}
         </div>
 
         {/* Scrollable Content */}
@@ -271,51 +227,32 @@ export function CampaignDetailsModal({
             </div>
           )}
 
-          {/* Raw Email Text & Open in Email Action */}
-          {campaign.raw_source_text ? (
-            <div className="space-y-2">
-              <span className="text-[10px] uppercase font-semibold text-muted-foreground flex items-center gap-1.5">
-                <FileText className="h-3.5 w-3.5" />
-                Original Email Content
+          {/* Main Communication Window: Email Content & Reply Draft */}
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-muted/30 border border-border space-y-3.5">
+            {/* Window 1: Email Content */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] uppercase font-bold text-muted-foreground flex items-center gap-1.5 tracking-wider">
+                <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                Email Content
               </span>
-              <div className="p-3 rounded-xl bg-muted/50 border border-border max-h-44 overflow-y-auto text-[11px] text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed select-text">
-                {campaign.raw_source_text}
-              </div>
-              <div className="flex flex-wrap items-center justify-end gap-2 pt-0.5">
-                <a
-                  href={composeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={handleAcceptClick}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3.5 py-2 rounded-xl transition-colors shadow-xs cursor-pointer"
-                >
-                  {copiedForAccept ? (
-                    <>
-                      <Check className="h-3.5 w-3.5 text-white" />
-                      <span>Opening Compose (Draft Copied!)...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-3.5 w-3.5" />
-                      <span>Accept with Ready to send draft</span>
-                      <ExternalLink className="h-3 w-3 opacity-80" />
-                    </>
-                  )}
-                </a>
-                <a
-                  href={emailUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#08739C] hover:bg-[#076184] px-3.5 py-2 rounded-xl transition-colors shadow-xs cursor-pointer"
-                >
-                  <Mail className="h-3.5 w-3.5" />
-                  <span>Open in Email</span>
-                  <ExternalLink className="h-3 w-3 opacity-80" />
-                </a>
+              <div className="p-3 rounded-xl bg-card border border-border max-h-40 overflow-y-auto text-[11px] text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed select-text shadow-2xs">
+                {campaign.raw_source_text || 'No raw email text available.'}
               </div>
             </div>
-          ) : (
-            <div className="flex flex-wrap items-center justify-end gap-2 pt-0.5">
+
+            {/* Window 2: Reply Draft */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] uppercase font-bold text-muted-foreground flex items-center gap-1.5 tracking-wider">
+                <MessageSquare className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                Reply Draft
+              </span>
+              <div className="p-3 rounded-xl bg-card border border-border text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap font-sans shadow-2xs">
+                {acceptDraftText}
+              </div>
+            </div>
+
+            {/* Action Buttons under Draft: Only Send and Open Original Email */}
+            <div className="flex flex-wrap items-center justify-end gap-2 pt-1 border-t border-border/60">
               <a
                 href={composeUrl}
                 target="_blank"
@@ -326,16 +263,17 @@ export function CampaignDetailsModal({
                 {copiedForAccept ? (
                   <>
                     <Check className="h-3.5 w-3.5 text-white" />
-                    <span>Opening Compose (Draft Copied!)...</span>
+                    <span>Opening Compose...</span>
                   </>
                 ) : (
                   <>
                     <Send className="h-3.5 w-3.5" />
-                    <span>Accept with Ready to send draft</span>
+                    <span>Send</span>
                     <ExternalLink className="h-3 w-3 opacity-80" />
                   </>
                 )}
               </a>
+
               <a
                 href={emailUrl}
                 target="_blank"
@@ -343,91 +281,11 @@ export function CampaignDetailsModal({
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#08739C] hover:bg-[#076184] px-3.5 py-2 rounded-xl transition-colors shadow-xs cursor-pointer"
               >
                 <Mail className="h-3.5 w-3.5" />
-                <span>Open in Email</span>
+                <span>Open Original Email</span>
                 <ExternalLink className="h-3 w-3 opacity-80" />
               </a>
             </div>
-          )}
-
-          {/* Single Pre-written Accept Reply Draft (at bottom) */}
-          {brandEmail && (
-            <div className="p-3.5 rounded-xl bg-muted/40 border border-border space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                  <MessageSquare className="h-3.5 w-3.5 text-[#08739C] dark:text-[#38BDF8]" />
-                  Accept Collaboration (Ready-to-Send Reply)
-                </span>
-                <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-                  Pre-filled Draft
-                </span>
-              </div>
-
-              {/* Draft Preview Box */}
-              <div className="p-3 rounded-lg bg-background border border-border text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap font-sans">
-                {acceptDraftText}
-              </div>
-
-              {/* Action Buttons for Draft */}
-              <div className="flex flex-col gap-2 pt-1">
-                <div className="flex items-center justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={handleCopyReply}
-                    className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-xl border border-border bg-card cursor-pointer transition-colors"
-                  >
-                    {copiedReply ? (
-                      <>
-                        <Check className="h-3.5 w-3.5 text-emerald-600" />
-                        <span>Copied Draft</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3.5 w-3.5" />
-                        <span>Copy Draft</span>
-                      </>
-                    )}
-                  </button>
-
-                  {gmailThreadUrl && (
-                    <button
-                      type="button"
-                      onClick={handleOpenInGmail}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#08739C] hover:bg-[#076184] px-3.5 py-1.5 rounded-xl transition-colors shadow-xs cursor-pointer"
-                    >
-                      {copiedForGmail ? (
-                        <>
-                          <Check className="h-3.5 w-3.5 text-emerald-300" />
-                          <span>Draft Copied & Opening Gmail...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Mail className="h-3.5 w-3.5" />
-                          <span>Open in Gmail to Reply ↗</span>
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between text-[11px] text-muted-foreground px-0.5">
-                  <span className="leading-tight">
-                    💡 Opens the email thread in Gmail & copies draft to clipboard. Hit Reply & paste (⌘V)!
-                  </span>
-                  {gmailComposeUrl && (
-                    <a
-                      href={gmailComposeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[10px] text-muted-foreground hover:text-foreground underline decoration-dotted shrink-0 ml-2"
-                      title="Open standalone compose window instead"
-                    >
-                      Open blank compose
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
