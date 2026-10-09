@@ -56,12 +56,21 @@ export function CampaignDetailsModal({
   const acceptDraftText = `Hi there,\n\nThank you for reaching out! I would love to collaborate with ${campaign.brand_name} on this campaign.\n\n${signoff}`
   const [customDraft, setCustomDraft] = useState(acceptDraftText)
   const [prevCampaignId, setPrevCampaignId] = useState(campaign.id)
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen)
 
   if (campaign.id !== prevCampaignId) {
     setPrevCampaignId(campaign.id)
     setCustomDraft(acceptDraftText)
     setHasInteracted(false)
     setShowStatusPrompt(false)
+  }
+
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen)
+    if (isOpen) {
+      setHasInteracted(false)
+      setShowStatusPrompt(false)
+    }
   }
 
   if (!isOpen) return null
@@ -106,18 +115,22 @@ export function CampaignDetailsModal({
     if (hasInteracted && isNewOrReviewed) {
       setShowStatusPrompt(true)
     } else {
+      setHasInteracted(false)
+      setShowStatusPrompt(false)
       onClose()
     }
   }
 
   const handleSelectStatus = (status: CampaignStatus) => {
     onStatusChange?.(status)
+    setHasInteracted(false)
     setShowStatusPrompt(false)
     onClose()
   }
 
   const handleDismissStatusPrompt = () => {
     onStatusChange?.('REVIEWED')
+    setHasInteracted(false)
     setShowStatusPrompt(false)
     onClose()
   }
