@@ -53,7 +53,7 @@ export function CampaignDetailsModal({
 
   // Single clean, predefined Accept draft as requested by user
   const signoff = userName?.trim() ? `Best,\n${userName.trim()}` : 'Best,'
-  const acceptDraftText = `Hi there,\n\nThank you for reaching out! I would love to collaborate with ${campaign.brand_name} on this campaign. The deliverables and compensation sound great.\n\n${signoff}`
+  const acceptDraftText = `Hi there,\n\nThank you for reaching out! I would love to collaborate with ${campaign.brand_name} on this campaign.\n\n${signoff}`
 
   const emailUrl = getGmailThreadUrl({
     sourceMessageId: campaign.source_message_id,
