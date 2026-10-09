@@ -340,11 +340,8 @@ export function CampaignDetailsModal({
                 <X className="h-4 w-4" />
               </button>
 
-              <div className="space-y-1 pr-6">
+              <div className="pr-6">
                 <h4 className="text-sm font-bold text-foreground">Change status?</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  You took action on this collaboration. Would you like to update its status?
-                </p>
               </div>
 
               <div className="flex items-center gap-2 pt-1">
