@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { CreatorCampaign, CampaignStatus } from '../types'
+import { CampaignDatePicker } from './campaign-date-picker'
 import {
   extractEmailAddress,
   extractApplicationFormUrl,
@@ -12,7 +13,6 @@ import {
   X,
   FileText,
   Mail,
-  Calendar,
   DollarSign,
   Package,
   Check,
@@ -48,7 +48,6 @@ export function CampaignDetailsModal({
   const [hasInteracted, setHasInteracted] = useState(false)
   const [showStatusPrompt, setShowStatusPrompt] = useState(false)
   const activeDeadline = currentDeadline !== undefined ? currentDeadline : campaign.deadline
-  const dateInputRef = useRef<HTMLInputElement>(null)
 
   const brandEmail = extractEmailAddress(campaign.source_sender)
   const applicationUrl = extractApplicationFormUrl(campaign.raw_source_text)
@@ -193,8 +192,8 @@ export function CampaignDetailsModal({
 
         {/* Scrollable Content */}
         <div className="space-y-4 overflow-y-auto pr-1 text-xs text-foreground flex-1">
-          {/* Key Metrics: Compensation & Highlighted Due Date */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {/* Key Metrics: Compensation & Due Date */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 items-start">
             {campaign.compensation && (
               <div className="p-3 rounded-xl bg-muted/30 border border-border flex items-center gap-2.5">
                 <DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -207,52 +206,11 @@ export function CampaignDetailsModal({
               </div>
             )}
 
-            {/* Due Date Card */}
-            <div
-              onClick={() => {
-                try {
-                  dateInputRef.current?.showPicker()
-                } catch {
-                  dateInputRef.current?.focus()
-                }
-              }}
-              className="p-3 rounded-xl bg-muted/30 hover:bg-muted/50 border border-border flex items-center justify-between gap-2.5 cursor-pointer transition-colors"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <Calendar className="h-4 w-4 text-[#FC801A] shrink-0" />
-                <div className="min-w-0">
-                  <span className="text-[10px] uppercase font-semibold text-muted-foreground block truncate">
-                    Due Date
-                  </span>
-                  <span className="text-[10px] text-muted-foreground/80 block leading-tight">
-                    Set manually
-                  </span>
-                </div>
-              </div>
-
-              <input
-                ref={dateInputRef}
-                type="date"
-                value={activeDeadline ? activeDeadline.split('T')[0] : ''}
-                onChange={(e) => {
-                  if (!e.target.value) {
-                    onDeadlineChange?.(null)
-                    return
-                  }
-                  const newIso = new Date(`${e.target.value}T23:59:59Z`).toISOString()
-                  onDeadlineChange?.(newIso)
-                }}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  try {
-                    ;(e.target as HTMLInputElement).showPicker?.()
-                  } catch {}
-                }}
-                title="Click to choose due date from calendar"
-                aria-label="Choose due date from calendar"
-                className="h-8 px-2.5 text-xs font-bold rounded-lg border border-[#FC801A]/30 bg-[#FC801A]/10 hover:bg-[#FC801A]/20 text-[#FC801A] cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-[#FC801A]/40 transition-colors shrink-0 accent-[#FC801A]"
-              />
-            </div>
+            {/* Due Date Card with inline custom calendar (no browser pop up) */}
+            <CampaignDatePicker
+              value={activeDeadline}
+              onChange={(newDeadline) => onDeadlineChange?.(newDeadline)}
+            />
           </div>
 
           {/* Deliverables */}
