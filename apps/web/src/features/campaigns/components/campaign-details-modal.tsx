@@ -7,8 +7,6 @@ import {
   extractApplicationFormUrl,
   getGmailThreadUrl,
   getGmailComposeUrl,
-  formatTimeAgo,
-  formatExactDateTime,
 } from '../lib/action-helpers'
 import {
   X,
@@ -20,7 +18,6 @@ import {
   Check,
   ExternalLink,
   MessageSquare,
-  Clock,
   Send,
 } from 'lucide-react'
 
@@ -154,22 +151,11 @@ export function CampaignDetailsModal({
             )}
               <div className="min-w-0">
                 <h3 className="text-base font-bold text-foreground truncate">{campaign.brand_name}</h3>
-                <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
-                  {campaign.product_name && (
-                    <p className="font-medium truncate">{campaign.product_name}</p>
-                  )}
-                  {campaign.product_name && campaign.created_at && <span>•</span>}
-                  {campaign.created_at && (
-                    <span
-                      suppressHydrationWarning
-                      title={formatExactDateTime(campaign.created_at)}
-                      className="flex items-center gap-1 shrink-0 text-[11px] text-muted-foreground/80 whitespace-nowrap"
-                    >
-                      <Clock className="h-3 w-3 opacity-60" />
-                      Received {formatTimeAgo(campaign.created_at)}
-                    </span>
-                  )}
-                </div>
+                {campaign.product_name && (
+                  <p className="text-xs text-muted-foreground font-medium truncate mt-0.5">
+                    {campaign.product_name}
+                  </p>
+                )}
               </div>
           </div>
 
