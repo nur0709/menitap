@@ -281,7 +281,7 @@ export function CampaignDetailsModal({
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#08739C] hover:bg-[#076184] px-3.5 py-2 rounded-xl transition-colors shadow-xs cursor-pointer"
               >
                 <Mail className="h-3.5 w-3.5" />
-                <span>Open Original Email</span>
+                <span>Open Email</span>
                 <ExternalLink className="h-3 w-3 opacity-80" />
               </a>
             </div>
