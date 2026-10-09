@@ -14,12 +14,14 @@ interface CampaignsManagerProps {
   campaigns: CreatorCampaign[]
   googleIntegration?: GoogleIntegrationStatus
   userName?: string
+  userEmail?: string
 }
 
 export function CampaignsManager({
   campaigns,
   googleIntegration,
   userName,
+  userEmail,
 }: CampaignsManagerProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<
@@ -344,6 +346,7 @@ export function CampaignsManager({
               key={campaign.id}
               campaign={campaign}
               userName={userName}
+              userEmail={userEmail}
               isSelectionMode={isSelectionMode}
               isSelected={selectedIds.has(campaign.id)}
               onToggleSelect={() => handleToggleSelect(campaign.id)}

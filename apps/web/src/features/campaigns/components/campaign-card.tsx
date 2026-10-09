@@ -23,6 +23,7 @@ interface CampaignCardProps {
   isSelected?: boolean
   onToggleSelect?: () => void
   userName?: string
+  userEmail?: string
 }
 
 // Actionable creator stages in dropdown — New & Reviewed are view states, not manual choices
@@ -88,6 +89,7 @@ export function CampaignCard({
   isSelected = false,
   onToggleSelect,
   userName,
+  userEmail,
 }: CampaignCardProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -374,6 +376,7 @@ export function CampaignCard({
             })
           }}
           userName={userName}
+          userEmail={userEmail}
           isOpen={isDetailsOpen}
           onClose={() => setIsDetailsOpen(false)}
         />

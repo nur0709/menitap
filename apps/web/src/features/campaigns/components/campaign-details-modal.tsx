@@ -28,6 +28,7 @@ interface CampaignDetailsModalProps {
   onDeadlineChange?: (newDeadline: string | null) => void
   onStatusChange?: (newStatus: CampaignStatus) => void
   userName?: string
+  userEmail?: string
   isOpen: boolean
   onClose: () => void
 }
@@ -39,6 +40,7 @@ export function CampaignDetailsModal({
   onDeadlineChange,
   onStatusChange,
   userName,
+  userEmail,
   isOpen,
   onClose,
 }: CampaignDetailsModalProps) {
@@ -80,6 +82,7 @@ export function CampaignDetailsModal({
     fromEmail: brandEmail,
     subject: campaign.source_subject,
     brandName: campaign.brand_name,
+    userEmail,
   })
 
   const gmailComposeUrl = brandEmail
@@ -87,6 +90,7 @@ export function CampaignDetailsModal({
         toEmail: brandEmail,
         subject: campaign.source_subject || `${campaign.brand_name} Collaboration`,
         body: customDraft,
+        userEmail,
       })
     : null
 

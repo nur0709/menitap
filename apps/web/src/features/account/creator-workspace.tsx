@@ -134,6 +134,7 @@ export function CreatorWorkspace({
             <CampaignsManager
               campaigns={campaigns}
               userName={user.fullName}
+              userEmail={googleIntegration?.emailAddress || user.email}
               googleIntegration={
                 googleIntegration || {
                   isConnected: false,

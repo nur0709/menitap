@@ -65,54 +65,88 @@ export function extractApplicationFormUrl(text: string | null | undefined): stri
   return null
 }
 
+function cleanSearchQueryText(text: string): string {
+  if (!text) return ''
+  return text
+    .replace(/^(re|fwd):\s*/i, '')
+    // Strip emojis and non-standard unicode characters that break quoted Gmail searches
+    .replace(
+      /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}]/gu,
+      ' '
+    )
+    .replace(/[^\w\s-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 export function getGmailThreadUrl(params: {
   sourceMessageId?: string | null
   fromEmail?: string | null
   subject?: string | null
   brandName?: string | null
+  userEmail?: string | null
 }): string {
+  const userEmail = params.userEmail?.trim()
+  // Use canonical /u/0/ to prevent Google 301 redirect from stripping the URL hash fragment
+  const base = userEmail
+    ? `https://mail.google.com/mail/u/0/?authuser=${encodeURIComponent(userEmail)}`
+    : 'https://mail.google.com/mail/u/0/'
+
   const trimmedId = params.sourceMessageId?.trim()
 
   // 1. If we have a valid Gmail thread or message hex ID (e.g. '1a116ee8b813d3aa')
   if (trimmedId && /^[a-f0-9]+$/i.test(trimmedId)) {
-    return `https://mail.google.com/mail/#all/${trimmedId}`
+    return `${base}#all/${trimmedId}`
   }
 
   // 2. If it's an RFC822 Message-ID (e.g. '<xyz@mail.gmail.com>')
   if (trimmedId && (trimmedId.includes('@') || trimmedId.startsWith('<'))) {
     const cleanRfcId = trimmedId.replace(/[<>]/g, '').trim()
-    return `https://mail.google.com/mail/#search/${encodeURIComponent(`rfc822msgid:${cleanRfcId}`)}`
+    return `${base}#search/${encodeURIComponent(`rfc822msgid:${cleanRfcId}`)}`
   }
 
-  // 3. Fallback: Search for the email directly in Gmail by sender and subject
+  // 3. Fallback: Search for the email directly in Gmail by sender domain/email and clean subject
   const queryParts: string[] = []
   if (params.fromEmail) {
-    queryParts.push(`from:${params.fromEmail}`)
-  }
-  if (params.subject) {
-    const cleanSubj = params.subject.replace(/^(re|fwd):\s*/i, '').trim()
-    if (cleanSubj) {
-      queryParts.push(`"${cleanSubj}"`)
+    const domain = params.fromEmail.split('@')[1]
+    if (
+      domain &&
+      !['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com'].includes(
+        domain.toLowerCase()
+      )
+    ) {
+      queryParts.push(`(from:${params.fromEmail} OR ${domain})`)
+    } else {
+      queryParts.push(`from:${params.fromEmail}`)
     }
   } else if (params.brandName) {
     queryParts.push(`"${params.brandName}"`)
   }
 
+  const cleanSubj = cleanSearchQueryText(params.subject || '')
+  if (cleanSubj) {
+    queryParts.push(`"${cleanSubj}"`)
+  }
+
   const query = queryParts.length > 0 ? queryParts.join(' ') : 'in:inbox'
-  return `https://mail.google.com/mail/#search/${encodeURIComponent(query)}`
+  return `${base}#search/${encodeURIComponent(query)}`
 }
 
 export function getGmailComposeUrl(params: {
   toEmail: string
   subject: string
   body?: string
+  userEmail?: string | null
 }): string {
   const su = params.subject.startsWith('Re:') ? params.subject : `Re: ${params.subject}`
-  const base = 'https://mail.google.com/mail/?view=cm'
+  const userParam = params.userEmail?.trim()
+    ? `&authuser=${encodeURIComponent(params.userEmail.trim())}`
+    : ''
+  const base = 'https://mail.google.com/mail/u/0/?view=cm'
   const to = `&to=${encodeURIComponent(params.toEmail)}`
   const subjectParam = `&su=${encodeURIComponent(su)}`
   const bodyParam = params.body ? `&body=${encodeURIComponent(params.body)}` : ''
-  return `${base}${to}${subjectParam}${bodyParam}`
+  return `${base}${userParam}${to}${subjectParam}${bodyParam}`
 }
 
 export function formatTimeAgo(dateString?: string | null): string {
