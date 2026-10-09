@@ -46,6 +46,9 @@ Menitap is an all-in-one platform tailored for user-generated content (UGC) crea
 ### UGC & Campaign Link Ingestion Rules
 - User/Brand submitted campaign links default to `status: 'PENDING'` for public submissions, or `'ACTIVE'` for authorized brand/admin posts.
 - AI & URL metadata scraping must always have a graceful, non-blocking fallback to OpenGraph meta tags so free tier exhaustion never breaks submission.
+- **Feasibility Reality Check First**: Before writing scrapers, ingestion pipelines, or features based on assumed external data or user proposals, FIRST verify if that data actually exists in the wild in the required format and accessibility.
+- **Challenge Flawed Premises Upfront**: Never be an agreeable "code monkey". If a proposed feature or data source contradicts industry reality, API limitations, or anti-bot protections (e.g. trying to scrape private brand deals off Google), state the exact constraint immediately to the user before writing code.
+- **No Endless Patch Loops on Structurally Broken Ideas**: If an implementation produces bad, misleading, or synthetic placeholder data (e.g., store homepages instead of application forms, affiliate links instead of creator gigs), STOP immediately. Do NOT write more regexes, filters, or synthetic generators to mask the problem. Call out the structural flaw directly and recommend the real architectural solution.
 
 ## Account Types & Roles
 | Role | User Type | Description & Access |
