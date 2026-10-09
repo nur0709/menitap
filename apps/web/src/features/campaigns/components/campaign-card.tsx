@@ -366,6 +366,12 @@ export function CampaignCard({
         currentStatus={currentStatus}
         currentDeadline={currentDeadline}
         onDeadlineChange={handleDeadlineChange}
+        onStatusChange={(nextStatus) => {
+          setCurrentStatus(nextStatus)
+          startTransition(async () => {
+            await updateCampaignStatus(campaign.id, nextStatus)
+          })
+        }}
         userName={userName}
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}

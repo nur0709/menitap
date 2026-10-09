@@ -29,6 +29,7 @@ interface CampaignDetailsModalProps {
   currentStatus?: CampaignStatus
   currentDeadline?: string | null
   onDeadlineChange?: (newDeadline: string | null) => void
+  onStatusChange?: (newStatus: CampaignStatus) => void
   userName?: string
   isOpen: boolean
   onClose: () => void
@@ -36,17 +37,19 @@ interface CampaignDetailsModalProps {
 
 export function CampaignDetailsModal({
   campaign,
+  currentStatus,
   currentDeadline,
   onDeadlineChange,
+  onStatusChange,
   userName,
   isOpen,
   onClose,
 }: CampaignDetailsModalProps) {
   const [copiedForAccept, setCopiedForAccept] = useState(false)
+  const [hasInteracted, setHasInteracted] = useState(false)
+  const [showStatusPrompt, setShowStatusPrompt] = useState(false)
   const activeDeadline = currentDeadline !== undefined ? currentDeadline : campaign.deadline
   const dateInputRef = useRef<HTMLInputElement>(null)
-
-  if (!isOpen) return null
 
   const brandEmail = extractEmailAddress(campaign.source_sender)
   const applicationUrl = extractApplicationFormUrl(campaign.raw_source_text)
@@ -54,6 +57,17 @@ export function CampaignDetailsModal({
   // Single clean, predefined Accept draft as requested by user
   const signoff = userName?.trim() ? `Best,\n${userName.trim()}` : 'Best,'
   const acceptDraftText = `Hi there,\n\nThank you for reaching out! I would love to collaborate with ${campaign.brand_name} on this campaign.\n\n${signoff}`
+  const [customDraft, setCustomDraft] = useState(acceptDraftText)
+  const [prevCampaignId, setPrevCampaignId] = useState(campaign.id)
+
+  if (campaign.id !== prevCampaignId) {
+    setPrevCampaignId(campaign.id)
+    setCustomDraft(acceptDraftText)
+    setHasInteracted(false)
+    setShowStatusPrompt(false)
+  }
+
+  if (!isOpen) return null
 
   const emailUrl = getGmailThreadUrl({
     sourceMessageId: campaign.source_message_id,
@@ -66,20 +80,21 @@ export function CampaignDetailsModal({
     ? getGmailComposeUrl({
         toEmail: brandEmail,
         subject: campaign.source_subject || `${campaign.brand_name} Collaboration`,
-        body: acceptDraftText,
+        body: customDraft,
       })
     : null
 
   const composeUrl =
     gmailComposeUrl ||
     (brandEmail
-      ? `mailto:${brandEmail}?subject=${encodeURIComponent(campaign.source_subject ? `Re: ${campaign.source_subject}` : `${campaign.brand_name} Collaboration`)}&body=${encodeURIComponent(acceptDraftText)}`
+      ? `mailto:${brandEmail}?subject=${encodeURIComponent(campaign.source_subject ? `Re: ${campaign.source_subject}` : `${campaign.brand_name} Collaboration`)}&body=${encodeURIComponent(customDraft)}`
       : emailUrl)
 
   const handleAcceptClick = () => {
+    setHasInteracted(true)
     if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
       navigator.clipboard
-        .writeText(acceptDraftText)
+        .writeText(customDraft)
         .then(() => {
           setCopiedForAccept(true)
           setTimeout(() => setCopiedForAccept(false), 2500)
@@ -88,12 +103,34 @@ export function CampaignDetailsModal({
     }
   }
 
+  const handleRequestClose = () => {
+    const effectiveStatus = currentStatus || campaign.status
+    const isNewOrReviewed = effectiveStatus === 'NEW_PITCH' || effectiveStatus === 'REVIEWED'
+    if (hasInteracted && isNewOrReviewed) {
+      setShowStatusPrompt(true)
+    } else {
+      onClose()
+    }
+  }
+
+  const handleSelectStatus = (status: CampaignStatus) => {
+    onStatusChange?.(status)
+    setShowStatusPrompt(false)
+    onClose()
+  }
+
+  const handleDismissStatusPrompt = () => {
+    onStatusChange?.('REVIEWED')
+    setShowStatusPrompt(false)
+    onClose()
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-150">
       <div className="relative w-full max-w-xl rounded-2xl bg-card border border-border p-5 sm:p-6 shadow-2xl text-left max-h-[92vh] flex flex-col">
         {/* Close Button */}
         <button
-          onClick={onClose}
+          onClick={handleRequestClose}
           className="absolute right-4 top-4 rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
           aria-label="Close"
         >
@@ -142,9 +179,10 @@ export function CampaignDetailsModal({
               href={applicationUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => setHasInteracted(true)}
               className="inline-flex items-center gap-1.5 bg-[#FC801A] hover:bg-[#E66F0D] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors shrink-0"
             >
-              <span>Apply to Campaign</span>
+              <span>Apply</span>
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           )}
@@ -240,18 +278,22 @@ export function CampaignDetailsModal({
               </div>
             </div>
 
-            {/* Window 2: Reply Draft */}
+            {/* Window 2: Reply (Editable Draft) */}
             <div className="space-y-1.5">
               <span className="text-[11px] uppercase font-bold text-muted-foreground flex items-center gap-1.5 tracking-wider">
                 <MessageSquare className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                Reply Draft
+                Reply
               </span>
-              <div className="p-3 rounded-xl bg-card border border-border text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap font-sans shadow-2xs">
-                {acceptDraftText}
-              </div>
+              <textarea
+                value={customDraft}
+                onChange={(e) => setCustomDraft(e.target.value)}
+                rows={4}
+                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#08739C]/40 leading-relaxed font-sans shadow-2xs resize-y"
+                placeholder="Write your reply..."
+              />
             </div>
 
-            {/* Action Buttons under Draft: Only Send and Open Original Email */}
+            {/* Action Buttons under Draft: Only Send and Open Email */}
             <div className="flex flex-wrap items-center justify-end gap-2 pt-1 border-t border-border/60">
               <a
                 href={composeUrl}
@@ -278,6 +320,7 @@ export function CampaignDetailsModal({
                 href={emailUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => setHasInteracted(true)}
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#08739C] hover:bg-[#076184] px-3.5 py-2 rounded-xl transition-colors shadow-xs cursor-pointer"
               >
                 <Mail className="h-3.5 w-3.5" />
@@ -287,6 +330,59 @@ export function CampaignDetailsModal({
             </div>
           </div>
         </div>
+
+        {/* Change Status Prompt Modal (when closing after interacting with Apply, Send, or Open Email) */}
+        {showStatusPrompt && (
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-background/60 backdrop-blur-xs animate-in fade-in duration-150">
+            <div className="relative w-full max-w-sm rounded-2xl bg-card border border-border p-5 shadow-2xl space-y-4 text-left">
+              <button
+                type="button"
+                onClick={handleDismissStatusPrompt}
+                className="absolute right-4 top-4 rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <div className="space-y-1 pr-6">
+                <h4 className="text-sm font-bold text-foreground">Change status?</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  You took action on this collaboration. Would you like to update its status?
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => handleSelectStatus('APPLIED')}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 py-2.5 px-3 rounded-xl transition-colors cursor-pointer shadow-xs"
+                >
+                  <Check className="h-3.5 w-3.5" />
+                  <span>Applied</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSelectStatus('DECLINED')}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-bold text-foreground bg-muted hover:bg-muted/80 border border-border py-2.5 px-3 rounded-xl transition-colors cursor-pointer"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  <span>Declined</span>
+                </button>
+              </div>
+
+              <div className="text-center pt-0.5">
+                <button
+                  type="button"
+                  onClick={handleDismissStatusPrompt}
+                  className="text-[11px] text-muted-foreground hover:text-foreground underline decoration-dotted transition-colors cursor-pointer"
+                >
+                  Keep as Reviewed
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
