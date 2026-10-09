@@ -42,7 +42,6 @@ export function CampaignDetailsModal({
   isOpen,
   onClose,
 }: CampaignDetailsModalProps) {
-  const [copiedEmail, setCopiedEmail] = useState(false)
   const [copiedReply, setCopiedReply] = useState(false)
   const [copiedForGmail, setCopiedForGmail] = useState(false)
   const activeDeadline = currentDeadline !== undefined ? currentDeadline : campaign.deadline
@@ -73,17 +72,6 @@ export function CampaignDetailsModal({
         body: acceptDraftText,
       })
     : null
-
-  const handleCopyEmail = async () => {
-    if (!brandEmail) return
-    try {
-      await navigator.clipboard.writeText(brandEmail)
-      setCopiedEmail(true)
-      setTimeout(() => setCopiedEmail(false), 2000)
-    } catch {
-      // Fallback
-    }
-  }
 
   const handleCopyReply = async () => {
     try {
@@ -188,41 +176,6 @@ export function CampaignDetailsModal({
 
         {/* Scrollable Content */}
         <div className="space-y-4 overflow-y-auto pr-1 text-xs text-foreground flex-1">
-          {/* Brand Representative Email - clearly visible with 1-click copy */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-muted/40 border border-border">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <Mail className="h-4 w-4 text-[#08739C] dark:text-[#38BDF8] shrink-0" />
-              <div className="min-w-0">
-                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
-                  Brand Contact / Representative
-                </span>
-                <span className="font-mono text-xs text-foreground font-bold truncate block">
-                  {brandEmail || campaign.source_sender || 'Representative Email'}
-                </span>
-              </div>
-            </div>
-
-            {brandEmail && (
-              <button
-                type="button"
-                onClick={handleCopyEmail}
-                className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-muted text-foreground transition-colors cursor-pointer self-start sm:self-auto shrink-0 shadow-xs"
-              >
-                {copiedEmail ? (
-                  <>
-                    <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                    <span>Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span>Copy Email</span>
-                  </>
-                )}
-              </button>
-            )}
-          </div>
-
           {/* Key Metrics: Compensation & Highlighted Due Date */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {campaign.compensation && (
