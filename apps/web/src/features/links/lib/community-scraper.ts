@@ -94,6 +94,7 @@ async function fetchSubredditRss(subreddit: string): Promise<RedditPostItem[]> {
 async function parseRedditPostWithAI(post: RedditPostItem): Promise<{
   isLegitimateCollab: boolean
   brandName?: string
+  productName?: string | null
   applicationUrl?: string
   compensation?: string
   deliverables?: string
