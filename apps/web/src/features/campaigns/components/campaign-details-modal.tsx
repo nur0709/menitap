@@ -56,14 +56,14 @@ export function CampaignDetailsModal({
   const signoff = userName?.trim() ? `Best,\n${userName.trim()}` : 'Best,'
   const acceptDraftText = `Hi there,\n\nThank you for reaching out! I would love to collaborate with ${campaign.brand_name} on this campaign. The deliverables and compensation sound great.\n\n${signoff}`
 
-  const gmailThreadUrl = brandEmail
-    ? getGmailThreadUrl({
-        sourceMessageId: campaign.source_message_id,
-        fromEmail: brandEmail,
-        subject: campaign.source_subject,
-        brandName: campaign.brand_name,
-      })
-    : null
+  const emailUrl = getGmailThreadUrl({
+    sourceMessageId: campaign.source_message_id,
+    fromEmail: brandEmail,
+    subject: campaign.source_subject,
+    brandName: campaign.brand_name,
+  })
+
+  const gmailThreadUrl = emailUrl
 
   const gmailComposeUrl = brandEmail
     ? getGmailComposeUrl({
@@ -251,9 +251,9 @@ export function CampaignDetailsModal({
             </div>
           )}
 
-          {/* Raw Email Text */}
-          {campaign.raw_source_text && (
-            <div className="space-y-1.5">
+          {/* Raw Email Text & Open in Email Action */}
+          {campaign.raw_source_text ? (
+            <div className="space-y-2">
               <span className="text-[10px] uppercase font-semibold text-muted-foreground flex items-center gap-1.5">
                 <FileText className="h-3.5 w-3.5" />
                 Original Email Content
@@ -261,6 +261,31 @@ export function CampaignDetailsModal({
               <div className="p-3 rounded-xl bg-muted/50 border border-border max-h-44 overflow-y-auto text-[11px] text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed select-text">
                 {campaign.raw_source_text}
               </div>
+              <div className="flex justify-end pt-0.5">
+                <a
+                  href={emailUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#08739C] hover:bg-[#076184] px-3.5 py-2 rounded-xl transition-colors shadow-xs cursor-pointer"
+                >
+                  <Mail className="h-3.5 w-3.5" />
+                  <span>Open in Email</span>
+                  <ExternalLink className="h-3 w-3 opacity-80" />
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-end pt-0.5">
+              <a
+                href={emailUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#08739C] hover:bg-[#076184] px-3.5 py-2 rounded-xl transition-colors shadow-xs cursor-pointer"
+              >
+                <Mail className="h-3.5 w-3.5" />
+                <span>Open in Email</span>
+                <ExternalLink className="h-3 w-3 opacity-80" />
+              </a>
             </div>
           )}
 
