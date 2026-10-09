@@ -29,10 +29,10 @@ interface CampaignCardProps {
 // Actionable creator stages in dropdown — New & Reviewed are view states, not manual choices
 const SELECTABLE_STATUSES: { value: CampaignStatus; label: string }[] = [
   { value: 'APPLIED', label: 'Applied' },
-  { value: 'WAITING_PRODUCT', label: 'Waiting on Product' },
-  { value: 'SUBMITTED', label: 'Draft Submitted' },
-  { value: 'PAYMENT_PENDING', label: 'Payment Pending' },
-  { value: 'PAID', label: 'Paid ✓' },
+  { value: 'WAITING_PRODUCT', label: 'Product received' },
+  { value: 'SUBMITTED', label: 'Content submitted' },
+  { value: 'PAYMENT_PENDING', label: 'Waiting payment' },
+  { value: 'PAID', label: 'Paid' },
   { value: 'DECLINED', label: 'Declined' },
 ]
 
@@ -50,19 +50,19 @@ const STATUS_CONFIG: Record<CampaignStatus, { label: string; className: string }
     className: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/25',
   },
   WAITING_PRODUCT: {
-    label: 'Waiting on Product',
+    label: 'Product received',
     className: 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30',
   },
   SUBMITTED: {
-    label: 'Draft Submitted',
+    label: 'Content submitted',
     className: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/25',
   },
   PAYMENT_PENDING: {
-    label: 'Payment Pending',
+    label: 'Waiting payment',
     className: 'bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30',
   },
   PAID: {
-    label: 'Paid ✓',
+    label: 'Paid',
     className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25',
   },
   DECLINED: {
@@ -74,11 +74,11 @@ const STATUS_CONFIG: Record<CampaignStatus, { label: string; className: string }
     className: 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/25',
   },
   FILMING: {
-    label: 'Draft Submitted',
+    label: 'Content submitted',
     className: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/25',
   },
   DELIVERED: {
-    label: 'Payment Pending',
+    label: 'Waiting payment',
     className: 'bg-[#FC801A]/10 text-[#FC801A] border-[#FC801A]/30',
   },
 }
@@ -195,7 +195,15 @@ export function CampaignCard({
   }
 
   const isNew = currentStatus === 'NEW_PITCH'
-  const statusInfo = STATUS_CONFIG[currentStatus] || STATUS_CONFIG.DECLINED
+  const normalizedStatus =
+    currentStatus === 'ACCEPTED'
+      ? 'APPLIED'
+      : currentStatus === 'FILMING'
+        ? 'SUBMITTED'
+        : currentStatus === 'DELIVERED'
+          ? 'PAYMENT_PENDING'
+          : currentStatus
+  const statusInfo = STATUS_CONFIG[normalizedStatus] || STATUS_CONFIG.DECLINED
 
   // Card border and background states
   let cardBorderClass = 'border-border hover:border-foreground/25'
@@ -310,23 +318,23 @@ export function CampaignCard({
           {/* Status Dropdown */}
           <div className="relative" onClick={(e) => e.stopPropagation()}>
             <select
-              value={['NEW_PITCH', 'REVIEWED'].includes(currentStatus) ? '' : currentStatus}
+              value={['NEW_PITCH', 'REVIEWED'].includes(normalizedStatus) ? '' : normalizedStatus}
               onChange={handleStatusChange}
               disabled={isPending || isSelectionMode}
               aria-label={`Update status for ${campaign.brand_name}`}
               className={`text-[11px] font-semibold pl-2.5 pr-6 py-1 rounded-full border appearance-none cursor-pointer focus:outline-none transition-colors ${statusInfo.className}`}
             >
-              {currentStatus === 'NEW_PITCH' && (
+              {normalizedStatus === 'NEW_PITCH' && (
                 <option value="" disabled hidden>
                   New
                 </option>
               )}
-              {currentStatus === 'REVIEWED' && (
+              {normalizedStatus === 'REVIEWED' && (
                 <option value="" disabled hidden>
                   Reviewed
                 </option>
               )}
-              {!['NEW_PITCH', 'REVIEWED'].includes(currentStatus) && (
+              {!['NEW_PITCH', 'REVIEWED'].includes(normalizedStatus) && (
                 <option value="" disabled hidden>
                   Change Status
                 </option>

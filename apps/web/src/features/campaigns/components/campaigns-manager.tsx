@@ -25,7 +25,7 @@ export function CampaignsManager({
 }: CampaignsManagerProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<
-    'ALL' | 'FAVORITES' | 'PITCHES' | CampaignStatus
+    'ALL' | 'FAVORITES' | CampaignStatus
   >('ALL')
 
   // Multiselect state
@@ -39,12 +39,29 @@ export function CampaignsManager({
       // Favorites filter
       if (statusFilter === 'FAVORITES') {
         if (!c.is_liked) return false
-      }
-      // Status filter
-      else if (statusFilter === 'PITCHES') {
-        if (c.status !== 'NEW_PITCH' && c.status !== 'REVIEWED') {
+      } else if (statusFilter === 'APPLIED') {
+        if (c.status !== 'APPLIED' && c.status !== 'ACCEPTED') return false
+      } else if (statusFilter === 'WAITING_PRODUCT') {
+        if (c.status !== 'WAITING_PRODUCT' && (c.status as string) !== 'PRODUCT_RECEIVED')
           return false
-        }
+      } else if (statusFilter === 'SUBMITTED') {
+        if (
+          c.status !== 'SUBMITTED' &&
+          (c.status as string) !== 'CONTENT_SUBMITTED' &&
+          c.status !== 'FILMING'
+        )
+          return false
+      } else if (statusFilter === 'PAYMENT_PENDING') {
+        if (
+          c.status !== 'PAYMENT_PENDING' &&
+          (c.status as string) !== 'WAITING_PAYMENT' &&
+          c.status !== 'DELIVERED'
+        )
+          return false
+      } else if (statusFilter === 'PAID') {
+        if (c.status !== 'PAID') return false
+      } else if (statusFilter === 'DECLINED') {
+        if (c.status !== 'DECLINED') return false
       } else if (statusFilter !== 'ALL' && c.status !== statusFilter) {
         return false
       }
@@ -68,13 +85,21 @@ export function CampaignsManager({
     return {
       ALL: campaigns.length,
       FAVORITES: campaigns.filter((c) => c.is_liked).length,
-      PITCHES: campaigns.filter((c) => c.status === 'NEW_PITCH' || c.status === 'REVIEWED').length,
-      NEW_PITCH: campaigns.filter((c) => c.status === 'NEW_PITCH').length,
       APPLIED: campaigns.filter((c) => c.status === 'APPLIED' || c.status === 'ACCEPTED').length,
-      WAITING_PRODUCT: campaigns.filter((c) => c.status === 'WAITING_PRODUCT').length,
-      SUBMITTED: campaigns.filter((c) => c.status === 'SUBMITTED' || c.status === 'FILMING').length,
+      WAITING_PRODUCT: campaigns.filter(
+        (c) => c.status === 'WAITING_PRODUCT' || (c.status as string) === 'PRODUCT_RECEIVED'
+      ).length,
+      SUBMITTED: campaigns.filter(
+        (c) =>
+          c.status === 'SUBMITTED' ||
+          (c.status as string) === 'CONTENT_SUBMITTED' ||
+          c.status === 'FILMING'
+      ).length,
       PAYMENT_PENDING: campaigns.filter(
-        (c) => c.status === 'PAYMENT_PENDING' || c.status === 'DELIVERED'
+        (c) =>
+          c.status === 'PAYMENT_PENDING' ||
+          (c.status as string) === 'WAITING_PAYMENT' ||
+          c.status === 'DELIVERED'
       ).length,
       PAID: campaigns.filter((c) => c.status === 'PAID').length,
       DECLINED: campaigns.filter((c) => c.status === 'DECLINED').length,
@@ -238,23 +263,6 @@ export function CampaignsManager({
         )}
 
         <button
-          onClick={() => setStatusFilter('PITCHES')}
-          className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer text-xs whitespace-nowrap flex items-center gap-1.5 ${
-            statusFilter === 'PITCHES'
-              ? 'bg-foreground text-background font-bold shadow-2xs'
-              : 'bg-muted/60 text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          {filterCounts.NEW_PITCH > 0 && (
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
-            </span>
-          )}
-          Pitches ({filterCounts.PITCHES})
-        </button>
-
-        <button
           onClick={() => setStatusFilter('APPLIED')}
           className={`px-3 py-1 rounded-full font-medium transition-colors cursor-pointer text-xs whitespace-nowrap ${
             statusFilter === 'APPLIED'
@@ -273,7 +281,7 @@ export function CampaignsManager({
               : 'bg-muted/60 text-muted-foreground hover:text-foreground'
           }`}
         >
-          Waiting on Product ({filterCounts.WAITING_PRODUCT})
+          Product received ({filterCounts.WAITING_PRODUCT})
         </button>
 
         <button
@@ -284,7 +292,7 @@ export function CampaignsManager({
               : 'bg-muted/60 text-muted-foreground hover:text-foreground'
           }`}
         >
-          Draft Submitted ({filterCounts.SUBMITTED})
+          Content submitted ({filterCounts.SUBMITTED})
         </button>
 
         <button
@@ -295,7 +303,7 @@ export function CampaignsManager({
               : 'bg-muted/60 text-muted-foreground hover:text-foreground'
           }`}
         >
-          Payment Pending ({filterCounts.PAYMENT_PENDING})
+          Waiting payment ({filterCounts.PAYMENT_PENDING})
         </button>
 
         <button
