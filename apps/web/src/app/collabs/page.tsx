@@ -9,7 +9,7 @@ import { AddCampaignModal } from "@/features/links/components/add-campaign-modal
 import { DeleteCollabButton } from "@/features/links/components/delete-collab-button";
 import { BrandLogoBadge } from "@/features/links/components/brand-logo-badge";
 import { TrackCollabButton } from "@/features/links/components/track-collab-button";
-import { ExternalLink, Building2, Package, Lock, DollarSign, Calendar, CheckCircle2, ArrowRight } from "lucide-react";
+import { ExternalLink, Building2, Package, Lock, DollarSign, Calendar, CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
 
 export const dynamic = 'force-dynamic'
 
@@ -53,6 +53,15 @@ export default async function CollabsPage({
             </h1>
 
             <div className="flex items-center gap-2 shrink-0">
+              {isAdmin && (
+                <Link
+                  href="/admin/collabs/ingest"
+                  className="inline-flex items-center gap-1.5 px-3 h-9 rounded-lg border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-xs font-semibold text-purple-600 dark:text-purple-400 transition-colors"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>Ingest Digest</span>
+                </Link>
+              )}
               {isBrandOrAdmin ? (
                 <AddCampaignModal categories={categories} />
               ) : (
@@ -166,15 +175,19 @@ export default async function CollabsPage({
                             <CardTitle className="text-base text-foreground font-semibold line-clamp-1 leading-snug">
                               {camp.brand_name}
                             </CardTitle>
-                            {camp.collab_type === 'PR_GIFTING' ? (
+                            {camp.collab_type === 'AMBASSADOR_ROSTER' ? (
+                              <span className="text-[10px] font-semibold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 px-1.5 py-0.5 rounded">
+                                Ambassador Roster
+                              </span>
+                            ) : camp.collab_type === 'CASTING_BRIEF' ? (
+                              <span className="text-[10px] font-semibold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 px-1.5 py-0.5 rounded">
+                                Campaign Brief
+                              </span>
+                            ) : (
                               <span className="text-[10px] font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded">
                                 PR Gifting
                               </span>
-                            ) : camp.collab_type === 'CASTING_BRIEF' ? (
-                              <span className="text-[10px] font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400 px-1.5 py-0.5 rounded">
-                                Casting Brief
-                              </span>
-                            ) : null}
+                            )}
                           </div>
                           {camp.product_name && (
                             <p className="text-xs font-semibold text-foreground/90 line-clamp-1 pt-0.5">
@@ -242,7 +255,7 @@ export default async function CollabsPage({
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#08739C] hover:bg-[#02547A] text-white transition-colors cursor-pointer"
                               >
-                                Apply
+                                {camp.collab_type === 'AMBASSADOR_ROSTER' ? 'Join Roster' : 'Apply'}
                                 <ExternalLink className="h-3 w-3" />
                               </a>
                             </div>

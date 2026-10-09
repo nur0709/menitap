@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { matchCategory } from '@/lib/category-matcher'
+import { isValidCollabUrl } from './newsletter-digest-parser'
 
 interface RedditPostItem {
   id: string
@@ -260,8 +261,13 @@ export async function syncCommunityCollabs(): Promise<CommunityScraperResult> {
         continue
       }
 
-      // Check URL validity
-      const rawUrl = parsed.applicationUrl || extractApplicationLinks(post.content)[0] || post.link
+      // Check URL validity: must have an actual application intake form
+      const rawUrl = parsed.applicationUrl || directFormLinks[0]
+      if (!rawUrl || !isValidCollabUrl(rawUrl)) {
+        skippedCount++
+        continue
+      }
+
       const cleanUrl = rawUrl.trim().replace(/\/$/, '')
 
       if (existingUrls.has(cleanUrl)) {

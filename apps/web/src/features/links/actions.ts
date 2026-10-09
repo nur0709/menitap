@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { ingestNewsletterCollabs } from './lib/newsletter-digest-parser'
 
 const AffiliateLinkSchema = z.object({
   product_url: z.string().url('Please enter a valid product / affiliate URL (e.g. https://...)'),
@@ -698,5 +699,58 @@ export async function trackCollabInCrm(
   revalidatePath('/collabs')
   return { success: true, campaignId: inserted.id }
 }
+
+export async function ingestNewsletterDigestAction(params: {
+  sender?: string
+  subject?: string
+  rawText: string
+}): Promise<{
+  success: boolean
+  message: string
+  ingestedCount?: number
+  skippedCount?: number
+  errors?: string[]
+}> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { success: false, message: 'Unauthorized: Please sign in as an admin.' }
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role !== 'ADMIN') {
+    return { success: false, message: 'Unauthorized: Admin role required.' }
+  }
+
+  if (!params.rawText || params.rawText.trim().length < 40) {
+    return { success: false, message: 'Text too short. Please paste the newsletter body.' }
+  }
+
+  const result = await ingestNewsletterCollabs({
+    sender: params.sender || 'Brands Meet Creators',
+    subject: params.subject || 'Weekly Casting Calls Digest',
+    bodyText: params.rawText,
+    force: true,
+  })
+
+  revalidatePath('/collabs')
+  revalidatePath('/admin/collabs/ingest')
+
+  return {
+    success: result.ingestedCount > 0,
+    message: result.ingestedCount > 0
+      ? `Successfully ingested ${result.ingestedCount} collabs (${result.skippedCount} skipped/duplicates).`
+      : `No new collabs ingested (${result.skippedCount} skipped/duplicates). ${result.errors.length ? result.errors[0] : ''}`,
+    ingestedCount: result.ingestedCount,
+    skippedCount: result.skippedCount,
+    errors: result.errors,
+  }
+}
+
 
 

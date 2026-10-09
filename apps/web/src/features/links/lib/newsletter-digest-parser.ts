@@ -73,6 +73,70 @@ function cleanUrl(url?: string | null): string | null {
 }
 
 /**
+ * Validates whether an application URL is a genuine intake form or verified creator portal.
+ * Strictly blocks bare store root domains (e.g. treehutshea.com) and affiliate networks.
+ */
+export function isValidCollabUrl(url?: string | null): boolean {
+  if (!url) return false
+  try {
+    const parsed = new URL(url.trim())
+    const host = parsed.hostname.toLowerCase()
+    const path = parsed.pathname.toLowerCase()
+
+    // 1. Direct form hosts are always valid
+    if (
+      host.includes('airtable.com') ||
+      host.includes('forms.gle') ||
+      host.includes('docs.google.com') ||
+      host.includes('typeform.com') ||
+      host.includes('tally.so') ||
+      host.includes('wufoo.com') ||
+      host.includes('collabs.shopify.com') ||
+      host.includes('notion.site') ||
+      host.includes('menitap.com')
+    ) {
+      return true
+    }
+
+    // 2. Reject obvious affiliate networks
+    if (
+      host.includes('shareasale.com') ||
+      host.includes('pepperjam.com') ||
+      host.includes('impact.com') ||
+      host.includes('cj.com') ||
+      host.includes('rakuten.com') ||
+      host.includes('awin.com') ||
+      host.includes('skimlinks.com')
+    ) {
+      return false
+    }
+
+    // 3. For any other domain, reject bare store root paths (e.g. "/" or empty)
+    if (path === '' || path === '/') {
+      return false
+    }
+
+    // 4. Must be a dedicated creator, collab, or application path
+    const validPathPatterns = [
+      'collab',
+      'creator',
+      'ambassador',
+      'influencer',
+      'partner',
+      'apply',
+      'application',
+      'form',
+      'brief',
+      'casting',
+    ]
+
+    return validPathPatterns.some((pattern) => path.includes(pattern))
+  } catch {
+    return false
+  }
+}
+
+/**
  * Calls Gemini (or Groq fallback) to parse a newsletter containing multiple brand collabs.
  */
 async function parseDigestBriefsWithAI(content: {
@@ -200,10 +264,11 @@ export async function ingestNewsletterCollabs(params: {
   subject: string
   bodyText: string
   rawSource?: string
+  force?: boolean
 }): Promise<IngestionResult> {
-  const isDigest = isCastingNewsletter(params.sender, params.subject, params.bodyText)
+  const isDigest = params.force || isCastingNewsletter(params.sender, params.subject, params.bodyText)
   if (!isDigest) {
-    return { isDigest: false, ingestedCount: 0, skippedCount: 0, errors: [] }
+    return { isDigest: false, ingestedCount: 0, skippedCount: 0, errors: ['Content did not match casting newsletter keywords or form links.'] }
   }
 
   const extractedCampaigns = await parseDigestBriefsWithAI({
@@ -252,6 +317,13 @@ export async function ingestNewsletterCollabs(params: {
     const cleanedUrl = cleanUrl(campaign.applicationUrl)
     if (!cleanedUrl || !cleanedUrl.startsWith('http')) {
       skippedCount++
+      continue
+    }
+
+    // Guardrail: reject bare store root URLs and affiliate networks
+    if (!isValidCollabUrl(cleanedUrl)) {
+      skippedCount++
+      errors.push(`${campaign.brandName}: Skipped invalid or store root URL (${cleanedUrl})`)
       continue
     }
 
