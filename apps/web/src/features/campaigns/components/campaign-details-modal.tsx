@@ -264,36 +264,33 @@ export function CampaignDetailsModal({
             </div>
           )}
 
-          {/* Main Communication Window: Email Content & Reply Draft */}
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-muted/30 border border-border space-y-3.5">
-            {/* Window 1: Email Content */}
-            <div className="space-y-1.5">
-              <span className="text-[11px] uppercase font-bold text-muted-foreground flex items-center gap-1.5 tracking-wider">
-                <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-                Email Content
-              </span>
-              <div className="p-3 rounded-xl bg-card border border-border max-h-40 overflow-y-auto text-[11px] text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed select-text shadow-2xs">
-                {campaign.raw_source_text || 'No raw email text available.'}
-              </div>
+          {/* Email Content */}
+          <div className="space-y-1.5">
+            <span className="text-[11px] uppercase font-bold text-muted-foreground flex items-center gap-1.5 tracking-wider">
+              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+              Email Content
+            </span>
+            <div className="p-3 rounded-xl bg-muted/50 border border-border max-h-44 overflow-y-auto text-[11px] text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed select-text">
+              {campaign.raw_source_text || 'No raw email text available.'}
             </div>
+          </div>
 
-            {/* Window 2: Reply (Editable Draft) */}
-            <div className="space-y-1.5">
-              <span className="text-[11px] uppercase font-bold text-muted-foreground flex items-center gap-1.5 tracking-wider">
-                <MessageSquare className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                Reply
-              </span>
-              <textarea
-                value={customDraft}
-                onChange={(e) => setCustomDraft(e.target.value)}
-                rows={4}
-                className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#08739C]/40 leading-relaxed font-sans shadow-2xs resize-y"
-                placeholder="Write your reply..."
-              />
-            </div>
+          {/* Reply (Editable Draft) */}
+          <div className="space-y-2">
+            <span className="text-[11px] uppercase font-bold text-muted-foreground flex items-center gap-1.5 tracking-wider">
+              <MessageSquare className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              Reply
+            </span>
+            <textarea
+              value={customDraft}
+              onChange={(e) => setCustomDraft(e.target.value)}
+              rows={4}
+              className="w-full p-3 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#08739C]/40 leading-relaxed font-sans shadow-xs resize-y"
+              placeholder="Write your reply..."
+            />
 
-            {/* Action Buttons under Draft: Only Send and Open Email */}
-            <div className="flex flex-wrap items-center justify-end gap-2 pt-1 border-t border-border/60">
+            {/* Action Buttons under Draft: Send and Open Email */}
+            <div className="flex flex-wrap items-center justify-end gap-2 pt-0.5">
               <a
                 href={composeUrl}
                 target="_blank"
