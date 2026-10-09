@@ -22,6 +22,7 @@ import {
   ExternalLink,
   MessageSquare,
   Clock,
+  Send,
 } from 'lucide-react'
 
 interface CampaignDetailsModalProps {
@@ -44,6 +45,7 @@ export function CampaignDetailsModal({
 }: CampaignDetailsModalProps) {
   const [copiedReply, setCopiedReply] = useState(false)
   const [copiedForGmail, setCopiedForGmail] = useState(false)
+  const [copiedForAccept, setCopiedForAccept] = useState(false)
   const activeDeadline = currentDeadline !== undefined ? currentDeadline : campaign.deadline
   const dateInputRef = useRef<HTMLInputElement>(null)
 
@@ -72,6 +74,24 @@ export function CampaignDetailsModal({
         body: acceptDraftText,
       })
     : null
+
+  const composeUrl =
+    gmailComposeUrl ||
+    (brandEmail
+      ? `mailto:${brandEmail}?subject=${encodeURIComponent(campaign.source_subject ? `Re: ${campaign.source_subject}` : `${campaign.brand_name} Collaboration`)}&body=${encodeURIComponent(acceptDraftText)}`
+      : emailUrl)
+
+  const handleAcceptClick = () => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(acceptDraftText)
+        .then(() => {
+          setCopiedForAccept(true)
+          setTimeout(() => setCopiedForAccept(false), 2500)
+        })
+        .catch(() => {})
+    }
+  }
 
   const handleCopyReply = async () => {
     try {
@@ -261,7 +281,27 @@ export function CampaignDetailsModal({
               <div className="p-3 rounded-xl bg-muted/50 border border-border max-h-44 overflow-y-auto text-[11px] text-muted-foreground whitespace-pre-wrap font-mono leading-relaxed select-text">
                 {campaign.raw_source_text}
               </div>
-              <div className="flex justify-end pt-0.5">
+              <div className="flex flex-wrap items-center justify-end gap-2 pt-0.5">
+                <a
+                  href={composeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleAcceptClick}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3.5 py-2 rounded-xl transition-colors shadow-xs cursor-pointer"
+                >
+                  {copiedForAccept ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 text-white" />
+                      <span>Opening Compose (Draft Copied!)...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-3.5 w-3.5" />
+                      <span>Accept with Ready to send draft</span>
+                      <ExternalLink className="h-3 w-3 opacity-80" />
+                    </>
+                  )}
+                </a>
                 <a
                   href={emailUrl}
                   target="_blank"
@@ -275,7 +315,27 @@ export function CampaignDetailsModal({
               </div>
             </div>
           ) : (
-            <div className="flex justify-end pt-0.5">
+            <div className="flex flex-wrap items-center justify-end gap-2 pt-0.5">
+              <a
+                href={composeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleAcceptClick}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3.5 py-2 rounded-xl transition-colors shadow-xs cursor-pointer"
+              >
+                {copiedForAccept ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-white" />
+                    <span>Opening Compose (Draft Copied!)...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-3.5 w-3.5" />
+                    <span>Accept with Ready to send draft</span>
+                    <ExternalLink className="h-3 w-3 opacity-80" />
+                  </>
+                )}
+              </a>
               <a
                 href={emailUrl}
                 target="_blank"
