@@ -4,24 +4,38 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import {
   ACCESS_COOKIE_NAME,
-  DEFAULT_ACCESS_CODE,
   getAccessCookieValue,
+  getAccessCode,
 } from '@/lib/access-gate'
 
 export type AccessGateState = {
   error?: string
 }
 
+/**
+ * Validates the access code and sets the authorization cookie.
+ * Sanitizes returnTo to prevent open redirects.
+ */
 export async function verifyAccessCode(
   prevState: AccessGateState | null,
   formData: FormData
 ): Promise<AccessGateState> {
   const code = (formData.get('code') as string)?.trim()
   const returnTo = (formData.get('returnTo') as string)?.trim() || '/'
-  const expectedCode = process.env.SITE_ACCESS_CODE || DEFAULT_ACCESS_CODE
+  
+  let expectedCode: string
+  try {
+    expectedCode = getAccessCode()
+  } catch (error) {
+    return { error: 'Access gate is not properly configured. Please contact the administrator.' }
+  }
 
   if (!code) {
     return { error: 'Please enter the access code.' }
+  }
+
+  if (!expectedCode) {
+    return { error: 'Access gate is not available. Please contact the administrator.' }
   }
 
   if (code !== expectedCode) {
@@ -40,6 +54,10 @@ export async function verifyAccessCode(
   })
 
   // Sanitize returnTo to prevent open redirects
-  const destination = returnTo.startsWith('/') && !returnTo.startsWith('//') ? returnTo : '/'
+  // Only allow relative paths that start with /
+  const destination = returnTo.startsWith('/') && !returnTo.startsWith('//')
+    ? returnTo
+    : '/'
+  
   redirect(destination)
 }

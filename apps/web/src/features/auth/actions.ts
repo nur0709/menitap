@@ -154,8 +154,13 @@ export type EffectiveUserContext = {
   isAdmin: boolean
 }
 
+/**
+ * Gets the effective user context, handling missing profile/subscription gracefully.
+ * Returns sensible defaults for new users without a profile or subscription record.
+ */
 export const getEffectiveUserContext = cache(async (): Promise<EffectiveUserContext> => {
   const user = await getCurrentUser()
+  
   if (!user) {
     return {
       user: null,
@@ -174,12 +179,12 @@ export const getEffectiveUserContext = cache(async (): Promise<EffectiveUserCont
       .from('profiles')
       .select('role, full_name, avatar_url')
       .eq('id', user.id)
-      .single(),
+      .maybeSingle(),
     supabase
       .from('subscriptions')
       .select('plan, status')
       .eq('user_id', user.id)
-      .single(),
+      .maybeSingle(),
   ])
 
   const fullName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || ''
@@ -202,4 +207,3 @@ export const getEffectiveUserContext = cache(async (): Promise<EffectiveUserCont
     isAdmin,
   }
 })
-

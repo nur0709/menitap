@@ -2,18 +2,19 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 import {
   ACCESS_COOKIE_NAME,
-  DEFAULT_ACCESS_CODE,
   getAccessCookieValue,
+  getAccessCode,
 } from '@/lib/access-gate'
 
 export async function middleware(request: NextRequest) {
-  const accessCode = process.env.SITE_ACCESS_CODE || DEFAULT_ACCESS_CODE
+  const accessCode = getAccessCode()
   const expectedCookieValue = getAccessCookieValue(accessCode)
   const { pathname, searchParams } = request.nextUrl
 
   // 1. Check for instant unlock via URL magic query parameter (?access=... or ?key=...)
+  // Only process if the code matches and is not empty
   const queryCode = searchParams.get('access') || searchParams.get('key')
-  if (queryCode && queryCode === accessCode) {
+  if (queryCode && accessCode && queryCode === accessCode) {
     const cleanUrl = request.nextUrl.clone()
     cleanUrl.searchParams.delete('access')
     cleanUrl.searchParams.delete('key')
@@ -39,7 +40,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const currentCookie = request.cookies.get(ACCESS_COOKIE_NAME)?.value
-  const hasAccess = currentCookie === expectedCookieValue
+  const hasAccess = accessCode && currentCookie === expectedCookieValue
 
   if (isAccessGateRoute) {
     // If user already has valid access, redirect from gate to home
