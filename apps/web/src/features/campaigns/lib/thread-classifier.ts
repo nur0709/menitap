@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { extractApplyLink } from './action-helpers'
+import { cardTitleFromSender } from './email-card-parser'
 import {
   completeWithModels,
   extractJsonObject,
@@ -42,7 +44,6 @@ const decisionSchema = z.object({
   decision: z.enum(['action', 'update', 'ignore']),
   brandName: z.string().nullable().optional(),
   productName: z.string().nullable().optional(),
-  platformName: z.string().nullable().optional(),
   compensation: z.string().nullable().optional(),
   deliverables: z.string().nullable().optional(),
   deadline: z.string().nullable().optional(),
@@ -86,7 +87,7 @@ export async function classifyEmailThread(params: {
     }
   }
 
-  const card = toCard(completion.value)
+  const card = toCard(completion.value, transcript, params.userEmail)
   if (!card) {
     return {
       ok: true,
@@ -113,15 +114,14 @@ The creator's address is ${userEmail || 'unknown'}.
 Return only JSON:
 {
   "decision": "action" | "update" | "ignore",
-  "brandName": "client brand",
-  "productName": "product or campaign",
-  "platformName": "marketplace or agency, or empty",
-  "compensation": "pay or gifted, or empty",
+  "brandName": "who sent this email",
+  "productName": "client brand and product",
+  "compensation": "$30 on posting, or gifted, or empty",
   "deliverables": "what they must make, or empty",
   "deadline": "YYYY-MM-DD or empty",
-  "actionUrl": "one https link, or empty",
+  "actionUrl": "the apply or form https link, or empty",
   "nextStep": "reply" | "fill_form" | "submit_content" | "waiting" | "review_list",
-  "brandDomain": "client domain, or empty"
+  "brandDomain": "sender domain, or empty"
 }
 
 decision:
@@ -132,39 +132,85 @@ decision:
 Rules:
 - One thread is one decision. Never split a newsletter or digest into several campaigns.
 - A digest of many briefs is review_list only when it is a personal list the creator was sent. A generic weekly roundup is ignore.
-- brandName is the client the creator would make content for. Old Navy stays Old Navy when CreatorIQ, The Cirqle, or an agency sends the mail. Put that sender in platformName.
-- If the thread names no client, brandName may be the platform or agency.
+- brandName is who sent the email. That is the card title.
+- If a platform, marketplace, or agency sent it, brandName is that sender. Nurilounge stays Nurilounge. The Cirqle stays The Cirqle. Put the client brand and product in productName, such as "ISOI - Spot the Petals eye patch".
+- brandName is the client brand only when that brand sent the email from its own address.
+- compensation is the amount written in the email. Copy "$30 on posting" when that is what it says. Never answer with the word "pay" alone.
+- If the Links list has an apply or form url, nextStep is fill_form and actionUrl is that url.
 - If the latest message is from the creator, nextStep is waiting.
-- actionUrl is the single most useful https link for the next step. Leave it empty when there is none.
-- Leave pay, deadline, and deliverables empty when the thread does not state them.
+- Leave deadline and deliverables empty when the thread does not state them.
 
 Thread:
 ${transcript}`
 }
 
-function toCard(value: z.infer<typeof decisionSchema>): ThreadCardFields | null {
-  const platform = cleanText(value.platformName, 80)
-  const brand = cleanText(value.brandName, 80) || platform
+function toCard(
+  value: z.infer<typeof decisionSchema>,
+  transcript: string,
+  userEmail: string
+): ThreadCardFields | null {
+  const sender = senderFromTranscript(transcript, userEmail)
+  const senderTitle = sender ? cardTitleFromSender(sender) : null
+  const modelBrand = cleanText(value.brandName, 80)
+  const brand = senderTitle?.name || modelBrand
   if (!brand) return null
 
-  const product = cleanText(value.productName, 120)
-  const productName =
-    product && platform && platform.toLowerCase() !== brand.toLowerCase()
-      ? `${product} via ${platform}`.slice(0, 140)
-      : product || (platform && platform.toLowerCase() !== brand.toLowerCase() ? `via ${platform}` : null)
+  let product = cleanText(value.productName, 140)
+  if (modelBrand && modelBrand.toLowerCase() !== brand.toLowerCase()) {
+    if (!product) product = modelBrand
+    else if (!product.toLowerCase().includes(modelBrand.toLowerCase())) {
+      product = `${modelBrand} - ${product}`.slice(0, 140)
+    }
+  }
+  if (senderTitle && product) {
+    const viaSender = new RegExp(`\\s+via\\s+${escapeRegExp(senderTitle.name)}\\s*$`, 'i')
+    product = product.replace(viaSender, '').trim() || null
+  }
 
-  const domain = cleanDomain(value.brandDomain)
+  const foundApply = extractApplyLink(transcript)
+  const modelUrl = cleanActionUrl(value.actionUrl)
+  const modelUrlIsApply = modelUrl ? extractApplyLink(modelUrl) : null
+  const actionUrl = modelUrlIsApply || foundApply || modelUrl
+  let nextStep = value.nextStep ?? (actionUrl && foundApply ? 'fill_form' : 'reply')
+  if (foundApply && nextStep === 'reply') nextStep = 'fill_form'
+
+  const domain = senderTitle?.domain || cleanDomain(value.brandDomain)
 
   return {
     brandName: brand,
-    productName,
-    compensation: cleanText(value.compensation, 120),
+    productName: product,
+    compensation: cleanCompensation(value.compensation, transcript),
     deliverables: cleanText(value.deliverables, 160),
     deadline: cleanDeadline(value.deadline),
-    actionUrl: cleanActionUrl(value.actionUrl),
-    nextStep: value.nextStep ?? 'reply',
+    actionUrl,
+    nextStep,
     brandLogoUrl: domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : null,
   }
+}
+
+function senderFromTranscript(transcript: string, userEmail: string): string | null {
+  const user = userEmail.toLowerCase()
+  for (const match of transcript.matchAll(/^From:\s*(.+)$/gm)) {
+    const from = match[1]?.trim()
+    if (!from) continue
+    if (user && from.toLowerCase().includes(user)) continue
+    return from
+  }
+  return null
+}
+
+function cleanCompensation(value: string | null | undefined, transcript: string): string | null {
+  const text = cleanText(value, 120)
+  const vague = !text || /^(pay|paid|payment|compensation|paid collab)$/i.test(text)
+  if (!vague) return text
+  const amount = transcript.match(
+    /\$\s?\d{1,3}(?:,\d{3})*(?:\.\d{2})?(?:\s+(?:upon|on|per|for|after)\s+[A-Za-z]+){0,3}/i
+  )
+  return amount ? amount[0].replace(/\s+/g, ' ').trim() : null
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 function cleanText(value: string | null | undefined, max: number): string | null {

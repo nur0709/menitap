@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { getValidGoogleAccessToken } from './oauth'
+import { appendHtmlLinks } from '@/features/campaigns/lib/action-helpers'
 import { classifyEmailThread } from '@/features/campaigns/lib/thread-classifier'
 import type { ProviderIssue } from '@/features/campaigns/lib/model-json'
 import { recordProviderIssues } from './provider-alerts'
@@ -56,37 +57,29 @@ export interface SyncResult {
  */
 function extractBodyFromPayload(payload?: GmailMessageDetail['payload']): string {
   if (!payload) return ''
+  const collected = { plain: '', html: '' }
+  collectBodies(payload, collected)
+  const text = (collected.plain || stripHtml(collected.html)).trim()
+  return appendHtmlLinks(text, collected.html)
+}
 
-  if (payload.body?.data) {
-    return decodeBase64Url(payload.body.data)
+function collectBodies(
+  part: {
+    mimeType?: string
+    body?: { data?: string }
+    parts?: GmailPart[]
+  },
+  collected: { plain: string; html: string }
+): void {
+  if (part.body?.data && part.mimeType === 'text/plain' && !collected.plain) {
+    collected.plain = decodeBase64Url(part.body.data)
   }
-
-  if (payload.parts && payload.parts.length > 0) {
-    for (const part of payload.parts) {
-      if (part.mimeType === 'text/plain' && part.body?.data) {
-        return decodeBase64Url(part.body.data)
-      }
-    }
-
-    for (const part of payload.parts) {
-      if (part.parts) {
-        const nested = extractBodyFromPayload({
-          headers: [],
-          mimeType: part.mimeType,
-          parts: part.parts,
-        })
-        if (nested) return nested
-      }
-    }
-
-    for (const part of payload.parts) {
-      if (part.mimeType === 'text/html' && part.body?.data) {
-        return stripHtml(decodeBase64Url(part.body.data))
-      }
-    }
+  if (part.body?.data && part.mimeType === 'text/html' && !collected.html) {
+    collected.html = decodeBase64Url(part.body.data)
   }
-
-  return ''
+  for (const child of part.parts ?? []) {
+    collectBodies(child, collected)
+  }
 }
 
 function decodeBase64Url(str: string): string {
@@ -198,7 +191,14 @@ export async function syncUserGmailCampaigns(userId: string): Promise<SyncResult
 
     if (!classified.ok) {
       readerStopped = true
-      break
+      const modelAnswered = classified.issues.some(
+        (issue) => issue.detail === 'Model reply was not usable JSON'
+      )
+      const providerDown = classified.issues.some(
+        (issue) => issue.detail !== 'Model reply was not usable JSON'
+      )
+      if (providerDown && !modelAnswered) break
+      continue
     }
 
     if (classified.decision === 'ignore') continue
