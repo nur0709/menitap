@@ -17,6 +17,7 @@ interface PlanCtaButtonProps {
   role: AccountType
   variant?: 'outline' | 'default'
   className?: string
+  disabledLabel?: string
   children: React.ReactNode
 }
 
@@ -26,6 +27,7 @@ export function PlanCtaButton({
   role,
   variant = 'default',
   className,
+  disabledLabel,
   children,
 }: PlanCtaButtonProps) {
   const [authModalOpen, setAuthModalOpen] = useState(false)
@@ -41,6 +43,21 @@ export function PlanCtaButton({
   )
 
   const isCurrentPlan = userPlan === targetPlan
+
+  if (disabledLabel) {
+    return (
+      <Button
+        type="button"
+        disabled
+        className={cn(
+          'w-full h-10 rounded-xl text-xs sm:text-sm font-semibold opacity-80 cursor-default border bg-muted text-muted-foreground border-border',
+          className
+        )}
+      >
+        {disabledLabel}
+      </Button>
+    )
+  }
 
   // If this is user's current plan
   if (isCurrentPlan) {

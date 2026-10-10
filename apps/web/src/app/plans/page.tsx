@@ -13,8 +13,9 @@ export const metadata = {
 export default async function PlansPage() {
   const { user, role, effectivePlan } = await getEffectiveUserContext();
 
+  const isBrandAccount = role === 'BRAND'
   let currentPlanId: PlanId | null = null;
-  if (user) {
+  if (user && !isBrandAccount) {
     if (role === 'CREATOR' || role === 'ADMIN') {
       if (effectivePlan === 'STANDARD') {
         currentPlanId = 'STANDARD';
@@ -62,6 +63,11 @@ export default async function PlansPage() {
             <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
               Choose the plan that fits your goals. Upgrade or cancel anytime.
             </p>
+            {isBrandAccount ? (
+              <p className="mt-3 text-xs text-muted-foreground">
+                Brand accounts are separate from these shopper and creator plans.
+              </p>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
@@ -99,6 +105,7 @@ export default async function PlansPage() {
                   targetPlan="FREE"
                   userPlan={currentPlanId}
                   role="USER"
+                  disabledLabel={isBrandAccount ? 'Brand account' : undefined}
                   variant="outline"
                   className="h-10 rounded-xl border-border hover:bg-accent text-foreground text-xs sm:text-sm font-semibold"
                 >
@@ -145,6 +152,7 @@ export default async function PlansPage() {
                   targetPlan="BASIC"
                   userPlan={currentPlanId}
                   role="CREATOR"
+                  disabledLabel={isBrandAccount ? 'Brand account' : undefined}
                   variant="outline"
                   className="h-10 rounded-xl border border-[#FC801A] text-[#FC801A] hover:bg-[#FC801A]/10 text-xs sm:text-sm font-semibold"
                 >
@@ -194,6 +202,7 @@ export default async function PlansPage() {
                   targetPlan="STANDARD"
                   userPlan={currentPlanId}
                   role="CREATOR"
+                  disabledLabel={isBrandAccount ? 'Brand account' : undefined}
                   className="h-10 rounded-xl bg-[#FC801A] hover:bg-[#E66F0D] text-white border-0 shadow-sm text-xs sm:text-sm font-semibold"
                 >
                   {standardButtonText}

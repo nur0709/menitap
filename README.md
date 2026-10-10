@@ -20,9 +20,13 @@ Menitap is an all-in-one platform tailored for user-generated content (UGC) crea
 
 ## 💳 Membership Plans
 
-- **Explorer ($0 / Free)**: Browse creator deals, view beginner UGC resources, and bookmark items.
-- **Creator Basic ($10/month)**: Access direct brand collaboration links, receive products to test and keep, and publish affiliate deals.
-- **Creator Standard ($15/month)**: Everything in Basic + Public Creator Profile & Portfolio showcase, category-filtered brand visibility.
+Plan buttons update the account immediately. Card checkout is not connected yet (Stripe is still unbuilt).
+
+- **Explorer ($0 / Free)**: Browse creator deals and copy promo codes. Role stays `USER`.
+- **Creator Basic ($10/month label)**: Sets role `CREATOR` and plan `BASIC`. Unlocks posting affiliate deals, applying to collabs, and the private campaign pipeline.
+- **Creator Standard ($15/month label)**: Sets plan `STANDARD`. Adds the public creator profile on `/creators`.
+
+Brand accounts are separate and cannot be switched into a creator plan from `/plans`.
 
 ## 🛠 Tech Stack
 

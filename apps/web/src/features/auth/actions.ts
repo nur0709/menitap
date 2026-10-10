@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
+import { safeNextPath } from '@/lib/safe-next-path'
 import { cache } from 'react'
 import { headers } from 'next/headers'
 
@@ -39,7 +40,7 @@ export async function signInWithEmail(prevState: AuthState | null, formData: For
     }
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data: signedIn, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
@@ -48,8 +49,24 @@ export async function signInWithEmail(prevState: AuthState | null, formData: For
     return { error: error.message }
   }
 
+  if (signedIn.user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', signedIn.user.id)
+      .single()
+
+    if (profile?.role === 'DELETED') {
+      await supabase
+        .from('profiles')
+        .update({ role: 'USER', updated_at: new Date().toISOString() })
+        .eq('id', signedIn.user.id)
+      await supabase.auth.updateUser({ data: { role: 'USER' } })
+    }
+  }
+
   revalidatePath('/', 'layout')
-  redirect('/')
+  redirect(safeNextPath(formData.get('redirectTo')) ?? '/')
 }
 
 export async function signUpWithEmail(prevState: AuthState | null, formData: FormData): Promise<AuthState> {
@@ -105,6 +122,10 @@ export async function signInWithGoogle(formData?: FormData) {
   const callbackUrl = new URL(`${origin}/auth/callback`)
   if (requestedRole && ['USER', 'CREATOR'].includes(requestedRole)) {
     callbackUrl.searchParams.set('role', requestedRole)
+  }
+  const nextPath = safeNextPath(formData?.get('redirectTo'))
+  if (nextPath) {
+    callbackUrl.searchParams.set('next', nextPath)
   }
 
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -190,7 +211,9 @@ export const getEffectiveUserContext = cache(async (): Promise<EffectiveUserCont
   const isAdmin = trueRole === 'ADMIN'
 
   const role = trueRole
-  const effectivePlan = subscription?.plan || 'FREE'
+  const subscriptionStatus = (subscription?.status || 'ACTIVE').toUpperCase()
+  const subscriptionGrantsAccess = subscriptionStatus === 'ACTIVE' || subscriptionStatus === 'TRIALING'
+  const effectivePlan = subscriptionGrantsAccess ? subscription?.plan || 'FREE' : 'FREE'
 
   return {
     user,
