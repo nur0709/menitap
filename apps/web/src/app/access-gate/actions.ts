@@ -22,11 +22,11 @@ export async function verifyAccessCode(
 ): Promise<AccessGateState> {
   const code = (formData.get('code') as string)?.trim()
   const returnTo = (formData.get('returnTo') as string)?.trim() || '/'
-  
+
   let expectedCode: string
   try {
     expectedCode = getAccessCode()
-  } catch (error) {
+  } catch {
     return { error: 'Access gate is not properly configured. Please contact the administrator.' }
   }
 
@@ -58,6 +58,6 @@ export async function verifyAccessCode(
   const destination = returnTo.startsWith('/') && !returnTo.startsWith('//')
     ? returnTo
     : '/'
-  
+
   redirect(destination)
 }
