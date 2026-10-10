@@ -1,3 +1,5 @@
+// Retired leftover. Creators sync pitches by connecting Gmail (`syncUserGmailCampaigns`).
+// Do not extend deals-{token}@ forwarding or this webhook.
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createServiceRoleClient } from '@/lib/supabase/server'

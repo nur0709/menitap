@@ -60,7 +60,7 @@ Menitap is an all-in-one platform tailored for user-generated content (UGC) crea
 
 Creator permissions follow `profiles.role`, not the dollar price on `/plans`. Switching a plan writes `subscriptions.plan` (`FREE`, `BASIC`, or `STANDARD`) directly. Stripe checkout is not wired. A non-`ACTIVE` / non-`TRIALING` subscription is treated as `FREE`. The public creator directory is the feature that requires `STANDARD`.
 
-Public collabs are rows in `brand_links`. A creator's private pipeline is rows in `creator_campaigns`. `/collabs` filters categories with type `CREATORS`. The site access gate defaults to `menitap2026` when `SITE_ACCESS_CODE` is unset.
+Public collabs are rows in `brand_links`. A creator's private pipeline is rows in `creator_campaigns`, filled by Gmail OAuth sync (`syncUserGmailCampaigns`), manual add, or tracking a public collab. Forwarding to `deals-{token}@in.menitap.com` and `/api/inbound-email` are retired leftovers. `/collabs` filters categories with type `CREATORS`. The site access gate defaults to `menitap2026` when `SITE_ACCESS_CODE` is unset.
 
 ## Common Commands
 ```bash

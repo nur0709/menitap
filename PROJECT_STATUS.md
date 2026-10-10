@@ -45,9 +45,11 @@ Read `AGENTS.md` for coding standards and conventions.
   - **Creator Basic ($10/mo label)**: Sets role `CREATOR` and plan `BASIC`. Posting deals and tracking collabs check role, not a Stripe subscription.
   - **Creator Standard ($15/mo label)**: Sets plan `STANDARD`, which is what unlocks the public portfolio.
   - Switching plans writes `subscriptions` directly. Stripe products, checkout, and webhooks are still unbuilt (Phase 4). A subscription row is ignored unless `status` is `ACTIVE` or `TRIALING`.
+- **How a creator's pitches get into the CRM (current)**: Connect Gmail with OAuth (`/api/auth/google/connect`, intent `gmail`). `syncUserGmailCampaigns` reads that mailbox and writes `creator_campaigns`. The dashboard control is `GoogleSyncCard`. Manual add and "track this collab" are the other ways a card is created.
+- **Retired, do not extend**: Forwarding pitches to `deals-{token}@in.menitap.com` is not the product anymore. `/api/inbound-email`, `profiles.inbound_email_token`, and the Phase 9 forwarding notes below are leftovers. The dashboard does not ask creators to forward mail.
 - **Two campaign tables**:
   - `brand_links`: public Brand Collabs board. Public `/post-collab` submissions stay `PENDING`.
-  - `creator_campaigns`: private creator inbox (email, Gmail, or tracking a public collab).
+  - `creator_campaigns`: private creator pipeline. Filled by Gmail sync, manual add, or tracking a public collab.
 - **Account Page (`/dashboard`)**:
   - Avatar-only in navbar navigates directly to `/dashboard`.
   - Sign Out button is cleanly located on `/dashboard` next to "Switch Plan".
@@ -105,7 +107,7 @@ Read `AGENTS.md` for coding standards and conventions.
 - [x] Upgraded Category Manager with live tab labels (`Deals`, `Brand Collabs`, `Creators`)
 - [x] Removed irrelevant consumer upsells ("Switch Plan") for Admin accounts
 
-### ✅ Phase 9 — Creator Inbound Campaign Hub & Email Ingestion Pipeline (COMPLETED & LIVE)
+### ✅ Phase 9 — Creator Campaign Hub (Gmail sync is the live intake; forwarding below is retired)
 - [x] **Production Domain (`menitap.com`)**: Live with SSL; GoDaddy DNS configured with apex A record (`76.76.21.21`) and `www` CNAME (`cname.vercel-dns.com`). Old `menitap.vercel.app` 307-redirects to `menitap.com`.
 - [x] **Inbound Email Subdomain (`in.menitap.com`)**: Configured via Resend with MX `inbound-smtp.us-east-1.amazonaws.com` (priority 10), SPF, and DKIM TXT records.
 - [x] **RFC Hyphen Addressing Format**: Switched from plus-addressing to `deals-{token}@in.menitap.com` to prevent Gmail Forwarding validator rejections (*"Invalid forwarding address"*).
@@ -186,5 +188,6 @@ PointTransaction: id, user_id, points, reason, type (EARNED|REDEEMED)
 ## Next Steps
 1. **User Review on Live Dashboard**: Collect user feedback on the new card visuals, favorite heart toggle, and selection mode bulk delete.
 2. **Review Modal Polish**: Refine reply drafts, attachments, or deliverables inside the modal if needed.
-3. **Still open after the 2026-10-10 logic pass**: Resend inbound webhooks are not signature-checked. Row Level Security does not yet enforce role checks that the server actions do. Community and JoinBrands sync still run with the anon client, so those writes are expected to fail closed under RLS until a service-role path exists.
+3. **Retired leftover**: `/api/inbound-email` and `deals-{token}@in.menitap.com` are not the pitch intake. Do not harden or extend them. Gmail OAuth sync is the path.
+4. **Still open**: Row Level Security does not yet enforce role checks that the server actions do. Community and JoinBrands sync still run with the anon client, so those writes are expected to fail closed under RLS until a service-role path exists.
 
