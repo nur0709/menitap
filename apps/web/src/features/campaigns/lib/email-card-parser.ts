@@ -1,4 +1,5 @@
 import { CampaignStatus } from '../types'
+import { completeWithModels, extractJsonObject } from './model-json'
 
 export interface ParsedEmailCard {
   brandName: string
@@ -316,9 +317,6 @@ export async function parseEmailToCampaignCard(params: {
     return null
   }
 
-  const geminiApiKey = process.env.GEMINI_API_KEY
-  const groqApiKey = process.env.GROQ_API_KEY
-
   const prompt = `You are an expert UGC creator gatekeeper and campaign assistant for Menitap.
 Analyze this incoming email received by a content creator:
 
@@ -375,74 +373,14 @@ If "isCollaboration" is true:
   "status": "NEW_PITCH"
 }`
 
-  // 1. Try Gemini
-  if (geminiApiKey) {
-    const models = ['gemini-2.0-flash', 'gemini-1.5-flash']
-    for (const model of models) {
-      try {
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: { responseMimeType: 'application/json' },
-            }),
-            signal: AbortSignal.timeout(8000),
-          }
-        )
+  const generated = await completeWithModels(prompt, (raw) => {
+    const parsed = extractJsonObject(raw)
+    if (!parsed || typeof parsed !== 'object') return null
+    return parsed as Record<string, unknown>
+  })
 
-        if (res.ok) {
-          const json = await res.json()
-          const raw = json.candidates?.[0]?.content?.parts?.[0]?.text
-          if (raw) {
-            const parsed = JSON.parse(raw)
-            return formatParsedCard(parsed, sender, subject)
-          }
-        }
-      } catch (err) {
-        console.warn(`[parseEmailToCampaignCard] Gemini (${model}) failed:`, err)
-      }
-    }
-  }
-
-  // 2. Try Groq
-  if (groqApiKey) {
-    const groqModels = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant']
-    for (const model of groqModels) {
-      try {
-        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${groqApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model,
-            messages: [{ role: 'user', content: prompt }],
-            response_format: { type: 'json_object' },
-            temperature: 0.1,
-          }),
-          signal: AbortSignal.timeout(8000),
-        })
-
-        if (res.ok) {
-          const json = await res.json()
-          const raw = json.choices?.[0]?.message?.content
-          if (raw) {
-            const parsed = JSON.parse(raw)
-            return formatParsedCard(parsed, sender, subject)
-          }
-        }
-      } catch (err) {
-        console.warn(`[parseEmailToCampaignCard] Groq (${model}) failed:`, err)
-      }
-    }
-  }
-
-  // 3. Fallback Heuristics (Safe-by-default, fail-closed)
-  return fallbackHeuristicParser(cleanBody, sender, subject)
+  if (!generated.ok) return null
+  return formatParsedCard(generated.value, sender, subject)
 }
 
 /**
@@ -578,153 +516,3 @@ function formatParsedCard(
     cleanSubject: subject,
   }
 }
-
-/**
- * Strict, fail-closed heuristic fallback.
- * Only accepts emails that have clear compound proof of an authentic brand sponsorship pitch.
- * When in doubt, returns null to avoid spamming the creator's board.
- */
-function fallbackHeuristicParser(
-  body: string,
-  sender: string,
-  subject: string
-): ParsedEmailCard | null {
-  const combined = (subject + ' ' + body).toLowerCase()
-
-  // 1. Instant rejection of retail promotional emails & newsletters
-  if (
-    combined.includes('unsubscribe') ||
-    combined.includes('view in browser') ||
-    combined.includes('manage your preferences') ||
-    combined.includes('% off') ||
-    combined.includes('coupon code') ||
-    combined.includes('shop now') ||
-    combined.includes('cart') ||
-    combined.includes('order number') ||
-    combined.includes('shipping tracking')
-  ) {
-    return null
-  }
-
-  // 2. Must contain high-confidence explicit collaboration intent phrases
-  const highConfidenceIntent = [
-    'paid partnership',
-    'paid collaboration',
-    'paid tiktok collaboration',
-    'paid instagram collaboration',
-    'pr package',
-    'pr box',
-    'gifted collaboration',
-    'collaboration invitation',
-    'product seeding',
-    'collaboration proposal',
-    'sponsorship proposal',
-    'ugc creator opportunity',
-    'send you our product',
-    'send you free product',
-    'sending you our',
-    'application received',
-    'rate for a video',
-    'rate for 1 reel',
-  ]
-
-  const hasIntent = highConfidenceIntent.some((phrase) => combined.includes(phrase))
-  if (!hasIntent) {
-    return null
-  }
-
-  // 3. Must ALSO contain compensation or deliverables signal
-  const compensationSignal =
-    /\$\s*\d{2,4}/.test(combined) ||
-    combined.includes('budget') ||
-    combined.includes('rate card') ||
-    combined.includes('compensation') ||
-    combined.includes('gifted') ||
-    combined.includes('free product')
-
-  const deliverablesSignal =
-    combined.includes('deliverable') ||
-    combined.includes('tiktok') ||
-    combined.includes('reel') ||
-    combined.includes('video') ||
-    combined.includes('post')
-
-  if (!compensationSignal || !deliverablesSignal) {
-    return null
-  }
-
-  // Derive brand name cleanly using sender info & known entities
-  const senderInfo = parseSenderInfo(sender)
-  let derivedBrand = 'Brand Partner'
-  let brandDomain: string | null = null
-
-  const known = KNOWN_CREATOR_ENTITIES[senderInfo.rootDomain]
-  if (known) {
-    derivedBrand = known.name
-    brandDomain = known.domain
-  } else if (
-    senderInfo.displayName &&
-    !senderInfo.displayName.includes('@') &&
-    senderInfo.displayName.length > 2
-  ) {
-    derivedBrand = senderInfo.displayName
-    brandDomain = senderInfo.rootDomain || null
-  } else if (
-    senderInfo.rootDomain &&
-    !['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com'].includes(senderInfo.rootDomain)
-  ) {
-    const base = senderInfo.rootDomain.split('.')[0].replace(/-beauty$/i, '').replace(/global$/i, '')
-    derivedBrand = base.charAt(0).toUpperCase() + base.slice(1)
-    brandDomain = senderInfo.rootDomain
-  }
-
-  if (derivedBrand.toLowerCase() === 'lepique-beauty') derivedBrand = 'Lepique'
-  if (derivedBrand.toLowerCase() === 'drpeptiglobal') derivedBrand = 'Dr. PEPTI'
-
-  const brandLogoUrl = brandDomain
-    ? `https://www.google.com/s2/favicons?domain=${brandDomain}&sz=128`
-    : null
-
-  // Extract pay if present
-  const payMatch = body.match(/\$\s*(\d{1,4}(?:,\d{3})*)/)
-  const compensation = payMatch ? `$${payMatch[1]}` : 'Gifted / TBD'
-
-  // Extract deadline if mentioned
-  let deadline: string | null = null
-  const deadlineMatch = body.match(
-    /(?:due by|deadline:?|submit by|post by|deliver by|live by)\s*([A-Za-z]+ \d{1,2}(?:st|nd|rd|th)?(?:,?\s*\d{4})?|\d{1,2}\/\d{1,2}(?:\/\d{2,4})?|\d{4}-\d{2}-\d{2})/i
-  )
-  if (deadlineMatch && deadlineMatch[1]) {
-    const rawClean = deadlineMatch[1].replace(/(st|nd|rd|th)/i, '')
-    const parsedDate = new Date(rawClean)
-    if (!isNaN(parsedDate.getTime())) {
-      deadline = parsedDate.toISOString()
-    }
-  }
-
-  const cleanSubjectProduct = subject.replace(/^(\s*(re|fwd|fw)\s*:\s*)+/i, '').trim().slice(0, 60)
-  let derivedProduct = cleanSubjectProduct || null
-
-  // If application received email (e.g. from The Cirqle), extract the campaign & client brand from body
-  const appMatch =
-    body.match(/application for\s*<strong[^>]*>([^<]+)<\/strong>\s*by\s*<strong[^>]*>([^<]+)<\/strong>/i) ||
-    body.match(/application for\s*([^<\r\n]+?)\s*by\s*([^<\r\n]+)/i)
-  if (appMatch && appMatch[1] && appMatch[2]) {
-    const product = appMatch[1].replace(/<[^>]+>/g, '').trim()
-    const client = appMatch[2].replace(/<[^>]+>/g, '').trim()
-    derivedProduct = `${client} - ${product}`
-  }
-
-  return {
-    brandName: derivedBrand,
-    brandLogoUrl,
-    productName: derivedProduct,
-    compensation,
-    deliverables: 'UGC Video Deliverables',
-    deadline,
-    status: 'NEW_PITCH',
-    cleanSender: sender,
-    cleanSubject: subject,
-  }
-}
-

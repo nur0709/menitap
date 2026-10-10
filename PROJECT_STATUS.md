@@ -169,7 +169,7 @@ Read `AGENTS.md` for coding standards and conventions.
 
 ```
 Profile: id, email, full_name, avatar_url, role (USER|CREATOR|BRAND|ADMIN), inbound_email_token (text unique), created_at, updated_at
-CreatorCampaign: id, user_id, brand_name, brand_logo_url, product_name, compensation, deliverables, deadline, status (NEW_PITCH|REVIEWED|APPLIED|WAITING_PRODUCT|SUBMITTED|PAYMENT_PENDING|PAID|DECLINED), is_liked (boolean), raw_source_text, source_type (EMAIL|MANUAL|EXTENSION), source_sender, source_subject, notes, created_at, updated_at
+CreatorCampaign: id, user_id, brand_name, brand_logo_url, product_name, compensation, deliverables, deadline, status (NEW_PITCH|REVIEWED|APPLIED|WAITING_PRODUCT|SUBMITTED|PAYMENT_PENDING|PAID|DECLINED), is_liked (boolean), raw_source_text, source_type (EMAIL|MANUAL|EXTENSION), source_sender, source_subject, source_message_id (Gmail thread id), next_step, action_url, parser_model, notes, created_at, updated_at
 Subscription: id, user_id, stripe_customer_id, stripe_subscription_id, plan (FREE|BASIC|STANDARD), status (ACTIVE|PAST_DUE|CANCELED|TRIALING), current_period_end
 Category: id, name, slug, description, sort_order, is_active, type ('DEALS'|'CREATORS'|'BRANDS')
 AffiliateLink: id, user_id, category_id, title, url, promo_code, description, product_image_url, discount_percentage, status (ACTIVE|PENDING|APPROVED|REJECTED), click_count
@@ -184,7 +184,12 @@ PointTransaction: id, user_id, points, reason, type (EARNED|REDEEMED)
 - Local verification uses Node.js 22 and pnpm 12.8.1. `pnpm dev` serves the Next.js app on port 3000.
 - Browsing deals and collabs needs gitignored `apps/web/.env.local` (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`). Operating notes, including the private-preview access gate, are in `AGENTS.md`.
 
+## Gmail thread cards (2026-10-10)
+
+Pitch intake is Gmail OAuth sync, not deals-token forwarding. Each click judges up to 5 new threads since `gmail_sync_cursor_ms` (first run looks back 14 days). Promotions are included. Social mail and mail the creator sent are skipped. One model call per thread returns action, update, or ignore. Gemini `gemini-3.6-flash` is the default. Groq `openai/gpt-oss-120b` runs only if Gemini fails. If both fail, no card is created and the sync button says the reader is unavailable. Keyword cards are not created. `creator_campaigns.parser_model` records which model wrote the card. `parser_provider_alerts` stores provider failures, and `SLACK_OPS_WEBHOOK_URL` sends one Slack note that stays quiet for 6 hours.
+
 ## Next Steps
 1. **User Review on Live Dashboard**: Collect user feedback on the new card visuals, favorite heart toggle, and selection mode bulk delete.
 2. **Review Modal Polish**: Refine reply drafts, attachments, or deliverables inside the modal if needed.
+3. **Owner Slack webhook**: set `SLACK_OPS_WEBHOOK_URL` so Gemini or Groq failures ping the product channel.
 

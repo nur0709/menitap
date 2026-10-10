@@ -211,6 +211,7 @@ export type Database = {
       }
       creator_campaigns: {
         Row: {
+          action_url: string | null
           brand_logo_url: string | null
           brand_name: string
           compensation: string | null
@@ -219,7 +220,9 @@ export type Database = {
           deliverables: string | null
           id: string
           is_liked: boolean | null
+          next_step: string | null
           notes: string | null
+          parser_model: string | null
           product_name: string | null
           raw_source_text: string | null
           source_message_id: string | null
@@ -231,6 +234,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          action_url?: string | null
           brand_logo_url?: string | null
           brand_name: string
           compensation?: string | null
@@ -239,7 +243,9 @@ export type Database = {
           deliverables?: string | null
           id?: string
           is_liked?: boolean | null
+          next_step?: string | null
           notes?: string | null
+          parser_model?: string | null
           product_name?: string | null
           raw_source_text?: string | null
           source_message_id?: string | null
@@ -251,6 +257,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          action_url?: string | null
           brand_logo_url?: string | null
           brand_name?: string
           compensation?: string | null
@@ -259,7 +266,9 @@ export type Database = {
           deliverables?: string | null
           id?: string
           is_liked?: boolean | null
+          next_step?: string | null
           notes?: string | null
+          parser_model?: string | null
           product_name?: string | null
           raw_source_text?: string | null
           source_message_id?: string | null
@@ -404,6 +413,8 @@ export type Database = {
           access_token: string | null
           created_at: string | null
           email_address: string
+          gmail_sync_cursor_ms: number | null
+          gmail_sync_page_token: string | null
           id: string
           last_synced_at: string | null
           provider: string
@@ -416,6 +427,8 @@ export type Database = {
           access_token?: string | null
           created_at?: string | null
           email_address: string
+          gmail_sync_cursor_ms?: number | null
+          gmail_sync_page_token?: string | null
           id?: string
           last_synced_at?: string | null
           provider?: string
@@ -428,6 +441,8 @@ export type Database = {
           access_token?: string | null
           created_at?: string | null
           email_address?: string
+          gmail_sync_cursor_ms?: number | null
+          gmail_sync_page_token?: string | null
           id?: string
           last_synced_at?: string | null
           provider?: string
@@ -445,6 +460,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      parser_provider_alerts: {
+        Row: {
+          created_at: string
+          detail: string | null
+          id: string
+          kind: string
+          provider: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: string | null
+          id?: string
+          kind: string
+          provider: string
+        }
+        Update: {
+          created_at?: string
+          detail?: string | null
+          id?: string
+          kind?: string
+          provider?: string
+        }
+        Relationships: []
       }
     }
     Views: {
