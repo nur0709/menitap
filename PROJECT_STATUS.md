@@ -185,6 +185,11 @@ PointTransaction: id, user_id, points, reason, type (EARNED|REDEEMED)
 
 ---
 
+## Cloud Agent development
+
+- Local verification uses Node.js 22 and pnpm 12.8.1. `pnpm dev` serves the Next.js app on port 3000.
+- Browsing deals and collabs needs gitignored `apps/web/.env.local` (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`). Operating notes, including the private-preview access gate, are in `AGENTS.md`.
+
 ## Next Steps
 1. **User Review on Live Dashboard**: Collect user feedback on the new card visuals, favorite heart toggle, and selection mode bulk delete.
 2. **Review Modal Polish**: Refine reply drafts, attachments, or deliverables inside the modal if needed.
