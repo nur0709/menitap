@@ -5,6 +5,7 @@ import {
   CreatorCampaign,
   CampaignStatus,
   CanonicalCampaignStatus,
+  nextStepLabel,
   normalizeCampaignStatus,
 } from '../types'
 import { updateCampaignStatus, toggleCampaignLiked, updateCampaignDeadline } from '../actions'
@@ -190,6 +191,7 @@ export function CampaignCard({
   const isNew = currentStatus === 'NEW_PITCH'
   const normalizedStatus = normalizeCampaignStatus(currentStatus)
   const statusInfo = STATUS_CONFIG[normalizedStatus]
+  const stepLabel = nextStepLabel(campaign.next_step)
 
   // Card border and background states
   let cardBorderClass = 'border-border hover:border-foreground/25'
@@ -251,6 +253,9 @@ export function CampaignCard({
                 ) : (
                   <p className="text-[11px] text-muted-foreground/80 mt-0.5">Brand Collaboration</p>
                 )}
+                {stepLabel ? (
+                  <p className="text-[11px] font-semibold text-[#FC801A] mt-1">{stepLabel}</p>
+                ) : null}
               </div>
             </div>
 

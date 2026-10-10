@@ -45,7 +45,13 @@ export async function triggerGmailSyncAction(): Promise<SyncResult> {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return { success: false, newDealsCount: 0, totalScanned: 0, error: 'Not authenticated' }
+    return {
+      success: false,
+      newDealsCount: 0,
+      updatedDealsCount: 0,
+      totalScanned: 0,
+      error: 'Not authenticated',
+    }
   }
 
   const result = await syncUserGmailCampaigns(user.id)

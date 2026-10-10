@@ -55,6 +55,23 @@ export function normalizeCampaignStatus(
   }
 }
 
+export function nextStepLabel(step: string | null | undefined): string | null {
+  switch (step) {
+    case 'reply':
+      return 'Reply'
+    case 'fill_form':
+      return 'Fill the form'
+    case 'submit_content':
+      return 'Submit content'
+    case 'waiting':
+      return 'Waiting on them'
+    case 'review_list':
+      return 'Review this list'
+    default:
+      return null
+  }
+}
+
 export type CampaignSourceType = 'EMAIL' | 'MANUAL' | 'EXTENSION'
 
 export interface CreatorCampaign {
@@ -73,6 +90,9 @@ export interface CreatorCampaign {
   source_subject: string | null
   source_message_id?: string | null
   notes: string | null
+  next_step?: string | null
+  action_url?: string | null
+  parser_model?: string | null
   is_liked?: boolean
   created_at: string
   updated_at: string

@@ -18,6 +18,7 @@ export function GoogleSyncCard({ initialStatus }: GoogleSyncCardProps) {
   const [status, setStatus] = useState<GoogleIntegrationStatus>(initialStatus)
   const [isPending, startTransition] = useTransition()
   const [syncFeedback, setSyncFeedback] = useState<string | null>(null)
+  const [feedbackTone, setFeedbackTone] = useState<'ok' | 'warn'>('ok')
   const [outlookFeedback, setOutlookFeedback] = useState<string | null>(null)
 
   const handleDisconnect = () => {
@@ -37,19 +38,35 @@ export function GoogleSyncCard({ initialStatus }: GoogleSyncCardProps) {
     setSyncFeedback(null)
     startTransition(async () => {
       const res = await triggerGmailSyncAction()
-      if (res.success) {
-        setStatus((prev) => ({
-          ...prev,
-          lastSyncedAt: new Date().toISOString(),
-        }))
-        setSyncFeedback(
-          res.newDealsCount > 0
-            ? `+${res.newDealsCount} deal${res.newDealsCount > 1 ? 's' : ''}`
-            : 'Up to date'
-        )
-      } else {
+      if (!res.success) {
+        setFeedbackTone('warn')
         setSyncFeedback(res.error || 'Failed to sync')
+        return
       }
+
+      setStatus((prev) => ({
+        ...prev,
+        lastSyncedAt: new Date().toISOString(),
+      }))
+
+      if (res.notice) {
+        setFeedbackTone(res.noticeTone ?? 'warn')
+        setSyncFeedback(res.notice)
+        if (res.noticeTone === 'ok') {
+          setTimeout(() => setSyncFeedback(null), 3500)
+        }
+        return
+      }
+
+      const parts: string[] = []
+      if (res.newDealsCount > 0) {
+        parts.push(`+${res.newDealsCount} new`)
+      }
+      if (res.updatedDealsCount > 0) {
+        parts.push(`${res.updatedDealsCount} updated`)
+      }
+      setFeedbackTone('ok')
+      setSyncFeedback(parts.length > 0 ? parts.join(', ') : 'Up to date')
       setTimeout(() => setSyncFeedback(null), 3500)
     })
   }
@@ -195,7 +212,13 @@ export function GoogleSyncCard({ initialStatus }: GoogleSyncCardProps) {
 
       {/* Sync / Outlook Feedback Badge */}
       {(syncFeedback || outlookFeedback) && (
-        <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl animate-in fade-in slide-in-from-left-1 whitespace-nowrap ml-0.5">
+        <span
+          className={`text-[11px] font-semibold px-2.5 py-1 rounded-xl animate-in fade-in slide-in-from-left-1 whitespace-nowrap ml-0.5 ${
+            feedbackTone === 'warn'
+              ? 'text-amber-700 dark:text-amber-400 bg-amber-500/10'
+              : 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'
+          }`}
+        >
           {syncFeedback || outlookFeedback}
         </span>
       )}

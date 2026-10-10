@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { CreatorCampaign, CampaignStatus } from '../types'
+import { CreatorCampaign, CampaignStatus, nextStepLabel } from '../types'
 import { CampaignDatePicker } from './campaign-date-picker'
 import {
   extractEmailAddress,
@@ -50,7 +50,15 @@ export function CampaignDetailsModal({
   const activeDeadline = currentDeadline !== undefined ? currentDeadline : campaign.deadline
 
   const brandEmail = extractEmailAddress(campaign.source_sender)
-  const applicationUrl = extractApplicationFormUrl(campaign.raw_source_text)
+  const stepLabel = nextStepLabel(campaign.next_step)
+  const applicationUrl = campaign.next_step
+    ? campaign.action_url
+    : extractApplicationFormUrl(campaign.raw_source_text)
+  const linkLabel = campaign.next_step === 'review_list'
+    ? 'Open list'
+    : campaign.next_step === 'fill_form' || !campaign.next_step
+      ? 'Apply'
+      : 'Open link'
 
   // Single clean, predefined Accept draft as requested by user
   const signoff = userName?.trim() ? `Best,\n${userName.trim()}` : 'Best,'
@@ -182,6 +190,9 @@ export function CampaignDetailsModal({
                     {campaign.product_name}
                   </p>
                 )}
+                {stepLabel ? (
+                  <p className="text-[11px] font-semibold text-[#FC801A] mt-1">{stepLabel}</p>
+                ) : null}
               </div>
           </div>
 
@@ -194,7 +205,7 @@ export function CampaignDetailsModal({
               onClick={() => setHasInteracted(true)}
               className="inline-flex items-center gap-1.5 bg-[#FC801A] hover:bg-[#E66F0D] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors shrink-0"
             >
-              <span>Apply</span>
+              <span>{linkLabel}</span>
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           )}
