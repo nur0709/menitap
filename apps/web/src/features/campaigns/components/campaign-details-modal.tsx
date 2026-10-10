@@ -54,7 +54,11 @@ export function CampaignDetailsModal({
 
   // Single clean, predefined Accept draft as requested by user
   const signoff = userName?.trim() ? `Best,\n${userName.trim()}` : 'Best,'
-  const acceptDraftText = `Hi there,\n\nThank you for reaching out! I would love to collaborate with ${campaign.brand_name} on this campaign.\n\n${signoff}`
+  const shortProduct = campaign.product_name
+    ? campaign.product_name.split(' - ')[0].slice(0, 40).trim()
+    : ''
+  const collabTarget = shortProduct ? ` on the ${shortProduct} campaign` : ' on this campaign'
+  const acceptDraftText = `Hi there,\n\nThank you for reaching out! I would love to collaborate with ${campaign.brand_name}${collabTarget}.\n\n${signoff}`
   const [customDraft, setCustomDraft] = useState(acceptDraftText)
   const [prevCampaignId, setPrevCampaignId] = useState(campaign.id)
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen)
