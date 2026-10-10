@@ -12,7 +12,7 @@ export interface ParsedEmailCard {
   cleanSubject: string
 }
 
-export interface SenderInfo {
+interface SenderInfo {
   raw: string
   displayName: string
   email: string
@@ -20,7 +20,7 @@ export interface SenderInfo {
   rootDomain: string
 }
 
-export interface KnownCreatorEntity {
+interface KnownCreatorEntity {
   name: string
   type: 'PLATFORM' | 'AGENCY'
   domain: string
@@ -29,7 +29,7 @@ export interface KnownCreatorEntity {
 /**
  * Robust root domain extractor supporting multi-part ccTLDs (.co.kr, .co.uk, .com.au, etc.)
  */
-export function extractRootDomain(hostname: string): string {
+function extractRootDomain(hostname: string): string {
   if (!hostname) return ''
   const lower = hostname.toLowerCase().trim()
   const parts = lower.split('.')
@@ -59,7 +59,7 @@ export function extractRootDomain(hostname: string): string {
 /**
  * Extracts RFC 5322 display name, clean email address, and root domain from an email sender string
  */
-export function parseSenderInfo(sender: string): SenderInfo {
+function parseSenderInfo(sender: string): SenderInfo {
   const raw = sender.trim()
   let displayName = ''
   let email = ''
@@ -86,7 +86,7 @@ export function parseSenderInfo(sender: string): SenderInfo {
 /**
  * Comprehensive dictionary of known creator platforms, talent networks, and agencies
  */
-export const KNOWN_CREATOR_ENTITIES: Record<string, KnownCreatorEntity> = {
+const KNOWN_CREATOR_ENTITIES: Record<string, KnownCreatorEntity> = {
   // Creator Platforms & Marketplaces
   'thecirqle.com': { name: 'The Cirqle', type: 'PLATFORM', domain: 'thecirqle.com' },
   'creatoriq.io': { name: 'CreatorIQ', type: 'PLATFORM', domain: 'creatoriq.io' },
