@@ -11,8 +11,8 @@
 
 ## Current Phase: Phase 9.5 — Creator Campaign CRM Polish, Date Picker & Workflow Pipeline (COMPLETED & LIVE)
 
-## Last Updated: 2026-10-09
-## Last Agent: Antigravity
+## Last Updated: 2026-10-10
+## Last Agent: Cursor
 ## GitHub Repo: https://github.com/nur0709/menitap
 ## Live Production URL: https://menitap.com
 
@@ -39,11 +39,15 @@ Read `AGENTS.md` for coding standards and conventions.
   - `USER` (Shopper / Consumer / Explorer): Can browse deals, save items, view beginner resources.
   - `CREATOR` (UGC Creator): Can post affiliate deals (`+ Post a Deal`), access direct brand collaboration campaigns, manage shared links.
   - `BRAND` (Brand Manager): Can post brand collaboration campaigns, search and discover UGC creators.
-  - `ADMIN`: Has full privileges, category management per tab, and an account switcher cookie toggle to preview experience as any account type without losing admin status.
+  - `ADMIN`: Has full privileges and category management per tab. There is no admin preview-role cookie; `getEffectiveUserContext` uses the real profile role.
 - **Plans & Pricing Structure** (`/plans`):
-  - **Explorer ($0 / Free)**: For deal hunters & beginner creators.
-  - **Creator Basic ($10/mo)**: Post affiliate links, direct brand application access, receive products to test.
-  - **Creator Standard ($15/mo)**: Public Creator Profile & Portfolio, category-filtered brand visibility.
+  - **Explorer ($0 / Free)**: For deal hunters. Role `USER`, plan `FREE`.
+  - **Creator Basic ($10/mo label)**: Sets role `CREATOR` and plan `BASIC`. Posting deals and tracking collabs check role, not a Stripe subscription.
+  - **Creator Standard ($15/mo label)**: Sets plan `STANDARD`, which is what unlocks the public portfolio.
+  - Switching plans writes `subscriptions` directly. Stripe products, checkout, and webhooks are still unbuilt (Phase 4). A subscription row is ignored unless `status` is `ACTIVE` or `TRIALING`.
+- **Two campaign tables**:
+  - `brand_links`: public Brand Collabs board. Public `/post-collab` submissions stay `PENDING`.
+  - `creator_campaigns`: private creator inbox (email, Gmail, or tracking a public collab).
 - **Account Page (`/dashboard`)**:
   - Avatar-only in navbar navigates directly to `/dashboard`.
   - Sign Out button is cleanly located on `/dashboard` next to "Switch Plan".
@@ -172,7 +176,7 @@ Profile: id, email, full_name, avatar_url, role (USER|CREATOR|BRAND|ADMIN), inbo
 CreatorCampaign: id, user_id, brand_name, brand_logo_url, product_name, compensation, deliverables, deadline, status (NEW_PITCH|REVIEWED|APPLIED|WAITING_PRODUCT|SUBMITTED|PAYMENT_PENDING|PAID|DECLINED), is_liked (boolean), raw_source_text, source_type (EMAIL|MANUAL|EXTENSION), source_sender, source_subject, notes, created_at, updated_at
 Subscription: id, user_id, stripe_customer_id, stripe_subscription_id, plan (FREE|BASIC|STANDARD), status (ACTIVE|PAST_DUE|CANCELED|TRIALING), current_period_end
 Category: id, name, slug, description, sort_order, is_active, type ('DEALS'|'CREATORS'|'BRANDS')
-AffiliateLink: id, user_id, category_id, title, url, promo_code, description, product_image_url, discount_percentage, status (ACTIVE|PENDING|APPROVED|REJECTED), click_count
+AffiliateLink: id, user_id, category_id, title, product_url, promo_code, description, image_url, discount_percentage, status (ACTIVE|PENDING|APPROVED|REJECTED), click_count
 BrandLink: id, user_id, category_id, brand_name, application_url, description, brand_logo_url, status (PENDING|APPROVED|ACTIVE|REJECTED), products_provided
 PointTransaction: id, user_id, points, reason, type (EARNED|REDEEMED)
 ```
@@ -182,4 +186,5 @@ PointTransaction: id, user_id, points, reason, type (EARNED|REDEEMED)
 ## Next Steps
 1. **User Review on Live Dashboard**: Collect user feedback on the new card visuals, favorite heart toggle, and selection mode bulk delete.
 2. **Review Modal Polish**: Refine reply drafts, attachments, or deliverables inside the modal if needed.
+3. **Still open after the 2026-10-10 logic pass**: Resend inbound webhooks are not signature-checked. Row Level Security does not yet enforce role checks that the server actions do. Community and JoinBrands sync still run with the anon client, so those writes are expected to fail closed under RLS until a service-role path exists.
 

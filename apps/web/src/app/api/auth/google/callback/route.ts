@@ -33,6 +33,17 @@ export async function GET(req: Request) {
   try {
     const tokens = await exchangeGoogleCode(code)
     const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user || user.id !== stateUserId) {
+      return NextResponse.redirect(
+        `${appUrl}/dashboard?error=${encodeURIComponent(
+          'Start Google connect from your signed-in Menitap account.'
+        )}`
+      )
+    }
 
     if (intent === 'youtube') {
       try {
@@ -92,8 +103,16 @@ export async function GET(req: Request) {
         .select('refresh_token')
         .eq('user_id', stateUserId)
         .eq('provider', 'google')
-        .single()
-      refreshToken = existing?.refresh_token || ''
+        .maybeSingle()
+      refreshToken = existing?.refresh_token || undefined
+    }
+
+    if (!refreshToken) {
+      return NextResponse.redirect(
+        `${appUrl}/dashboard?error=${encodeURIComponent(
+          'Google did not return a refresh token. Remove Menitap from your Google account access and connect again.'
+        )}`
+      )
     }
 
     // Upsert into user_email_integrations

@@ -54,9 +54,13 @@ Menitap is an all-in-one platform tailored for user-generated content (UGC) crea
 | Role | User Type | Description & Access |
 |---|---|---|
 | `USER` | Shopper / Explorer | Default account type. Browses deals on `/deals`, copies verified promo codes, saves favorites. |
-| `CREATOR` | UGC Creator | Posts affiliate deals (`+ Post a Deal`), applies to brand campaigns on `/collabs`, manages active links, showcases public portfolio. |
+| `CREATOR` | UGC Creator | Posts affiliate deals (`+ Post a Deal`), applies to brand campaigns on `/collabs`, and manages the private campaign pipeline. The public portfolio requires plan `STANDARD`. |
 | `BRAND` | Brand Manager | Accesses the For Brands section, creates product review campaigns, discovers UGC creators. |
-| `ADMIN` | Platform Administrator | Has full access to all sections. Can switch preview modes safely via admin switcher cookie, manage categories per tab, and moderate campaigns. |
+| `ADMIN` | Platform Administrator | Has full access to all sections. Manages categories per tab and moderates campaigns from My Account (`/dashboard`). There is no preview-as-another-role switcher; permission checks use the signed-in profile role. |
+
+Creator permissions follow `profiles.role`, not the dollar price on `/plans`. Switching a plan writes `subscriptions.plan` (`FREE`, `BASIC`, or `STANDARD`) directly. Stripe checkout is not wired. A non-`ACTIVE` / non-`TRIALING` subscription is treated as `FREE`. The public creator directory is the feature that requires `STANDARD`.
+
+Public collabs are rows in `brand_links`. A creator's private pipeline is rows in `creator_campaigns`. `/collabs` filters categories with type `CREATORS`. The site access gate defaults to `menitap2026` when `SITE_ACCESS_CODE` is unset.
 
 ## Common Commands
 ```bash

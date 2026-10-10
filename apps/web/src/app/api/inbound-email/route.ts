@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createServiceRoleClient } from '@/lib/supabase/server'
 import {
   parseEmailToCampaignCard,
   isObviouslyNotCollaboration,
@@ -9,6 +10,25 @@ import {
   isCastingNewsletter,
   ingestNewsletterCollabs,
 } from '@/features/links/lib/newsletter-digest-parser'
+
+function extractDealsToken(recipients: string[]): string | null {
+  for (const recipient of recipients) {
+    const match = recipient.match(/deals[-+._]([a-zA-Z0-9_-]+)@/i)
+    if (match?.[1]) return match[1]
+  }
+  return null
+}
+
+function extractInboundToken(recipients: string[]): string | null {
+  const dealsToken = extractDealsToken(recipients)
+  if (dealsToken) return dealsToken
+
+  for (const recipient of recipients) {
+    const match = recipient.match(/^([a-zA-Z0-9_-]+)@in\.menitap\.com/i)
+    if (match?.[1]) return match[1]
+  }
+  return null
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -100,14 +120,20 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    // Personal inboxes (deals-{token}@) always stay in the creator CRM.
+    const personalDealsToken = extractDealsToken(toList)
+    const extractedTokenEarly = personalDealsToken ?? extractInboundToken(toList)
+
     // 2.5 Check if this is a Public Casting Calls Newsletter (e.g. Brands Meet Creators, UGC Club)
     const isPublicNewsletter =
-      toList.some(
+      !personalDealsToken &&
+      (toList.some(
         (r) =>
           r.toLowerCase().includes('collabs') ||
           r.toLowerCase().includes('public') ||
           r.toLowerCase().includes('casting')
-      ) || isCastingNewsletter(from, subject, textBody)
+      ) ||
+        isCastingNewsletter(from, subject, textBody))
 
     if (isPublicNewsletter) {
       console.log(`[inbound-email] Detected public casting newsletter: "${subject}" from "${from}"`)
@@ -129,16 +155,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Extract User Inbound Token from Recipient (e.g. deals-55cddc46@in.menitap.com)
-    let extractedToken: string | null = null
-    for (const recipient of toList) {
-      const match =
-        recipient.match(/(?:deals[-+._]|^)([a-zA-Z0-9_-]+)@/i) ||
-        recipient.match(/^([a-zA-Z0-9_-]+)@in\.menitap\.com/i)
-      if (match && match[1]) {
-        extractedToken = match[1]
-        break
-      }
-    }
+    const extractedToken = extractedTokenEarly
 
     if (!extractedToken) {
       console.warn('[inbound-email] No valid deals+token found in recipients:', toList)
@@ -171,7 +188,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (!profile) {
-      console.warn('[inbound-email] Invalid inbound token:', extractedToken)
+      console.warn('[inbound-email] Invalid inbound token')
       return NextResponse.json({ error: 'Invalid inbound token' }, { status: 404 })
     }
 
@@ -181,9 +198,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: 'ignored_self_sent_email' })
     }
 
-    // Deduplicate by normalized subject so replies in the same thread don't spawn duplicate cards
+    // Deduplicate by normalized subject so replies in the same thread don't spawn duplicate cards.
+    // The anon client cannot read another user's campaigns under RLS, so this uses the service role.
     const normSubject = normalizeCampaignSubject(subject)
-    const { data: existingCampaigns } = await supabase
+    const campaignReader = createServiceRoleClient() ?? supabase
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.warn('[inbound-email] SUPABASE_SERVICE_ROLE_KEY missing; subject dedupe may be skipped by RLS')
+    }
+    const { data: existingCampaigns } = await campaignReader
       .from('creator_campaigns')
       .select('id, source_subject, brand_name')
       .eq('user_id', profile.id)
@@ -248,7 +270,7 @@ export async function POST(req: NextRequest) {
     }
 
     console.log(
-      `[inbound-email] Successfully ingested campaign (${extractedCard.brandName}) for token ${extractedToken}`
+      `[inbound-email] Successfully ingested campaign (${extractedCard.brandName}) for profile ${profile.id}`
     )
 
     return NextResponse.json({

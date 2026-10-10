@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { smartExtractCampaignMetadata } from '@/lib/link-parser'
+import { assertPublicHttpUrl } from '@/lib/public-url'
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,16 +10,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Valid URL is required' }, { status: 400 })
     }
 
-    const trimmedUrl = url.trim()
-    const validUrl = trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')
-      ? trimmedUrl
-      : `https://${trimmedUrl}`
-
-    const metadata = await smartExtractCampaignMetadata(validUrl)
+    const publicUrl = await assertPublicHttpUrl(url)
+    const metadata = await smartExtractCampaignMetadata(publicUrl.toString())
 
     return NextResponse.json({ success: true, data: metadata })
   } catch (error) {
-    console.error('API /api/extract-metadata error:', error)
-    return NextResponse.json({ error: 'Failed to extract metadata' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Failed to extract metadata'
+    const clientError =
+      message === 'Enter a valid http(s) URL' ||
+      message === 'Only http(s) URLs are allowed' ||
+      message === 'URLs with credentials are not allowed' ||
+      message === 'That host cannot be fetched'
+    if (!clientError) {
+      console.error('API /api/extract-metadata error:', error)
+    }
+    return NextResponse.json(
+      { error: clientError ? message : 'Failed to extract metadata' },
+      { status: clientError ? 400 : 500 }
+    )
   }
 }
