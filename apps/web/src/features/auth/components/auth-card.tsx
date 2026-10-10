@@ -58,6 +58,7 @@ export function AuthCard({
   onClose,
   showCloseButton = false,
   className,
+  redirectParam,
 }: AuthCardProps) {
   const [view, setView] = useState<'options' | 'email'>(initialView)
   const [mode, setMode] = useState<AuthMode>(initialMode)
@@ -127,6 +128,7 @@ export function AuthCard({
           <div className="space-y-3 pt-2">
             {/* Option 1: Continue with Google */}
             <form action={signInWithGoogle} className="w-full">
+              {redirectParam ? <input type="hidden" name="redirectTo" value={redirectParam} /> : null}
               <Button
                 type="submit"
                 variant="outline"
@@ -205,6 +207,7 @@ export function AuthCard({
           {mode === 'login' ? (
             /* LOG IN WITH EMAIL */
             <form action={loginFormAction} className="space-y-3.5">
+              {redirectParam ? <input type="hidden" name="redirectTo" value={redirectParam} /> : null}
               {loginState?.error && (
                 <div className="p-2.5 text-xs font-medium text-destructive bg-destructive/10 border border-destructive/20 rounded-lg flex items-center gap-2">
                   <AlertCircle className="h-4 w-4 shrink-0" />

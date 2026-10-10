@@ -10,12 +10,13 @@ export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    // Check if development or authorized
-    const isDev = process.env.NODE_ENV === 'development'
-    if (!isDev) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  const isDev = process.env.NODE_ENV === 'development'
+  const authorized = Boolean(cronSecret) && authHeader === `Bearer ${cronSecret}`
+  if (!isDev && !authorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  if (isDev && cronSecret && !authorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { searchParams } = new URL(req.url)

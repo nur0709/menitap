@@ -29,6 +29,10 @@ export async function upgradeToCreator(plan: UpgradePlan = 'BASIC'): Promise<Upg
 
   const currentRole = (profile?.role || 'USER').toUpperCase()
 
+  if (currentRole === 'DELETED') {
+    return { error: 'This account was deleted. Sign in again to reactivate it before changing plans.' }
+  }
+
   // Only allow upgrading from Free Consumer account (USER)
   if (currentRole === 'BRAND') {
     return { error: 'Brand accounts cannot be converted to Creator accounts.' }
@@ -84,13 +88,19 @@ export async function upgradeToCreator(plan: UpgradePlan = 'BASIC'): Promise<Upg
 
   // Update or insert subscription plan (BASIC: $10/mo, STANDARD: $15/mo)
   const subscriptionPlan = plan === 'STANDARD' ? 'STANDARD' : 'BASIC'
-  await supabase
+  const { error: subError } = await supabase
     .from('subscriptions')
     .upsert({
       user_id: user.id,
       plan: subscriptionPlan,
       status: 'ACTIVE',
     }, { onConflict: 'user_id' })
+
+  if (subError) {
+    await supabase.from('profiles').update({ role: 'USER' }).eq('id', user.id)
+    await supabase.auth.updateUser({ data: { role: 'USER' } })
+    return { error: subError.message }
+  }
 
   revalidatePath('/dashboard')
   revalidatePath('/', 'layout')
@@ -158,7 +168,12 @@ export async function downgradeToConsumer(): Promise<UpgradeState> {
   revalidatePath('/', 'layout')
 
 
-  return { success: 'Your Creator subscription has been canceled and switched to a Free Consumer account.' }
+  return {
+    success:
+      currentRole === 'ADMIN'
+        ? 'Creator plan preview cleared. This account is still an admin.'
+        : 'Your Creator subscription has been canceled and switched to a Free Consumer account.',
+  }
 }
 
 export type DeleteAccountState = {

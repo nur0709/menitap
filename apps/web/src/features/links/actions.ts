@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
-import { ingestNewsletterCollabs } from './lib/newsletter-digest-parser'
+import { ingestNewsletterCollabs, isValidCollabUrl } from './lib/newsletter-digest-parser'
 
 const AffiliateLinkSchema = z.object({
   product_url: z.string().url('Please enter a valid product / affiliate URL (e.g. https://...)'),
@@ -25,6 +25,22 @@ const BrandLinkSchema = z.object({
 export type LinkActionState = {
   error?: string
   success?: string
+}
+
+async function categoryIsActive(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  categoryId: number,
+  type: 'DEALS' | 'CREATORS' | 'BRANDS'
+): Promise<boolean> {
+  const { data } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('id', categoryId)
+    .eq('type', type)
+    .eq('is_active', true)
+    .maybeSingle()
+
+  return Boolean(data)
 }
 
 export async function createAffiliateLink(
@@ -68,6 +84,10 @@ export async function createAffiliateLink(
   const validation = AffiliateLinkSchema.safeParse(rawData)
   if (!validation.success) {
     return { error: validation.error.issues[0]?.message || 'Validation failed' }
+  }
+
+  if (!(await categoryIsActive(supabase, validation.data.category_id, 'DEALS'))) {
+    return { error: 'Please select a deals category.' }
   }
 
   // Auto-generate title if empty from host URL
@@ -125,6 +145,10 @@ export async function createBrandLink(
   const validation = BrandLinkSchema.safeParse(rawData)
   if (!validation.success) {
     return { error: validation.error.issues[0]?.message || 'Validation failed' }
+  }
+
+  if (!(await categoryIsActive(supabase, validation.data.category_id, 'CREATORS'))) {
+    return { error: 'Please select a collab category.' }
   }
 
   // Verify user is BRAND or ADMIN
@@ -207,8 +231,18 @@ export async function submitPublicBrandCampaign(
     return { error: validation.error.issues[0]?.message || 'Validation failed' }
   }
 
+  if (!isValidCollabUrl(validation.data.application_url)) {
+    return {
+      error: 'Use an application or creator form link, not a store homepage or affiliate network.',
+    }
+  }
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+
+  if (!(await categoryIsActive(supabase, validation.data.category_id, 'CREATORS'))) {
+    return { error: 'Please select a collab category.' }
+  }
 
   // Public submissions from /post-collab must always enter the pending review queue
   const status = 'PENDING'
@@ -643,6 +677,17 @@ export async function trackCollabInCrm(
     return { error: 'Please sign in to track this collaboration' }
   }
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const role = (profile?.role || '').toUpperCase()
+  if (role !== 'CREATOR' && role !== 'ADMIN') {
+    return { error: 'Only creator accounts can track collaborations.' }
+  }
+
   // 1. Fetch collab details
   const { data: collab, error: collabErr } = await supabase
     .from('brand_links')
@@ -652,6 +697,10 @@ export async function trackCollabInCrm(
 
   if (collabErr || !collab) {
     return { error: 'Collaboration not found' }
+  }
+
+  if (collab.status !== 'ACTIVE' && collab.status !== 'APPROVED') {
+    return { error: 'This collaboration is not open.' }
   }
 
   // 2. Check if already tracked in user's campaigns
