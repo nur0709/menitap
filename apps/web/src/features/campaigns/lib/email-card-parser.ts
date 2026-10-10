@@ -613,13 +613,17 @@ function fallbackHeuristicParser(
     'paid tiktok collaboration',
     'paid instagram collaboration',
     'pr package',
+    'pr box',
     'gifted collaboration',
+    'collaboration invitation',
     'product seeding',
     'collaboration proposal',
     'sponsorship proposal',
     'ugc creator opportunity',
     'send you our product',
     'send you free product',
+    'sending you our',
+    'application received',
     'rate for a video',
     'rate for 1 reel',
   ]
@@ -699,11 +703,22 @@ function fallbackHeuristicParser(
   }
 
   const cleanSubjectProduct = subject.replace(/^(\s*(re|fwd|fw)\s*:\s*)+/i, '').trim().slice(0, 60)
+  let derivedProduct = cleanSubjectProduct || null
+
+  // If application received email (e.g. from The Cirqle), extract the campaign & client brand from body
+  const appMatch =
+    body.match(/application for\s*<strong[^>]*>([^<]+)<\/strong>\s*by\s*<strong[^>]*>([^<]+)<\/strong>/i) ||
+    body.match(/application for\s*([^<\r\n]+?)\s*by\s*([^<\r\n]+)/i)
+  if (appMatch && appMatch[1] && appMatch[2]) {
+    const product = appMatch[1].replace(/<[^>]+>/g, '').trim()
+    const client = appMatch[2].replace(/<[^>]+>/g, '').trim()
+    derivedProduct = `${client} - ${product}`
+  }
 
   return {
     brandName: derivedBrand,
     brandLogoUrl,
-    productName: cleanSubjectProduct || null,
+    productName: derivedProduct,
     compensation,
     deliverables: 'UGC Video Deliverables',
     deadline,
