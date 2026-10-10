@@ -6,6 +6,7 @@ import { CampaignDatePicker } from './campaign-date-picker'
 import {
   extractEmailAddress,
   extractApplicationFormUrl,
+  extractApplyLink,
   getGmailThreadUrl,
   getGmailComposeUrl,
 } from '../lib/action-helpers'
@@ -51,9 +52,10 @@ export function CampaignDetailsModal({
 
   const brandEmail = extractEmailAddress(campaign.source_sender)
   const stepLabel = nextStepLabel(campaign.next_step)
-  const applicationUrl = campaign.next_step
-    ? campaign.action_url
-    : extractApplicationFormUrl(campaign.raw_source_text)
+  const applicationUrl =
+    campaign.action_url ||
+    extractApplyLink(campaign.raw_source_text) ||
+    (campaign.next_step ? null : extractApplicationFormUrl(campaign.raw_source_text))
   const linkLabel = campaign.next_step === 'review_list'
     ? 'Open list'
     : campaign.next_step === 'fill_form' || !campaign.next_step

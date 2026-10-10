@@ -23,42 +23,90 @@ function isJunkUrl(url: string): boolean {
   )
 }
 
+const FORM_HOST =
+  /https?:\/\/(?:forms\.gle|docs\.google\.com\/forms|[\w.-]*typeform\.com|airtable\.com\/(?:app|shr)[\w]+|tally\.so|jotform\.com|[\w.-]*notion\.site|surveymonkey\.com)[^\s<>"')\]]*/i
+
+function cleanFoundUrl(url: string): string {
+  return url.replace(/&amp;/g, '&').replace(/[>),.\]]+$/, '')
+}
+
+/**
+ * A form or apply link only. Does not fall back to the first URL in the mail.
+ */
+export function extractApplyLink(text: string | null | undefined): string | null {
+  if (!text) return null
+
+  const formHostMatch = text.match(FORM_HOST)
+  if (formHostMatch && !isJunkUrl(formHostMatch[0])) {
+    return cleanFoundUrl(formHostMatch[0])
+  }
+
+  const htmlAnchorMatch = text.match(
+    /<a\s+[^>]*href=["'](https?:\/\/[^"'>]+)["'][^>]*>[\s\S]{0,120}?(?:apply|application|form|survey|sign\s*up|register)[\s\S]{0,50}?<\/a>/i
+  )
+  if (htmlAnchorMatch?.[1] && !isJunkUrl(htmlAnchorMatch[1])) {
+    return cleanFoundUrl(htmlAnchorMatch[1])
+  }
+
+  const labeledLink = text.match(
+    /\b(?:application|apply|form|register)\b[^:\n]{0,40}:\s*(https?:\/\/[^\s<>"')\]]+)/i
+  )
+  if (labeledLink?.[1] && !isJunkUrl(labeledLink[1])) {
+    return cleanFoundUrl(labeledLink[1])
+  }
+
+  const nearContextMatch = text.match(
+    /\b(?:application|apply|form|register)\b[\s\S]{0,120}?(https?:\/\/[^\s<>"')\]]+)/i
+  )
+  if (nearContextMatch?.[1] && !isJunkUrl(nearContextMatch[1])) {
+    return cleanFoundUrl(nearContextMatch[1])
+  }
+
+  return null
+}
+
+/**
+ * Keeps button links that text/plain and tag-stripping would drop.
+ * Each kept link is "label: url" so a later pass can tell an apply button from a logo.
+ */
+export function appendHtmlLinks(text: string, html: string): string {
+  const links: { href: string; label: string }[] = []
+  const seen = new Set<string>()
+  const anchors = html.matchAll(/<a\b[^>]*href=["'](https?:\/\/[^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)
+  for (const match of anchors) {
+    const href = cleanFoundUrl(match[1] ?? '')
+    if (!href.startsWith('https://') || isJunkUrl(href) || seen.has(href)) continue
+    if (/\.(png|jpe?g|gif|svg|webp)(\?|$)/i.test(href)) continue
+    seen.add(href)
+    const label = (match[2] ?? '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 80)
+    if (/unsubscribe|view in browser|privacy policy|manage preferences/i.test(label)) continue
+    links.push({ href, label })
+    if (links.length >= 8) break
+  }
+  if (links.length === 0) return text.trim()
+  const lines = links.map((link) => (link.label ? `- ${link.label}: ${link.href}` : `- ${link.href}`))
+  return `${text.trim()}\n\nLinks:\n${lines.join('\n')}`.trim()
+}
+
 /**
  * Specifically finds application form URLs (Google Forms, Typeform, Airtable, Notion, etc.)
  * or any URL following words like "form", "apply", "application"
  */
 export function extractApplicationFormUrl(text: string | null | undefined): string | null {
+  const applyLink = extractApplyLink(text)
+  if (applyLink) return applyLink
   if (!text) return null
 
-  // 1. Look for known form hosts
-  const formHostMatch = text.match(
-    /https?:\/\/(?:forms\.gle|docs\.google\.com\/forms|[\w.-]*typeform\.com|airtable\.com\/(?:app|shr)[\w]+|tally\.so|jotform\.com|[\w.-]*notion\.site|surveymonkey\.com)[\w\d\-._~:/?#[\]@!$&'()*+,;=]*/i
-  )
-  if (formHostMatch && !isJunkUrl(formHostMatch[0])) {
-    return formHostMatch[0]
-  }
-
-  // 2. HTML anchor tag with apply/form keywords
-  const htmlAnchorMatch = text.match(
-    /<a\s+[^>]*href=["'](https?:\/\/[^"'>]+)["'][^>]*>[\s\S]{0,120}?(?:apply|application|form|survey|sign\s*up|register)[\s\S]{0,50}?<\/a>/i
-  )
-  if (htmlAnchorMatch && htmlAnchorMatch[1] && !isJunkUrl(htmlAnchorMatch[1])) {
-    return htmlAnchorMatch[1]
-  }
-
-  // 3. Look for URL following "application", "apply", "form"
-  const nearContextMatch = text.match(
-    /(?:application|apply|form|link|register)[\s\S]{0,120}?(https?:\/\/[^\s<>"')]+)/i
-  )
-  if (nearContextMatch && nearContextMatch[1] && !isJunkUrl(nearContextMatch[1])) {
-    return nearContextMatch[1]
-  }
-
-  // 4. Fallback to first non-junk URL in text
   const allUrls = text.matchAll(/https?:\/\/[^\s<>"')]+/g)
   for (const match of allUrls) {
     if (!isJunkUrl(match[0])) {
-      return match[0]
+      return cleanFoundUrl(match[0])
     }
   }
 

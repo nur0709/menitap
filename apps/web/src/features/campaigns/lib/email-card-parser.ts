@@ -84,6 +84,61 @@ function parseSenderInfo(sender: string): SenderInfo {
   return { raw, displayName, email, domain: host, rootDomain }
 }
 
+const FREEMAIL_DOMAINS = new Set([
+  'gmail.com',
+  'googlemail.com',
+  'yahoo.com',
+  'outlook.com',
+  'hotmail.com',
+  'live.com',
+  'icloud.com',
+  'me.com',
+  'aol.com',
+])
+
+function isGenericMailboxName(name: string): boolean {
+  return /^(no[- ]?reply|notifications?|team|info|hello|support|mail|campaigns?)$/i.test(name)
+}
+
+function looksLikePersonName(name: string): boolean {
+  if (/^(the|a)\s+/i.test(name)) return false
+  if (/inc|llc|co\b|lab|studio|agency|media|group|platform/i.test(name)) return false
+  return /^[\p{L}][\p{L}'’.-]+(?:\s+[\p{L}][\p{L}'’.-]+){1,2}$/u.test(name)
+}
+
+/**
+ * Card title is whoever sent the mail.
+ * A known platform or agency keeps its name even when the body is about a client brand.
+ * A person's freemail address does not become the title.
+ */
+export function cardTitleFromSender(sender: string): { name: string; domain: string } | null {
+  const info = parseSenderInfo(sender)
+  if (!info.rootDomain || FREEMAIL_DOMAINS.has(info.rootDomain)) return null
+
+  const known = KNOWN_CREATOR_ENTITIES[info.rootDomain]
+  if (known) return { name: known.name, domain: known.domain }
+
+  const display = info.displayName.replace(/\s+/g, ' ').trim()
+  if (
+    display &&
+    display.length > 2 &&
+    !display.includes('@') &&
+    !isGenericMailboxName(display) &&
+    !looksLikePersonName(display)
+  ) {
+    return { name: display.slice(0, 80), domain: info.rootDomain }
+  }
+
+  if (!display || isGenericMailboxName(display)) {
+    const stem = info.rootDomain.split('.')[0] ?? ''
+    if (stem.length > 2 && !['mail', 'email', 'noreply', 'notify'].includes(stem)) {
+      return { name: stem.charAt(0).toUpperCase() + stem.slice(1), domain: info.rootDomain }
+    }
+  }
+
+  return null
+}
+
 /**
  * Comprehensive dictionary of known creator platforms, talent networks, and agencies
  */
@@ -106,6 +161,7 @@ const KNOWN_CREATOR_ENTITIES: Record<string, KnownCreatorEntity> = {
   'hashtagpaid.com': { name: '#paid', type: 'PLATFORM', domain: 'hashtagpaid.com' },
   'movig.co': { name: 'Movig', type: 'PLATFORM', domain: 'movig.co' },
   'brandsmeetcreators.com': { name: 'Brands Meet Creators', type: 'PLATFORM', domain: 'brandsmeetcreators.com' },
+  'nurilounge.com': { name: 'Nurilounge', type: 'PLATFORM', domain: 'nurilounge.com' },
 
   // Agencies & Production Houses
   'buttermilk.com': { name: 'Buttermilk', type: 'AGENCY', domain: 'buttermilk.com' },

@@ -53,7 +53,7 @@ export async function completeWithModels<T>(
       continue
     }
 
-    const value = accept(result.raw)
+    const value = accept(result.raw) ?? (await retryAccepted(attempt, prompt, accept, issues))
     if (value !== null) {
       return { ok: true, model: attempt.model, value, issues }
     }
@@ -66,6 +66,29 @@ export async function completeWithModels<T>(
   }
 
   return { ok: false, issues }
+}
+
+async function retryAccepted<T>(
+  attempt: ModelAttempt,
+  prompt: string,
+  accept: (raw: string) => T | null,
+  issues: ProviderIssue[]
+): Promise<T | null> {
+  try {
+    const second = await attempt.run(prompt)
+    if (!second.ok) {
+      issues.push(second.issue)
+      return null
+    }
+    return accept(second.raw)
+  } catch (err) {
+    issues.push({
+      provider: attempt.provider,
+      kind: 'outage',
+      detail: err instanceof Error ? err.message : 'request failed',
+    })
+    return null
+  }
 }
 
 export function extractJsonObject(raw: string): unknown | null {
